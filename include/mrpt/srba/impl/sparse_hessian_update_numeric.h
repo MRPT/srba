@@ -61,10 +61,12 @@ size_t RBA_Problem<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian
 
 			typename SPARSEBLOCKHESSIAN::matrix_t Hij;
 			Hij.setZero();
-			const size_t nJacobs = entry.sym.lst_jacob_blocks.size();
-			for (size_t k=0;k<nJacobs;k++)
+			//const size_t nJacobs = entry.sym.lst_jacob_blocks.size();
+			//for (size_t k=0;k<nJacobs;k++)
+			const typename SPARSEBLOCKHESSIAN::symbolic_t::list_jacob_blocks_t::const_iterator itJ_end = entry.sym.lst_jacob_blocks.end();
+			for (typename SPARSEBLOCKHESSIAN::symbolic_t::list_jacob_blocks_t::const_iterator itJ = entry.sym.lst_jacob_blocks.begin(); itJ!=itJ_end; ++itJ)
 			{
-				const typename SPARSEBLOCKHESSIAN::symbolic_t::THessianSymbolicInfoEntry & sym_k = entry.sym.lst_jacob_blocks[k];
+				const typename SPARSEBLOCKHESSIAN::symbolic_t::THessianSymbolicInfoEntry & sym_k = *itJ;
 
 				if (*sym_k.J1_valid && *sym_k.J2_valid)
 				{
