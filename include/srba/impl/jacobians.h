@@ -11,7 +11,7 @@
 
 #include <mrpt/math/jacobians.h>
 #include <mrpt/poses/SE_traits.h>
-#include <mrpt/srba/landmark_jacob_families.h>
+#include <srba/landmark_jacob_families.h>
 
 namespace mrpt { namespace srba {
 

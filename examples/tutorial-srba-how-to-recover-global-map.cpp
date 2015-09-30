@@ -9,7 +9,7 @@
 
 //#define SRBA_DETAILED_TIME_PROFILING   1
 
-#include <mrpt/srba.h>
+#include <srba.h>
 #include <mrpt/random.h>
 #include <mrpt/gui.h>  // For rendering results as a 3D scene
 

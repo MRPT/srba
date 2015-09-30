@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <mrpt/srba.h>
+#include <srba.h>
 
 // It seems TCLAP isn't ready to be included in different translation units, so I added this tweak...
 #include <mrpt/otherlibs/tclap/CmdLine.h>

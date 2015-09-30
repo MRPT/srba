@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <mrpt/srba/landmark_render_models.h>
-#include <mrpt/srba/landmark_jacob_families.h>
+#include <srba/landmark_render_models.h>
+#include <srba/landmark_jacob_families.h>
 
 namespace mrpt { namespace srba {
 namespace landmarks {

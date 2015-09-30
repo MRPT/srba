@@ -15,7 +15,7 @@
 #include <mrpt/opengl/CEllipsoid.h>
 #include <mrpt/opengl/CText3D.h>
 #include <mrpt/math/lightweight_geom_data.h>
-#include <mrpt/srba/landmark_render_models.h>
+#include <srba/landmark_render_models.h>
 
 namespace mrpt { namespace srba {
 

@@ -7,7 +7,7 @@
    | Released under BSD License. See details in http://www.mrpt.org/License    |
    +---------------------------------------------------------------------------+ */
 
-#include <mrpt/srba.h>
+#include <srba.h>
 #include <mrpt/random.h>
 
 #include <gtest/gtest.h>

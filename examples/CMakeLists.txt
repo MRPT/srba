@@ -14,7 +14,7 @@ endif(COMMAND cmake_policy)
 #   The dependencies of a library are automatically added, so you only 
 #    need to specify the top-most libraries your code depend on.
 # --------------------------------------------------------------------------
-FIND_PACKAGE(MRPT REQUIRED srba gui)
+FIND_PACKAGE(MRPT REQUIRED gui graphslam)
 
 if(MSVC)
 	# For MSVC to avoid the C1128 error about too large object files:
