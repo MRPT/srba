@@ -65,6 +65,23 @@ MARK_AS_ADVANCED(SRBA_DIR)
 # =====================================
 #  C++ Library: It's hdr only, so we don't need to compile it!
 include_directories("${SRBA_ALL_SOURCE_DIR}/include/")
+
+# Anyway, we define a "dummy" target so all headers appear in the Development GUI (Visual Studio, QtCreator,...)
+# A custom target (needs no real compiling)
+FILE(GLOB srba_hdrs 
+	"${SRBA_ALL_SOURCE_DIR}/include/*.h"
+	"${SRBA_ALL_SOURCE_DIR}/include/srba/*.h"
+	)
+SOURCE_GROUP("Main API .h" FILES ${srba_hdrs})
+FILE(GLOB srba_hdrs_models "${SRBA_ALL_SOURCE_DIR}/include/srba/models/*.h")
+SOURCE_GROUP("Models .h" FILES ${srba_hdrs_models})
+FILE(GLOB srba_hdrs_impl "${SRBA_ALL_SOURCE_DIR}/include/srba/impl/*.h")
+SOURCE_GROUP("Impl .h" FILES ${srba_hdrs_impl})
+
+set(srba_all_srcs ${srba_hdrs} ${srba_hdrs_models} ${srba_hdrs_impl})
+add_custom_target(srba DEPENDS ${srba_all_srcs} SOURCES ${srba_all_srcs})
+set_target_properties(srba PROPERTIES FOLDER "SRBA lib")
+
 # Install!
 
 # Apps
