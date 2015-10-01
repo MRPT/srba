@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squared_error() const
@@ -29,13 +29,8 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squ
 
 	for (typename rba_problem_state_t::all_observations_deque_t::const_iterator itO=rba_state.all_observations.begin();itO!=rba_state.all_observations.end();++itO)
 	{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		const TKeyFrameID obs_id = (*itO)->obs.kf_id;
-		const TKeyFrameID base_id = (*itO)->feat_rel_pos->id_frame_base;
-#else
 		const TKeyFrameID obs_id = itO->obs.kf_id;
 		const TKeyFrameID base_id = itO->feat_rel_pos->id_frame_base;
-#endif
 
 		base_ids[base_id] = true;
 		ob_pairs[ std::min(obs_id,base_id) ].insert( std::max(obs_id,base_id) );
@@ -92,15 +87,9 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squ
 	{
 		// Actually measured pixel coords: observations[i]->obs.px
 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		const TKeyFrameID obs_frame_id = (*itO)->obs.kf_id;
-		const TKeyFrameID base_id = (*itO)->feat_rel_pos->id_frame_base;
-		const TRelativeLandmarkPos *feat_rel_pos = (*itO)->feat_rel_pos;
-#else
 		const TKeyFrameID obs_frame_id = itO->obs.kf_id;
 		const TKeyFrameID base_id = itO->feat_rel_pos->id_frame_base;
 		const TRelativeLandmarkPos *feat_rel_pos = itO->feat_rel_pos;
-#endif
 		ASSERTDEB_(feat_rel_pos!=NULL)
 
 		pose_t const * base_pose_wrt_observer=NULL;
@@ -147,4 +136,4 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squ
 	return sqerr;
 }
 
-} } // end namespaces
+} // end namespaces

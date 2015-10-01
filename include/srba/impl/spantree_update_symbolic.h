@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 
 #define SYM_ST_SUPER_VERBOSE 0
@@ -374,4 +374,4 @@ bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::find_path
 	return false; // No path found.
 }
 
-} } // end NS
+} // end NS

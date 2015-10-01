@@ -12,7 +12,7 @@
 #include <mrpt/math/CSparseMatrix.h>
 #include <memory> // for auto_ptr, unique_ptr
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 namespace internal
 {
@@ -200,7 +200,7 @@ namespace internal
 			return true;
 		}
 
-		/** Here, out_info is of type mrpt::srba::options::solver_LM_schur_sparse_cholesky::extra_results_t */
+		/** Here, out_info is of type srba::options::solver_LM_schur_sparse_cholesky::extra_results_t */
 		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
@@ -393,7 +393,7 @@ namespace internal
 		{
 			return schur_compl.was_ith_feature_invertible(i);
 		}
-		/** Here, out_info is of type mrpt::srba::options::solver_LM_no_schur_sparse_cholesky::extra_results_t */
+		/** Here, out_info is of type srba::options::solver_LM_no_schur_sparse_cholesky::extra_results_t */
 		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
@@ -577,7 +577,7 @@ namespace internal
 		{
 			return schur_compl.was_ith_feature_invertible(i);
 		}
-		/** Here, out_info is of type mrpt::srba::options::solver_LM_schur_dense_cholesky::extra_results_t */
+		/** Here, out_info is of type srba::options::solver_LM_schur_dense_cholesky::extra_results_t */
 		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = hessian_is_valid;
@@ -587,4 +587,4 @@ namespace internal
 
 } // end namespace "internal"
 
-} }  // end namespaces
+} // End of namespaces

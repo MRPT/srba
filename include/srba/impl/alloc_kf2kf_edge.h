@@ -10,7 +10,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 // See header & papers for docs
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
@@ -19,13 +19,8 @@ size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::alloc_k
 	const pose_t &init_inv_pose_val )
 {
 	// Create edge:
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-	k2k_edges.push_back( stlplus::smart_ptr<k2k_edge_t>(new k2k_edge_t));         // O(1)
-	k2k_edge_t & new_edge = *(*k2k_edges.rbegin());
-#else
 	k2k_edges.push_back(k2k_edge_t());         // O(1)
 	k2k_edge_t & new_edge = *k2k_edges.rbegin();
-#endif
 
 	new_edge.from = ids.first;
 	new_edge.to   = ids.second;
@@ -65,4 +60,4 @@ size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::alloc_k
 
 } // end of alloc_kf2kf_edge
 
-} } // end NS
+} // end NS

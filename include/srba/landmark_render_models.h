@@ -11,7 +11,7 @@
 
 #include <mrpt/utils/TColor.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 	/** @name Possible types for LANDMARK_TYPE::render_mode_t, used to control how a landmark is rendered 
 	    @{ */
@@ -42,5 +42,5 @@ namespace mrpt { namespace srba {
 
 	/** @} */
 
-} } // end NS
+} // end NS
 

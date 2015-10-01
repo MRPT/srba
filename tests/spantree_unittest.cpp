@@ -14,7 +14,7 @@
 #include <mrpt/system/os.h>
 
 using namespace mrpt;
-using namespace mrpt::srba;
+using namespace srba;
 using namespace mrpt::math;
 using namespace mrpt::random;
 using namespace std;

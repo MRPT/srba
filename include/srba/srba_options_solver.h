@@ -11,7 +11,7 @@
 
 #include <mrpt/math/CSparseMatrix.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace options
 {
 
@@ -75,4 +75,4 @@ namespace options
 			};
 		};
 
-} } } // End of namespaces
+} } // End of namespaces

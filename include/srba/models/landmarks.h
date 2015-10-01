@@ -12,7 +12,7 @@
 #include <srba/landmark_render_models.h>
 #include <srba/landmark_jacob_families.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace landmarks {
 
 	/** \defgroup mrpt_srba_landmarks Landmark parameterizations
@@ -27,7 +27,7 @@ namespace landmarks {
 		static const size_t  LM_DIMS = 3; //!< The number of parameters in each LM parameterization relative to its base KF: (x,y,z)
 		static const landmark_jacob_family_t  jacob_family = jacob_point_landmark;  //!< Specify the kind of Jacobian to be used for compute_jacobian_dAepsDx_deps<>
 		//static const size_t  LM_EUCLIDEAN_DIMS = 3; //!< Either 2 or 3, depending on the real minimum number of coordinates needed to parameterize the landmark.
-		typedef mrpt::srba::landmark_rendering_as_point render_mode_t;
+		typedef srba::landmark_rendering_as_point render_mode_t;
 
 		/** Converts the landmark parameterization into 3D Eucliden coordinates (used for OpenGL rendering, etc.) */
 		template <class VECTOR> inline static void relativeEuclideanLocation(const VECTOR &posParams, mrpt::math::TPoint3D &posEuclidean)
@@ -60,7 +60,7 @@ namespace landmarks {
 		static const size_t  LM_DIMS = 2; //!< The number of parameters in each LM parameterization relative to its base KF: (x,y)
 		static const landmark_jacob_family_t  jacob_family = jacob_point_landmark;  //!< Specify the kind of Jacobian to be used for compute_jacobian_dAepsDx_deps<>
 		//static const size_t  LM_EUCLIDEAN_DIMS = 2; //!< Either 2 or 3, depending on the real minimum number of coordinates needed to parameterize the landmark.
-		typedef mrpt::srba::landmark_rendering_as_point render_mode_t;
+		typedef srba::landmark_rendering_as_point render_mode_t;
 
 		/** Converts the landmark parameterization into 3D Eucliden coordinates (used for OpenGL rendering, etc.) */
 		template <class VECTOR> inline static void relativeEuclideanLocation(const VECTOR &posParams, mrpt::math::TPoint3D &posEuclidean)
@@ -96,7 +96,7 @@ namespace landmarks {
 		static const size_t  LM_DIMS = 3; //!< The number of parameters in each LM parameterization relative to its base KF
 		static const landmark_jacob_family_t  jacob_family = jacob_relpose_landmark;  //!< Specify the kind of Jacobian to be used for compute_jacobian_dAepsDx_deps<>
 		//static const size_t  LM_EUCLIDEAN_DIMS = 3; //!< Either 2 or 3, depending on the real minimum number of coordinates needed to parameterize the landmark.
-		typedef mrpt::srba::landmark_rendering_as_pose_constraints render_mode_t;
+		typedef srba::landmark_rendering_as_pose_constraints render_mode_t;
 
 		/** Evaluates pt = pose (+) pt
 		  * \param[in,out] pt A vector with the landmark parameterization values
@@ -126,7 +126,7 @@ namespace landmarks {
 		static const size_t  LM_DIMS = 6; //!< The number of parameters in each LM parameterization relative to its base KF
 		static const landmark_jacob_family_t  jacob_family = jacob_relpose_landmark;  //!< Specify the kind of Jacobian to be used for compute_jacobian_dAepsDx_deps<>
 		//static const size_t  LM_EUCLIDEAN_DIMS = 3; //!< Either 2 or 3, depending on the real minimum number of coordinates needed to parameterize the landmark.
-		typedef mrpt::srba::landmark_rendering_as_pose_constraints render_mode_t;
+		typedef srba::landmark_rendering_as_pose_constraints render_mode_t;
 
 		/** Evaluates pt = pose (+) pt
 		  * \param[in,out] pt A vector with the landmark parameterization values
@@ -153,4 +153,4 @@ namespace landmarks {
 	/** @} */
 
 }
-} } // end NS
+} // end NS

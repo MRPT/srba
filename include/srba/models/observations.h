@@ -12,7 +12,7 @@
 #include <mrpt/utils/TCamera.h>
 #include <mrpt/utils/TStereoCamera.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace observations {
 
 	/** \defgroup mrpt_srba_observations Observation types
@@ -248,4 +248,4 @@ namespace observations {
 	/** @} */
 
 }
-} } // end NS
+} // end NS

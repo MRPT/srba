@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 	/** A generic symbolic and numeric Schur-complement handler for builing reduced systems of equations.
 	  */
@@ -411,5 +411,4 @@ namespace mrpt { namespace srba {
 
 	};  // end of class SchurComplement
 
-} } // end of namespaces
-
+} // end of namespaces

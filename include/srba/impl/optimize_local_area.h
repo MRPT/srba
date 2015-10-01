@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_local_area(
@@ -52,4 +52,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_local_are
 
 
 
-} } // end NS
+} // end NS

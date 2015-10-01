@@ -17,7 +17,7 @@
 #include <mrpt/math/lightweight_geom_data.h>
 #include <srba/landmark_render_models.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 // Specializations for rendering each kind of landmark:
 template <class LM_TYPE>
@@ -218,4 +218,4 @@ template <> struct LandmarkRendererBase<landmark_rendering_none>
 	}
 };
 
-} }  // end namespaces
+} // End of namespaces

@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /*******************************************
       compute_minus_gradient
@@ -90,4 +90,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 	}
 }
 
-} }  // end namespaces
+} // End of namespaces

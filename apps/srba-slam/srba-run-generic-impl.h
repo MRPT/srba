@@ -26,7 +26,7 @@
 // We can use "using namespace" in this header since it's designed to be only included in this app, not in user code.
 using namespace std;
 using namespace mrpt;
-using namespace mrpt::srba;
+using namespace srba;
 using namespace mrpt::utils;
 
 
@@ -622,11 +622,11 @@ struct RBA_Run : public RBA_Run_Base
 	#endif
 	#if 0
 			cout << "Optimized feats:\n";
-			const mrpt::srba::TRelativeLandmarkPosMap &unkn_feats = rba.get_unknown_feats();
+			const srba::TRelativeLandmarkPosMap &unkn_feats = rba.get_unknown_feats();
 			// vs: all_unknown_LMs_GT
-			for (mrpt::srba::TRelativeLandmarkPosMap::const_iterator it=unkn_feats.begin();it!=unkn_feats.end();++it)
+			for (srba::TRelativeLandmarkPosMap::const_iterator it=unkn_feats.begin();it!=unkn_feats.end();++it)
 			{
-				mrpt::srba::TRelativeLandmarkPosMap::const_iterator it_gt = all_unknown_LMs_GT.find(it->first);
+				srba::TRelativeLandmarkPosMap::const_iterator it_gt = all_unknown_LMs_GT.find(it->first);
 				ASSERT_(it_gt != all_unknown_LMs_GT.end())
 				cout << "Feat: " << it->first << " -> " << it->second.pos << " vs GT= " << it_gt->second.pos << endl;
 			}

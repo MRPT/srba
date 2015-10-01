@@ -14,7 +14,7 @@
 #include "CDatasetParser_Monocular.h"
 
 template <>
-struct InitializerSensorParams<mrpt::srba::observations::MonocularCamera>
+struct InitializerSensorParams<srba::observations::MonocularCamera>
 {
 	template <class RBA>
 	static void init(RBA &rba, RBASLAM_Params &config)

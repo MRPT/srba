@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 
 /** Determines and creates the new kf2fk edges given the set of new observations: */
@@ -30,4 +30,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 	edge_creation_policy(new_kf_id,obs,new_k2k_edge_ids);
 }
 
-} }  // end namespaces
+} // End of namespaces

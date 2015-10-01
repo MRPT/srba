@@ -11,7 +11,7 @@
 
 #include <mrpt/poses/CPose3DQuat.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 	/** \defgroup mrpt_srba_models Sensor models: one for each combination of {landmark_parameterization,observation_type}
 	  * \ingroup mrpt_srba_grp */
 
@@ -932,4 +932,4 @@ namespace mrpt { namespace srba {
 
 	/** @} */
 
-} } // end NS
+} // end NS

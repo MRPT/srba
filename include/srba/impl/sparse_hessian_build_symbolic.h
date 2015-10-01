@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 
 /** Rebuild the Hessian symbolic information from the given Jacobians
@@ -236,4 +236,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 
 }
 
-} } // end NS
+} // end NS

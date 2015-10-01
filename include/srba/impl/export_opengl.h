@@ -16,7 +16,7 @@
 
 #include "export_opengl_landmark_renderers.h" // Declare LandmarkRendererBase<> specializations
 
-namespace mrpt { namespace srba {
+namespace srba {
 //
 // RbaEngine<>::build_opengl_representation
 //
@@ -69,14 +69,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 			// Draw all edges between frames:
 			mrpt::opengl::CSetOfLinesPtr gl_edges = mrpt::opengl::CSetOfLines::Create();
 			gl_edges->setColor(1,0,1); // Magenta, in order to not confuse them with the standard lines of a grid plane
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-			for (typename rba_problem_state_t::k2k_edges_deque_t::const_iterator itEdge2 = rba_state.k2k_edges.begin();itEdge2!=rba_state.k2k_edges.end();++itEdge2)
-			{
-				const k2k_edge_t * itEdge = itEdge2->pointer();
-#else
 			for (typename rba_problem_state_t::k2k_edges_deque_t::const_iterator itEdge = rba_state.k2k_edges.begin();itEdge!=rba_state.k2k_edges.end();++itEdge)
 			{
-#endif
 				CPose3D p1;
 				if (itEdge->from!=root_keyframe)
 				{
@@ -212,4 +206,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::gl_aux_draw_node(m
 
 }
 
-} }  // end namespaces
+} // End of namespaces

@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /** Append an empty new keyframe to the data structures
   * \return The ID of the new KF.
@@ -28,4 +28,4 @@ TKeyFrameID RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::alloc_keyfr
 }
 
 
-} } // end NS
+} // end NS

@@ -13,7 +13,7 @@
 #include <mrpt/poses/CPose3D.h>
 #include <mrpt/math/lightweight_geom_data.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace options
 {
 	/** \defgroup mrpt_srba_options_noise Types for RBA_OPTIONS::obs_noise_matrix_t 
@@ -132,4 +132,4 @@ namespace options
 
 		};  // end of "observation_noise_constant_matrix"
 
-} } } // End of namespaces
+} } // End of namespaces

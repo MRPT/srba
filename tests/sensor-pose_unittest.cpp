@@ -13,7 +13,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace mrpt::srba;
+using namespace srba;
 using namespace mrpt::random;
 using namespace std;
 
@@ -238,7 +238,7 @@ void run_test()
 	rba.parameters.obs_noise.std_noise_observations = 0.1;
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.edge_creation_policy = mrpt::srba::ecpICRA2013;
+	rba.parameters.srba.edge_creation_policy = srba::ecpICRA2013;
 	rba.parameters.srba.max_tree_depth       = 3;
 	rba.parameters.srba.max_optimize_depth   = 3;
 	// ===========================================
@@ -302,13 +302,7 @@ void run_test()
 
 	// Compare to ground truth:
 	// Relative pose of KF#1 wrt KF#0:
-	const mrpt::poses::CPose3D P = -rba.get_k2k_edges()[0]
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		->
-#else
-		.
-#endif
-		inv_pose;
+	const mrpt::poses::CPose3D P = -rba.get_k2k_edges()[0].inv_pose;
 
 	const mrpt::poses::CPose3D P_GT = GT1-GT0;
 

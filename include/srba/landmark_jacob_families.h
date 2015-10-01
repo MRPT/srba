@@ -10,7 +10,7 @@
 #pragma once
 
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 	/** Specify the kind of Jacobian to be used for compute_jacobian_dAepsDx_deps<> */
 	enum landmark_jacob_family_t
@@ -19,5 +19,5 @@ namespace mrpt { namespace srba {
 		jacob_relpose_landmark  //!< "fake landmarks" used for relative pose observations
 	};
 
-} } // end NS
+} // end NS
 

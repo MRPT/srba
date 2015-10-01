@@ -10,7 +10,7 @@
 #include <srba.h>
 #include <mrpt/gui.h>  // For rendering results as a 3D scene
 
-using namespace mrpt::srba;
+using namespace srba;
 using namespace std;
 using mrpt::utils::DEG2RAD;
 
@@ -123,7 +123,7 @@ int main(int argc, char**argv)
 	rba.parameters.obs_noise.std_noise_observations = 0.5; // pixels
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.edge_creation_policy = mrpt::srba::ecpICRA2013;
+	rba.parameters.srba.edge_creation_policy = srba::ecpICRA2013;
 	rba.parameters.srba.max_tree_depth       = 3;
 	rba.parameters.srba.max_optimize_depth   = 3;
 	// ===========================================

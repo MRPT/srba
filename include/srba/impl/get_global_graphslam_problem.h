@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /** Exports all the keyframes and landmarks as a directed graph in DOT (graphviz) format */
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
@@ -48,4 +48,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::get_global_graphsl
 }
 
 
-} }  // end namespaces
+} // End of namespaces

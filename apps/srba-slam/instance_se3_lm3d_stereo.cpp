@@ -14,7 +14,7 @@
 #include "CDatasetParser_Stereo.h"
 
 template <>
-struct InitializerSensorParams<mrpt::srba::observations::StereoCamera>
+struct InitializerSensorParams<srba::observations::StereoCamera>
 {
 	template <class RBA>
 	static void init(RBA &rba, RBASLAM_Params &config)

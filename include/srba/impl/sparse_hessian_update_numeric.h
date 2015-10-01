@@ -10,7 +10,7 @@
 #pragma once
 
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /** Rebuild the Hessian symbolic information from the internal pointers to blocks of Jacobians.
 	*  Only the upper triangle is filled-in (all what is needed for Cholesky) for square Hessians, in whole for rectangular ones (it depends on the symbolic decomposition, done elsewhere).
@@ -59,4 +59,4 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_u
 	return nInvalid;
 } // end of sparse_hessian_update_numeric
 
-} } // end NS
+} // end NS

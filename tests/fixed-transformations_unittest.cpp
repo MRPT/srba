@@ -13,7 +13,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace mrpt::srba;
+using namespace srba;
 using namespace mrpt::random;
 using namespace mrpt::utils;
 using namespace std;
@@ -60,7 +60,7 @@ void run_test(const mrpt::poses::CPose3D &incr)
 	rba.parameters.srba.use_robust_kernel = false;
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.edge_creation_policy = mrpt::srba::ecpICRA2013;
+	rba.parameters.srba.edge_creation_policy = srba::ecpICRA2013;
 	rba.parameters.srba.max_tree_depth       = 3;
 	rba.parameters.srba.max_optimize_depth   = 3;
 	// ===========================================
@@ -123,13 +123,7 @@ void run_test(const mrpt::poses::CPose3D &incr)
 		true           // Also run local optimization?
 		);
 
-	mrpt::poses::CPose3D estIncr = rba.get_k2k_edges()[0]
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		->
-#else
-		.
-#endif
-		inv_pose;
+	mrpt::poses::CPose3D estIncr = rba.get_k2k_edges()[0].inv_pose;
 	if (INVERSE_INCR)
 		estIncr.inverse();
 

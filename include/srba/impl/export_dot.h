@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /** Exports all the keyframes and landmarks as a directed graph in DOT (graphviz) format */
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
@@ -38,14 +38,8 @@ bool RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::save_graph_as_dot(
 		// k2k edges:
 		f << "/* KEYFRAME->KEYFRAME edges */\n"
 		     "edge [style=bold];\n";
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-			for (typename rba_problem_state_t::k2k_edges_deque_t::const_iterator itEdge2 = rba_state.k2k_edges.begin();itEdge2!=rba_state.k2k_edges.end();++itEdge2)
-			{
-				const k2k_edge_t * itEdge = itEdge2->pointer();
-#else
 			for (typename rba_problem_state_t::k2k_edges_deque_t::const_iterator itEdge = rba_state.k2k_edges.begin();itEdge!=rba_state.k2k_edges.end();++itEdge)
 			{
-#endif
 				f << itEdge->from << "->" << itEdge->to << ";\n";
 			}
 
@@ -74,11 +68,7 @@ bool RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::save_graph_as_dot(
 
 			for (typename rba_problem_state_t::all_observations_deque_t::const_iterator itO=rba_state.all_observations.begin();itO!=rba_state.all_observations.end();++itO)
 			{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				f << (*itO)->obs.kf_id << " -> L" << (*itO)->obs.obs.feat_id << ";\n";
-#else
 				f << itO->obs.kf_id << " -> L" << itO->obs.obs.feat_id << ";\n";
-#endif
 			}
 			f << "\n";
 		}
@@ -91,4 +81,4 @@ bool RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::save_graph_as_dot(
 }
 
 
-} }  // end namespaces
+} // End of namespaces

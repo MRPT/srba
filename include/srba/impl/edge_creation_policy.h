@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 /** Determines and creates the new kf2fk edges given the set of new observations: */
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
@@ -126,13 +126,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::edge_creation_poli
 						{
 							nei.has_aprox_init_val = true;
 							// Get the relative post from the numeric spanning tree, which should be up-to-date:
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-							this->rba_state.k2k_edges[nei.id]->inv_pose
-#else
-							this->rba_state.k2k_edges[nei.id].inv_pose //this->rba_state.k2k_edges[*it_lkf_ed].inv_pose;
-#endif
-								= 
-							this->rba_state.spanning_tree.num[central_kf_id][nei.id-1].pose;
+							this->rba_state.k2k_edges[nei.id].inv_pose = this->rba_state.spanning_tree.num[central_kf_id][nei.id-1].pose;
 							MRPT_TODO("check missing entry");
 						}
 						else
@@ -192,11 +186,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::edge_creation_poli
 				cout << "\n[edge_creation_policy] Loop closure detected for KF#"<< new_kf_id << ", edges: ";
 				for (size_t j=0;j<new_k2k_edge_ids.size();j++)
 				{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-					cout << rba_state.k2k_edges[new_k2k_edge_ids[j].id]->from <<"->"<<rba_state.k2k_edges[new_k2k_edge_ids[j].id]->to<<", ";
-#else
 					cout << rba_state.k2k_edges[new_k2k_edge_ids[j].id].from <<"->"<<rba_state.k2k_edges[new_k2k_edge_ids[j].id].to<<", ";
-#endif
 				}
 				cout << endl;
 				mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL);
@@ -222,11 +212,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::edge_creation_poli
 			// Idea: the new KF should be close to the last one.
 			if (!this_is_first) {
 				nei.has_aprox_init_val = true; // Use pose of the last edge since the new one should be close.
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				this->rba_state.k2k_edges[nei.id]->inv_pose = this->rba_state.k2k_edges[nei.id-1]->inv_pose;
-#else
 				this->rba_state.k2k_edges[nei.id].inv_pose = this->rba_state.k2k_edges[nei.id-1].inv_pose;
-#endif
 			}
 			else {
 				nei.has_aprox_init_val = false;
@@ -278,4 +264,4 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::make_ordered_list_
 }
 
 
-} }  // end namespaces
+} // End of namespaces

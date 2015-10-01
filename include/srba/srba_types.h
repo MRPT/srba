@@ -16,16 +16,6 @@
 #include <mrpt/system/memory.h> // for MRPT_MAKE_ALIGNED_OPERATOR_NEW
 #include <set>
 
-// (If you use Visual Studio 2008 and the "std::deque<k2f_edge_t>" line raises the error "error C2719: '_Val': formal parameter with __declspec(align('16')) won't be aligned",
-// it's caused by this bug in either Eigen or VS2008 compiler, still to be fixed: http://eigen.tuxfamily.org/bz/show_bug.cgi?id=83  )
-// Meanwhile, let's just breath slow, count to 10, and go on with a workaround:
-#if defined(_MSC_VER) && (_MSC_VER < 1700 ) && (MRPT_WORD_SIZE==32) // handle MSVC versions older than 2012
-#	define SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-#endif
-
-
-namespace mrpt
-{
 namespace srba
 {
 	typedef uint64_t  TKeyFrameID; //!< Numeric IDs for key-frames (KFs)
@@ -346,13 +336,7 @@ namespace srba
 		typedef mrpt::utils::map_as_vector<
 			TLandmarkID,
 			typename TSparseBlocksHessian_f::matrix_t,
-			typename mrpt::aligned_containers<std::pair<TLandmarkID,typename TSparseBlocksHessian_f::matrix_t > >::
-#if !defined(SRBA_WORKAROUND_MSVC9_DEQUE_BUG)
-				deque_t   // Use a deque for all compilers
-#else
-				vector_t  // except for MSVC9, for "this" little bug
-#endif
-			> landmarks2infmatrix_t;
+			typename mrpt::aligned_containers<std::pair<TLandmarkID,typename TSparseBlocksHessian_f::matrix_t > >::deque_t> landmarks2infmatrix_t;
 	};
 
 
@@ -416,13 +400,7 @@ namespace srba
 		};
 
 		/** A set of all the observations made from a new KF, as provided by the user */
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		typedef std::vector<new_kf_observation_t> new_kf_observations_t;
-#else
 		typedef std::deque<new_kf_observation_t> new_kf_observations_t;
-#endif
-
-
 
 		/** Keyframe-to-feature edge: observations in the problem */
 		struct kf_observation_t
@@ -486,13 +464,8 @@ namespace srba
 		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::new_kf_observations_t  new_kf_observations_t;
 		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::new_kf_observation_t   new_kf_observation_t;
 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-		typedef typename std::deque< stlplus::smart_ptr<k2k_edge_t> > k2k_edges_deque_t;  // Note: A std::deque() does not invalidate pointers/references, as we always insert elements at the end; we'll exploit this...
-		typedef std::deque< stlplus::smart_ptr<k2f_edge_t> >   all_observations_deque_t;  
-#else
 		typedef typename mrpt::aligned_containers<k2k_edge_t>::deque_t  k2k_edges_deque_t;  // Note: A std::deque() does not invalidate pointers/references, as we always insert elements at the end; we'll exploit this...
 		typedef typename mrpt::aligned_containers<k2f_edge_t>::deque_t  all_observations_deque_t;
-#endif
 
 		typedef std::deque<keyframe_info>  keyframe_vector_t;  //!< Index are "TKeyFrameID" IDs. There's no NEED to make this a deque<> for preservation of references, but is an efficiency improvement
 
@@ -717,12 +690,12 @@ namespace srba
 } // end of namespace "srba"
 
 // Specializations MUST occur at the same namespace:
-namespace utils
+namespace mrpt { namespace utils
 {
 	template <>
-	struct TEnumTypeFiller<mrpt::srba::TEdgeCreationPolicy>
+	struct TEnumTypeFiller<srba::TEdgeCreationPolicy>
 	{
-		typedef mrpt::srba::TEdgeCreationPolicy enum_t;
+		typedef srba::TEdgeCreationPolicy enum_t;
 		static void fill(bimap<enum_t,std::string>  &m_map)
 		{
 			m_map.insert(srba::ecpICRA2013,      "ecpICRA2013");
@@ -732,16 +705,13 @@ namespace utils
 	};
 
 	template <>
-	struct TEnumTypeFiller<mrpt::srba::TCovarianceRecoveryPolicy>
+	struct TEnumTypeFiller<srba::TCovarianceRecoveryPolicy>
 	{
-		typedef mrpt::srba::TCovarianceRecoveryPolicy enum_t;
+		typedef srba::TCovarianceRecoveryPolicy enum_t;
 		static void fill(bimap<enum_t,std::string>  &m_map)
 		{
 			m_map.insert(srba::crpNone,      "crpNone");
 			m_map.insert(srba::crpLandmarksApprox,   "crpLandmarksApprox");
 		}
 	};
-
-} // End of namespace
-
-} // end of namespace
+} } // End of namespace

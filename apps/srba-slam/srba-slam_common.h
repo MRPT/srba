@@ -127,7 +127,7 @@ template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
 struct problem_options_traits_t
 {
 	// Default implementation:
-	typedef mrpt::srba::RBA_OPTIONS_DEFAULT srba_options_t;
+	typedef srba::RBA_OPTIONS_DEFAULT srba_options_t;
 
 };
 

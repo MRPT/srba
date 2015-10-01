@@ -11,7 +11,7 @@
 
 #include <mrpt/math/ops_containers.h> // norm_inf()
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 #ifndef SRBA_DETAILED_TIME_PROFILING
 #	define SRBA_DETAILED_TIME_PROFILING       0          //  Enabling this has a measurable impact in performance, so use only for debugging.
@@ -75,13 +75,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		if (!col_i.empty()) run_k2k_edges.push_back( run_k2k_edges_in[i] );
 		else 
 		{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-			const TKeyFrameID from = rba_state.k2k_edges[run_k2k_edges_in[i]]->from;
-			const TKeyFrameID to   = rba_state.k2k_edges[run_k2k_edges_in[i]]->to;
-#else
 			const TKeyFrameID from = rba_state.k2k_edges[run_k2k_edges_in[i]].from;
 			const TKeyFrameID to   = rba_state.k2k_edges[run_k2k_edges_in[i]].to;
-#endif
 			std::cerr << "[RbaEngine::optimize_edges] *Warning*: Skipping optimization of k2k edge #"<<run_k2k_edges_in[i] << " (" <<from <<"->"<<to <<") since no observation depends on it.\n";
 		}
 	}
@@ -128,11 +123,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	{
 		dh_dAp[i] = &rba_state.lin_system.dh_dAp.getCol( run_k2k_edges[i] );
 		k2k_edge_unknowns[i] = 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-			 rba_state.k2k_edges[run_k2k_edges[i]].pointer();
-#else
 			& rba_state.k2k_edges[run_k2k_edges[i]];
-#endif
 	}
 
 	// k2f edges:
@@ -175,11 +166,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 				obs_global_idx2residual_idx[global_obs_idx] = obs_idx;
 
 				involved_obs.push_back( TObsUsed (global_obs_idx, 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				&(*rba_state.all_observations[global_obs_idx])
-#else
 				&rba_state.all_observations[global_obs_idx]
-#endif
 				 ) );
 			}
 		}
@@ -202,11 +189,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 					obs_global_idx2residual_idx[global_obs_idx] = obs_idx;
 
 					involved_obs.push_back( TObsUsed( global_obs_idx,  
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-						&(*rba_state.all_observations[global_obs_idx]) 
-#else
 						&rba_state.all_observations[global_obs_idx] 
-#endif
 					) );
 				}
 			}
@@ -224,11 +207,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 			obs_global_idx2residual_idx[global_obs_idx] = obs_idx;
 
 			involved_obs.push_back(TObsUsed(global_obs_idx, 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				&(*rba_state.all_observations[global_obs_idx])
-#else
 				&rba_state.all_observations[global_obs_idx] 
-#endif
 			) );
 		}
 	}
@@ -429,15 +408,9 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	const double MAX_LAMBDA = this->parameters.srba.max_lambda;
 
 	// These are defined here to avoid allocatin/deallocating memory with each iteration:
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-	vector<stlplus::smart_ptr<k2k_edge_t> >            old_k2k_edge_unknowns;
-	vector<stlplus::smart_ptr<pose_flag_t> >      old_span_tree; // In the same order than "list_of_required_num_poses"
-	vector<stlplus::smart_ptr<TRelativeLandmarkPos> >  old_k2f_edge_unknowns;
-#else
 	vector<k2k_edge_t>            old_k2k_edge_unknowns;
 	vector<pose_flag_t>      old_span_tree; // In the same order than "list_of_required_num_poses"
 	vector<TRelativeLandmarkPos>  old_k2f_edge_unknowns;
-#endif
 
 #if SRBA_DETAILED_TIME_PROFILING
 	const std::string sLabelProfilerLM_iter = mrpt::format("opt.lm_iteration_k2k=%03u_k2f=%03u", static_cast<unsigned int>(nUnknowns_k2k), static_cast<unsigned int>(nUnknowns_k2f) );
@@ -486,21 +459,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 			old_k2k_edge_unknowns.resize(nUnknowns_k2k);
 			for (size_t i=0;i<nUnknowns_k2k;i++)
 			{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				old_k2k_edge_unknowns[i] = stlplus::smart_ptr<k2k_edge_t>( new k2k_edge_t(*k2k_edge_unknowns[i] ) );
-#else
 				old_k2k_edge_unknowns[i] = *k2k_edge_unknowns[i];
-#endif
 			}
 
 			old_k2f_edge_unknowns.resize(nUnknowns_k2f);
 			for (size_t i=0;i<nUnknowns_k2f;i++)
 			{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-				old_k2f_edge_unknowns[i] = stlplus::smart_ptr<TRelativeLandmarkPos>(new TRelativeLandmarkPos(*k2f_edge_unknowns[i]));
-#else
 				old_k2f_edge_unknowns[i] = *k2f_edge_unknowns[i];
-#endif
 			}
 
 			DETAILED_PROFILING_LEAVE("opt.make_backup_copy_edges")
@@ -555,12 +520,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 				if (old_span_tree.size()!=nReqNumPoses) old_span_tree.resize(nReqNumPoses);
 				for (size_t i=0;i<nReqNumPoses;i++) 
 				{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-					old_span_tree[i] = stlplus::smart_ptr<pose_flag_t>(new pose_flag_t);
-					old_span_tree[i]->pose = list_of_required_num_poses[i]->pose;
-#else
 					old_span_tree[i].pose = list_of_required_num_poses[i]->pose;
-#endif
 				}
 			}
 			DETAILED_PROFILING_LEAVE("opt.make_backup_copy_spntree_num")
@@ -673,32 +633,18 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 					const size_t nReqNumPoses = list_of_required_num_poses.size();
 					for (size_t i=0;i<nReqNumPoses;i++) 
 					{
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-						const_cast<pose_flag_t*>(list_of_required_num_poses[i])->pose = old_span_tree[i]->pose;
-#else
 						const_cast<pose_flag_t*>(list_of_required_num_poses[i])->pose = old_span_tree[i].pose;
-#endif
 					}
 				}
 
 				// Restore old edge values:
 				for (size_t i=0;i<nUnknowns_k2k;i++)
 				{
-					*k2k_edge_unknowns[i] =
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-					*old_k2k_edge_unknowns[i];
-#else
-					old_k2k_edge_unknowns[i];
-#endif
+					*k2k_edge_unknowns[i] = old_k2k_edge_unknowns[i];
 				}
 				for (size_t i=0;i<nUnknowns_k2f;i++)
 				{
-					*k2f_edge_unknowns[i] = 
-#ifdef SRBA_WORKAROUND_MSVC9_DEQUE_BUG
-					*old_k2f_edge_unknowns[i];
-#else
-					old_k2f_edge_unknowns[i];
-#endif
+					*k2f_edge_unknowns[i] = old_k2f_edge_unknowns[i];
 				}
 
 				DETAILED_PROFILING_LEAVE("opt.failedstep_restore_backup")
@@ -812,5 +758,5 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 }
 
 
-} }  // end namespaces
+} // End of namespaces
 

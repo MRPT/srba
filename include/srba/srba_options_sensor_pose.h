@@ -13,7 +13,7 @@
 #include <mrpt/poses/CPose3D.h>
 #include <mrpt/math/lightweight_geom_data.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace options
 {
 	/** \defgroup mrpt_srba_options_pose_on_robot Types for RBA_OPTIONS::sensor_pose_on_robot_t 
@@ -139,4 +139,4 @@ namespace options
 			template <> struct resulting_pose_t<sensor_pose_on_robot_se3,6> { typedef mrpt::poses::CPose3D pose_t; };
 		}
 
-} } } // End of namespaces
+} } // End of namespaces

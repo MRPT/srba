@@ -25,9 +25,6 @@
 
 #define VERBOSE_LEVEL(_LEVEL) if (m_verbose_level>=_LEVEL) std::cout
 
-namespace mrpt
-{
-/** An heavily template-based implementation of Relative Bundle Adjustment (RBA) - See \ref mrpt_srba_grp */
 namespace srba
 {
 	/** The set of default settings for RbaEngine */
@@ -793,7 +790,6 @@ namespace srba
 
 
 } // end of namespace "srba"
-} // end of namespace "mrpt"
 
 // -----------------------------------------------------------------
 //          Include all template implementation files

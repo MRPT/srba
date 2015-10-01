@@ -16,7 +16,7 @@
 #include <mrpt/graphslam.h> // For global map recovery only
 #include <mrpt/opengl/graph_tools.h> // To render the global map
 
-using namespace mrpt::srba;
+using namespace srba;
 using namespace std;
 using mrpt::utils::DEG2RAD;
 using mrpt::utils::square;
@@ -107,7 +107,7 @@ int main(int argc, char**argv)
 	}
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.edge_creation_policy = mrpt::srba::ecpICRA2013;
+	rba.parameters.srba.edge_creation_policy = srba::ecpICRA2013;
 	rba.parameters.srba.max_tree_depth       = 3;
 	rba.parameters.srba.max_optimize_depth   = 3;
 	rba.parameters.srba.submap_size          = 5;

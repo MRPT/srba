@@ -12,7 +12,7 @@
 #include "CDatasetParserBase.h"
 
 template <>
-struct CDatasetParserTempl<mrpt::srba::observations::RelativePoses_2D> : public CDatasetParserBase
+struct CDatasetParserTempl<srba::observations::RelativePoses_2D> : public CDatasetParserBase
 {
 	double m_noise_std_xy,m_noise_std_yaw;
 
@@ -33,7 +33,7 @@ struct CDatasetParserTempl<mrpt::srba::observations::RelativePoses_2D> : public 
 
 	void getObs(
 		size_t idx,
-		mrpt::srba::observation_traits<mrpt::srba::observations::RelativePoses_2D>::observation_t & o
+		srba::observation_traits<srba::observations::RelativePoses_2D>::observation_t & o
 		) const
 	{
 		o.feat_id = m_OBS(idx,1);
@@ -42,7 +42,7 @@ struct CDatasetParserTempl<mrpt::srba::observations::RelativePoses_2D> : public 
 		o.obs_data.yaw = m_OBS(idx,5) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_yaw));
 	}
 
-	void loadNoiseParamsInto( mrpt::srba::options::observation_noise_constant_matrix<mrpt::srba::observations::RelativePoses_2D>::parameters_t & p )
+	void loadNoiseParamsInto( srba::options::observation_noise_constant_matrix<srba::observations::RelativePoses_2D>::parameters_t & p )
 	{
 		using mrpt::utils::square;
 		p.lambda.setZero();

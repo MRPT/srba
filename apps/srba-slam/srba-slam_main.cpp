@@ -22,7 +22,7 @@ Info: A front-end for Relative Bundle Adjustment (RBA). The program is
 //#include <mrpt/otherlibs/tclap/CmdLine.h>
 
 using namespace mrpt;
-using namespace mrpt::srba;
+using namespace srba;
 using namespace std;
 
 // It's a singleton:

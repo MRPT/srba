@@ -9,7 +9,7 @@
 
 #pragma once
 
-namespace mrpt { namespace srba {
+namespace srba {
 
 #define UPDATE_NUM_ST_VERBOSE  0
 #define DEBUG_GARBAGE_FILL_ALL_NUMS	0
@@ -126,4 +126,4 @@ size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanni
 	return pose_count;
 }
 
-} } // end NS
+} // end NS

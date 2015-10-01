@@ -13,7 +13,7 @@
 #include <mrpt/poses/CPose2D.h>
 #include <mrpt/poses/SE_traits.h>
 
-namespace mrpt { namespace srba {
+namespace srba {
 namespace kf2kf_poses
 {
 	/** \defgroup mrpt_srba_kf2kf KF-to-KF relative pose parameterizations
@@ -40,4 +40,4 @@ namespace kf2kf_poses
 	/** @} */
 
 }
-} } // end NS
+} // end NS
