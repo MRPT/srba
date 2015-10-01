@@ -4,8 +4,11 @@
 # --------------------------------------------------------------
 PROJECT(tests)
 
-# Fix a "bug" in VS11 (MSVC 2012):
+FIND_PACKAGE(SRBA REQUIRED)
+INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
+
 if(MSVC)
+	# Fix a "bug" in VS11 (MSVC 2012):
 	add_definitions(-D_VARIADIC_MAX=10)
 endif(MSVC)
 
@@ -26,9 +29,13 @@ SET(lstfiles
 ADD_EXECUTABLE( test_srba ${lstfiles})
 TARGET_LINK_LIBRARIES(test_srba ${MRPT_LIBS})
 
+cmake_policy(SET CMP0003 NEW)  # Required by CMake 2.7+
+if(POLICY CMP0037)
+	cmake_policy(SET CMP0037 OLD)  # Allow creating target named "test"
+endif()
+
 # Run it:
-GET_TARGET_PROPERTY(GENERATED_EXE test_srba LOCATION)
-ADD_CUSTOM_TARGET(test COMMAND "${GENERATED_EXE}" "${SRBA_ALL_SOURCE_DIR}")
+ADD_CUSTOM_TARGET(test COMMAND "$<TARGET_FILE:test_srba>" "${SRBA_ALL_SOURCE_DIR}")
 ADD_DEPENDENCIES(test test_srba)
 
 if(ENABLE_SOLUTION_FOLDERS)

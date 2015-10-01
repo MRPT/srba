@@ -1,6 +1,6 @@
 PROJECT(srba-tutorials)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 if(COMMAND cmake_policy)
     cmake_policy(SET CMP0003 NEW)  # Required by CMake 2.7+
 	if(POLICY CMP0043)
@@ -8,19 +8,9 @@ if(COMMAND cmake_policy)
 	endif()
 endif(COMMAND cmake_policy)
 
-# --------------------------------------------------------------------------
-#   The list of "libs" which can be included can be found in:
-#     http://www.mrpt.org/Libraries
-#   The dependencies of a library are automatically added, so you only 
-#    need to specify the top-most libraries your code depend on.
-# --------------------------------------------------------------------------
 FIND_PACKAGE(MRPT REQUIRED gui graphslam)
-
-if(MSVC)
-	# For MSVC to avoid the C1128 error about too large object files:
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /bigobj")
-endif(MSVC)
+FIND_PACKAGE(SRBA REQUIRED)
+INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
 
 # Set optimized building in GCC:
 IF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -32,16 +22,10 @@ MACRO(DEFINE_TUTORIAL_EXECUTABLE name extradeps)
 	ADD_EXECUTABLE(${name} ${name}.cpp)
 	TARGET_LINK_LIBRARIES(${name} ${MRPT_LIBS}) # Add the required libraries for linking:
 	
-	# -------------------------------------------------------------------------
-	# This part can be removed if you are compiling this program outside of 
-	#  the MRPT tree:
-	# -------------------------------------------------------------------------
-	IF("${CMAKE_PROJECT_NAME}" STREQUAL "MRPT") # Fails if build outside of MRPT project.
-		DeclareAppDependencies(${name} mrpt-srba mrpt-gui ${extradeps}) # Dependencies
-	ENDIF("${CMAKE_PROJECT_NAME}" STREQUAL "MRPT")
-	# -------------------------------------------------------------------------
+	if(ENABLE_SOLUTION_FOLDERS)
+		set_target_properties(${name} PROPERTIES FOLDER "Examples")
+	endif(ENABLE_SOLUTION_FOLDERS)	
 ENDMACRO(DEFINE_TUTORIAL_EXECUTABLE)
-
 
 # --------------------------------------------------------------------
 #  List of tutorials/examples:

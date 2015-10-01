@@ -10,6 +10,22 @@ project(SRBA_ALL)
 #  1. Set-up CMake and find pkgs
 # =====================================
 SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS 1)
+
+# Declare lib version:
+SET(CMAKE_SRBA_VERSION_NUMBER_MAJOR  1)
+SET(CMAKE_SRBA_VERSION_NUMBER_MINOR  4)
+SET(CMAKE_SRBA_VERSION_NUMBER_PATCH  0)
+SET(CMAKE_SRBA_FULL_VERSION "${CMAKE_SRBA_VERSION_NUMBER_MAJOR}.${CMAKE_SRBA_VERSION_NUMBER_MINOR}.${CMAKE_SRBA_VERSION_NUMBER_PATCH}")
+
+IF (CMAKE_VERSION VERSION_GREATER 2.8.0)
+	SET(ENABLE_SOLUTION_FOLDERS ON CACHE BOOL "Group projects under virtual folders of the compiler IDE (e.g. VisualStudio)")
+	MARK_AS_ADVANCED(ENABLE_SOLUTION_FOLDERS)
+ENDIF ()
+if (ENABLE_SOLUTION_FOLDERS)
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+  set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+endif ()
+
 if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 NEW)  # Required by CMake 2.7+
 endif(COMMAND cmake_policy)
@@ -31,7 +47,21 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 # =====================================
-#  2. Declare targets
+#  2. Install, config files, etc.
+# =====================================
+
+# Generate CMake config file for usage without "make install"
+# ---------------------------------------------------------------
+SET(THE_INCLUDE_DIRECTORIES "${SRBA_ALL_SOURCE_DIR}/include")
+CONFIGURE_FILE(
+	"${SRBA_ALL_SOURCE_DIR}/SRBA-config.cmake.in"
+    "${SRBA_ALL_BINARY_DIR}/SRBA-config.cmake" @ONLY IMMEDIATE )
+
+SET(SRBA_DIR ${SRBA_ALL_BINARY_DIR} CACHE PATH "Directory for SRBA-config.cmake" )
+MARK_AS_ADVANCED(SRBA_DIR)
+
+# =====================================
+#  3. Declare targets
 # =====================================
 #  C++ Library: It's hdr only, so we don't need to compile it!
 include_directories("${SRBA_ALL_SOURCE_DIR}/include/")
@@ -44,8 +74,4 @@ add_subdirectory(examples)
 # tests
 add_subdirectory(tests)
 
-
-# =====================================
-#  3. Install, config files, etc.
-# =====================================
 

@@ -5,6 +5,8 @@
 PROJECT(srba_slam)
 
 FIND_PACKAGE(MRPT REQUIRED gui vision)
+FIND_PACKAGE(SRBA REQUIRED)
+INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
 
 # ---------------------------------------------
 # TARGET:
@@ -34,10 +36,14 @@ IF(ENABLE_PRECOMPILED_HDRS AND MSVC)
 	set_source_files_properties("${CMAKE_CURRENT_SOURCE_DIR}/srba-slam_main.cpp" PROPERTIES COMPILE_FLAGS "/Y-")		
 ENDIF(ENABLE_PRECOMPILED_HDRS AND MSVC)
 
-SET(TMP_TARGET_NAME "srba-slam")
+SET(TMP_TARGET_NAME srba-slam)
 
 # Add the required libraries for linking:
 TARGET_LINK_LIBRARIES(${TMP_TARGET_NAME} ${MRPT_LIBS})
+
+if(ENABLE_SOLUTION_FOLDERS)
+	set_target_properties(${TMP_TARGET_NAME} PROPERTIES FOLDER "Apps")
+endif(ENABLE_SOLUTION_FOLDERS)
 
 #DeclareAppForInstall(${TMP_TARGET_NAME})
 
