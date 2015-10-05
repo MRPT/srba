@@ -20,7 +20,7 @@
 namespace srba {
 
 // Specializations for rendering each kind of landmark:
-template <class LM_TYPE>
+template <class landmark_t>
 struct LandmarkRendererBase { };
 
 /** Landmark renderer for: landmark_rendering_as_point */
@@ -95,9 +95,9 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 				// It's the origin.
 			}
 
-			// If LM_TYPE defines this kind of renderer, we
+			// If landmark_t defines this kind of renderer, we
 		 mrpt::math::TPoint3D p_wrt_base;
-			RBA::lm_type::relativeEuclideanLocation(itLM->second.pos, p_wrt_base);
+			RBA::landmark_t::relativeEuclideanLocation(itLM->second.pos, p_wrt_base);
 
 		 mrpt::math::TPoint3D p_global;
 			base_pose.composePoint(p_wrt_base,p_global);

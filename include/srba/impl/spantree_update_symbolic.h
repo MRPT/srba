@@ -15,13 +15,11 @@ namespace srba {
 #define SYM_ST_SUPER_VERBOSE 0
 
 /** Incremental update of spanning trees after the insertion of ONE new node and ONE OR MORE edges */
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::update_symbolic_new_node(
+template <class RBA_SETTINGS_T>
+void TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_symbolic_new_node(
 	const TKeyFrameID                    new_node_id,
 	const TPairKeyFrameID & new_edge,
-	const topo_dist_t                    max_depth,
-	const bool                           check_all_obs_are_connected,
-	const new_kf_observations_t        * obs
+	const topo_dist_t                    max_depth
 	)
 {
 	using namespace std;
@@ -155,78 +153,6 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 
 	} // end for each new edge
 
-
-	// Optional check for correct connection of observed base KFs to current KF  -------------
-	if (check_all_obs_are_connected)
-	{
-		ASSERT_(obs)
-
-		// 1) Build a first list of pending spanning trees to build from observations:
-		std::set<TPairKeyFrameID>  pending_checks;
-
-		for (size_t i=0;i<obs->size();i++)
-		{
-			const new_kf_observation_t &o = (*obs)[i];
-
-			// If it's a new Landmark (observed for the first time, already not added to the data structures), just skip
-			// since we won't need spanning trees for it.
-			if (o.obs.feat_id>=m_parent->all_lms.size() || m_parent->all_lms[ o.obs.feat_id ].rfp==NULL)
-				continue;
-
-			const TKeyFrameID base_id = m_parent->all_lms[ o.obs.feat_id ].rfp->id_frame_base;
-
-			// make sure a spanning tree exists between "new_node_id" -> "base_id":
-			pending_checks.insert( TPairKeyFrameID( new_node_id, base_id ) );
-		}
-
-		std::set<TPairKeyFrameID>  done_checks;
-		while (!pending_checks.empty())
-		{
-			// Get first one:
-			const TPairKeyFrameID ft = *pending_checks.begin();  // copy, don't make a ref since we're deleting the element in the container!
-			pending_checks.erase(pending_checks.begin());
-
-			if (done_checks.find(ft)!=done_checks.end())
-				continue; // We already done this one.
-
-			// Create path:
-			std::map<TKeyFrameID,TSpanTreeEntry> & span_trees_from = sym.next_edge[ft.first];
-
-			if ( span_trees_from.find(ft.second)==span_trees_from.end() )
-			{	// It doesn't exist: create it.
-
-				// We need the starting edge from "ft.first" in the direction towards "ft.second",
-				//  and in the way mark as pending all the edges "intermediary node" -> "ft.second".
-				vector<TKeyFrameID> found_path;
-
-				bool found = m_parent->find_path_bfs(
-					ft.first, // from
-					ft.second, // target node
-					&found_path);
-
-				ASSERT_(found && !found_path.empty())
-
-				// save direction:
-				TSpanTreeEntry & ste = span_trees_from[ft.second];
-				ste.distance = found_path.size();
-				ste.next = *found_path.rbegin();  // the last element
-
-				// and append the rest of KFs as pending:
-				for (size_t i=0;i<found_path.size();i++)
-					if (found_path[i]!=ft.second)
-						pending_checks.insert( TPairKeyFrameID( found_path[i] , ft.second ) );
-
-				// Remember to update the node's "all_edges" field:
-				kfs_with_modified_next_edge.insert( ft );
-			}
-
-			// Mark as done:
-			done_checks.insert(ft);
-		}
-
-	} // end if "check_all_obs_are_connected"
-
-
 #if defined(SYM_ST_SUPER_VERBOSE_SAVE_ALL_SPANNING_TREES)
 	{
 		static int i=0;
@@ -257,7 +183,7 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 		const TKeyFrameID to   = std::min(dst_kf_id, kf_id);
 
 		// find_path_bfs
-		typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t & path = sym.all_edges[from][to];  // O(1) in map_as_vector
+		typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t & path = sym.all_edges[from][to];  // O(1) in map_as_vector
 		path.clear();
 		bool path_found = m_parent->find_path_bfs(from,to, NULL, &path);
 		ASSERT_(path_found)
@@ -295,15 +221,14 @@ struct TBFSEntry
 	topo_dist_t dist;
 };
 
-// Aux. function for "check_all_obs_are_connected":
 //  Breadth-first search (BFS) for "trg_node"
 //  Return: true: found
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::find_path_bfs(
+template <class RBA_SETTINGS_T>
+bool TRBA_Problem_state<RBA_SETTINGS_T>::find_path_bfs(
 	const TKeyFrameID           cur_node,
 	const TKeyFrameID           trg_node,
 	std::vector<TKeyFrameID>  * out_path_IDs,
-	typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t * out_path_edges ) const
+	typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t * out_path_edges ) const
 {
 	if (out_path_IDs) out_path_IDs->clear();
 	if (out_path_edges) out_path_edges->clear();

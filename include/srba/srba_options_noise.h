@@ -16,10 +16,10 @@
 namespace srba {
 namespace options
 {
-	/** \defgroup mrpt_srba_options_noise Types for RBA_OPTIONS::obs_noise_matrix_t 
+	/** \defgroup mrpt_srba_options_noise Types for RBA_SETTINGS_T::obs_noise_matrix_t 
 		* \ingroup mrpt_srba_options */
 
-		/** Usage: A possible type for RBA_OPTIONS::obs_noise_matrix_t.
+		/** Usage: A possible type for RBA_SETTINGS_T::obs_noise_matrix_t.
 		  * Meaning: The sensor noise matrix is the same for all observations and equal to \sigma * I(identity).  
 		  * \ingroup mrpt_srba_options_noise */
 		struct observation_noise_identity
@@ -72,13 +72,13 @@ namespace options
 
 		};  // end of "observation_noise_identity"
 
-		/** Usage: A possible type for RBA_OPTIONS::obs_noise_matrix_t.
+		/** Usage: A possible type for RBA_SETTINGS_T::obs_noise_matrix_t.
 		  * Meaning: The sensor noise matrix is an arbitrary matrix and the same for all observations. 
 		  * \ingroup mrpt_srba_options_noise */
-		template <class OBS_TYPE>
+		template <class obs_t>
 		struct observation_noise_constant_matrix
 		{
-			static const size_t OBS_DIMS = OBS_TYPE::OBS_DIMS;  //!< The dimension of one observation
+			static const size_t OBS_DIMS = obs_t::OBS_DIMS;  //!< The dimension of one observation
 
 			typedef Eigen::Matrix<double,OBS_DIMS,OBS_DIMS>  obs_noise_matrix_t; //!< Type for symetric, positive-definite noise matrices.
 

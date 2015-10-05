@@ -13,8 +13,8 @@ namespace srba {
 
 
 /** Determines and creates the new kf2fk edges given the set of new observations: */
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_edges_to_create(
+template <class RBA_SETTINGS_T>
+void RbaEngine<RBA_SETTINGS_T>::determine_kf2kf_edges_to_create(
 	const TKeyFrameID               new_kf_id,
 	const typename traits_t::new_kf_observations_t   & obs,
 	std::vector<TNewEdgeInfo> &new_k2k_edge_ids )
@@ -27,7 +27,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 		return;
 	}
 
-	edge_creation_policy(new_kf_id,obs,new_k2k_edge_ids);
+	edge_creation_policy.eval<traits_t,rba_engine_t>(new_kf_id,obs,new_k2k_edge_ids, *this,parameters.ecp);
 }
 
 } // End of namespaces

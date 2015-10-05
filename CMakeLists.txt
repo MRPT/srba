@@ -83,8 +83,10 @@ FILE(GLOB srba_hdrs_models "${SRBA_ALL_SOURCE_DIR}/include/srba/models/*.h")
 SOURCE_GROUP("Models .h" FILES ${srba_hdrs_models})
 FILE(GLOB srba_hdrs_impl "${SRBA_ALL_SOURCE_DIR}/include/srba/impl/*.h")
 SOURCE_GROUP("Impl .h" FILES ${srba_hdrs_impl})
+FILE(GLOB srba_hdrs_ecps "${SRBA_ALL_SOURCE_DIR}/include/srba/ecps/*.h")
+SOURCE_GROUP("Edge creation policies .h" FILES ${srba_hdrs_ecps})
 
-set(srba_all_srcs ${srba_hdrs} ${srba_hdrs_models} ${srba_hdrs_impl})
+set(srba_all_srcs ${srba_hdrs} ${srba_hdrs_models} ${srba_hdrs_impl} ${srba_hdrs_ecps})
 add_custom_target(srba DEPENDS ${srba_all_srcs} SOURCES ${srba_all_srcs})
 set_target_properties(srba PROPERTIES FOLDER "SRBA lib")
 

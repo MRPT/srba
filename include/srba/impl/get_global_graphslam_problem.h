@@ -12,9 +12,9 @@
 namespace srba {
 
 /** Exports all the keyframes and landmarks as a directed graph in DOT (graphviz) format */
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+template <class RBA_SETTINGS_T>
 template <class POSE_GRAPH>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::get_global_graphslam_problem(
+void RbaEngine<RBA_SETTINGS_T>::get_global_graphslam_problem(
 	POSE_GRAPH &global_graph,
 	const ExportGraphSLAM_Params &params
 	) const

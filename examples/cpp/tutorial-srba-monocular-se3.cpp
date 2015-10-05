@@ -16,23 +16,23 @@ using namespace mrpt::random;
 using namespace std;
 using mrpt::utils::DEG2RAD;
 
-// --------------------------------------------------------------------------------
-// Declare a typedef "my_srba_t" for easily referring to my RBA problem type:
-// --------------------------------------------------------------------------------
-struct my_srba_options
+struct RBA_SETTINGS
 {
+	// Parameterization  of KF-to-KF poses
+	typedef kf2kf_poses::SE3            kf2kf_pose_t;
+	// Parameterization of landmark positions
+	typedef landmarks::Euclidean3D      landmark_t;
+	// Type of observations
+	typedef observations::MonocularCamera  obs_t;
+
+	typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  //!< One of the most important choices: how to construct the relative coordinates graph problem
 	typedef options::sensor_pose_on_robot_se3        sensor_pose_on_robot_t;
 	typedef options::observation_noise_identity      obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
-	typedef options::solver_LM_schur_dense_cholesky  solver_t;
+	typedef options::solver_LM_schur_dense_cholesky solver_t;                //!< Solver algorithm (Default: Lev-Marq, with Schur, with dense Cholesky)
 };
 
-typedef RbaEngine<
-	kf2kf_poses::SE3,                // Parameterization  KF-to-KF poses
-	landmarks::Euclidean3D,          // Parameterization of landmark positions
-	observations::MonocularCamera,    // Type of observations
-	my_srba_options                  // Other parameters
-	>
-	my_srba_t;
+typedef RbaEngine<RBA_SETTINGS>  my_srba_t;
+
 
 // --------------------------------------------------------------------------------
 // A test dataset. Generated with https://github.com/jlblancoc/recursive-world-toolkit
@@ -120,7 +120,6 @@ int main(int argc, char**argv)
 	rba.parameters.obs_noise.std_noise_observations = 0.5;  // pixels
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.edge_creation_policy = srba::ecpICRA2013;
 	rba.parameters.srba.max_tree_depth       = 3;
 	rba.parameters.srba.max_optimize_depth   = 3;
 	// ===========================================

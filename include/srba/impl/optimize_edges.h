@@ -40,8 +40,8 @@ namespace internal
 //         optimize_edges
 //          (See header for docs)
 // ------------------------------------------
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
+template <class RBA_SETTINGS_T>
+void RbaEngine<RBA_SETTINGS_T>::optimize_edges(
 	const std::vector<size_t> & run_k2k_edges_in,
 	const std::vector<size_t> & run_feat_ids_in,
 	TOptimizeExtraOutputInfo & out_info,
@@ -51,14 +51,14 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	using namespace std;
 	// This method deals with many common tasks to any optimizer: update Jacobians, prepare Hessians, etc. 
 	// The specific solver method details are implemented in "my_solver_t":
-	typedef internal::solver_engine<RBA_OPTIONS::solver_t::USE_SCHUR,RBA_OPTIONS::solver_t::DENSE_CHOLESKY,rba_engine_t> my_solver_t;
+	typedef internal::solver_engine<RBA_SETTINGS_T::solver_t::USE_SCHUR,RBA_SETTINGS_T::solver_t::DENSE_CHOLESKY,rba_engine_t> my_solver_t;
 	
 	m_profiler.enter("opt");
 
 	// Problem dimensions:
-	const size_t POSE_DIMS = KF2KF_POSE_TYPE::REL_POSE_DIMS;
-	const size_t LM_DIMS   = LM_TYPE::LM_DIMS;
-	const size_t OBS_DIMS  = OBS_TYPE::OBS_DIMS;
+	const size_t POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
+	const size_t LM_DIMS   = landmark_t::LM_DIMS;
+	const size_t OBS_DIMS  = obs_t::OBS_DIMS;
 
 
 	// Filter out those unknowns which for sure do not have any observation,
@@ -403,7 +403,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		nUnknowns_k2k,
 		nUnknowns_k2f);
 	// Notice: At this point, the constructor of "my_solver_t" might have already built the Schur-complement 
-	// of HAp-HApf into HAp: it's overwritten there (Only if RBA_OPTIONS::solver_t::USE_SCHUR=true).
+	// of HAp-HApf into HAp: it's overwritten there (Only if RBA_SETTINGS_T::solver_t::USE_SCHUR=true).
 
 	const double MAX_LAMBDA = this->parameters.srba.max_lambda;
 

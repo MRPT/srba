@@ -22,6 +22,9 @@ namespace srba
 	typedef uint64_t  TLandmarkID; //!< Numeric IDs for landmarks
 	typedef uint64_t  topo_dist_t;  //!< Unsigned integral type for topological distances in a graph/tree.
 	typedef std::pair<TKeyFrameID,TKeyFrameID> TPairKeyFrameID;  //!< Used to represent the IDs of a directed edge (first --> second)
+	typedef std::multimap<size_t,TKeyFrameID,std::greater<size_t> > base_sorted_lst_t;  //!< A list of keyframes, sorted in descending order by some count number
+
+	#define VERBOSE_LEVEL(_LEVEL) if (m_verbose_level>=_LEVEL) std::cout
 
 	// -------------------------------------------------------------------------------
 	/** @name Generic traits for observations, kf-to-kf poses, landmarks, etc.
@@ -30,7 +33,7 @@ namespace srba
 	/** Generic declaration, of which specializations are defined for each combination of LM+OBS type.
 	  * \sa Implementations are in srba/models/sensors.h
 	  */
-	template <class LANDMARK_TYPE,class OBS_TYPE>
+	template <class LANDMARK_TYPE,class obs_t>
 	struct sensor_model;
 
 	/** The argument "POSE_TRAITS" can be any of those defined in srba/models/kf2kf_poses.h (typically, either kf2kf_poses::SE3 or kf2kf_poses::SE2).
@@ -148,18 +151,6 @@ namespace srba
 	/** @} */
 	// --------------------------------------------------------------
 
-	/** For usage in RbaEngine.parameters
-	  *  \note Implements mrpt::utils::TEnumType
-	  */
-	enum TEdgeCreationPolicy {
-		/** The sub-map method introduced in the ICRA2013 paper */
-		ecpICRA2013 = 0,
-		/** Each keyframe is only connected to its predecessor (no loop closures) */
-		ecpLinearGraph,
-		/** All keyframes are connected to the first one (it can be used to emulate global coordinates) */
-		ecpStarGraph
-	};
-
 	/** Covariances recovery from Hessian matrix policy, for usage in RbaEngine.parameters
 	  *  \note Implements mrpt::utils::TEnumType
 	  */
@@ -186,17 +177,15 @@ namespace srba
 	struct TNewEdgeInfo
 	{
 		size_t  id; //!< The new edge ID
-		/**  Whether the edge was assigned an approximated initial value. If not, it will need an independent optimization step before getting into the complete problem optimization.
-		  */
-		bool    has_aprox_init_val;
+		bool    has_aprox_init_val; //!< Whether the edge was assigned an approximated initial value. If not, it will need an independent optimization step before getting into the complete problem optimization.
 	};
 
 	/** Symbolic information of each Jacobian dh_dAp
 	  */
-	template <class KF2KF_POSE_TYPE, class LANDMARK_TYPE>
+	template <class kf2kf_pose_t, class LANDMARK_TYPE>
 	struct TJacobianSymbolicInfo_dh_dAp
 	{
-		typedef kf2kf_pose_traits<KF2KF_POSE_TYPE> kf2kf_traits_t;
+		typedef kf2kf_pose_traits<kf2kf_pose_t> kf2kf_traits_t;
 		typedef landmark_traits<LANDMARK_TYPE>     lm_traits_t;
 
 		/** The two relative poses used in this Jacobian (see papers)
@@ -232,10 +221,10 @@ namespace srba
 
 	/** Symbolic information of each Jacobian dh_df
 	  */
-	template <class KF2KF_POSE_TYPE, class LANDMARK_TYPE>
+	template <class kf2kf_pose_t, class LANDMARK_TYPE>
 	struct TJacobianSymbolicInfo_dh_df
 	{
-		typedef kf2kf_pose_traits<KF2KF_POSE_TYPE> kf2kf_traits_t;
+		typedef kf2kf_pose_traits<kf2kf_pose_t> kf2kf_traits_t;
 		typedef landmark_traits<LANDMARK_TYPE>     lm_traits_t;
 
 		/** A pointer to the relative position structure within rba_state.unknown_lms[] for this feature
@@ -295,15 +284,15 @@ namespace srba
 	  *   J = [  dh_dAp  |  dh_df ]
 	  * \endcode
 	  */
-	template <class KF2KF_POSE_TYPE, class LANDMARK_TYPE,class OBS_TYPE>
+	template <class kf2kf_pose_t, class LANDMARK_TYPE,class obs_t>
 	struct jacobian_traits
 	{
-		static const size_t OBS_DIMS      = OBS_TYPE::OBS_DIMS;
-		static const size_t REL_POSE_DIMS = KF2KF_POSE_TYPE::REL_POSE_DIMS;
+		static const size_t OBS_DIMS      = obs_t::OBS_DIMS;
+		static const size_t REL_POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
 		static const size_t LM_DIMS       = LANDMARK_TYPE::LM_DIMS;
 
-		typedef TJacobianSymbolicInfo_dh_dAp<KF2KF_POSE_TYPE,LANDMARK_TYPE> jacob_dh_dAp_info_t;
-		typedef TJacobianSymbolicInfo_dh_df<KF2KF_POSE_TYPE,LANDMARK_TYPE>  jacob_dh_df_info_t;
+		typedef TJacobianSymbolicInfo_dh_dAp<kf2kf_pose_t,LANDMARK_TYPE> jacob_dh_dAp_info_t;
+		typedef TJacobianSymbolicInfo_dh_df<kf2kf_pose_t,LANDMARK_TYPE>  jacob_dh_df_info_t;
 
 		typedef mrpt::math::MatrixBlockSparseCols<double,OBS_DIMS,REL_POSE_DIMS,jacob_dh_dAp_info_t, false>  TSparseBlocksJacobians_dh_dAp;  //!< The "false" is since we don't need to "remap" indices
 		typedef mrpt::math::MatrixBlockSparseCols<double,OBS_DIMS,LM_DIMS,jacob_dh_df_info_t,  true >   TSparseBlocksJacobians_dh_df;  // The "true" is to "remap" indices
@@ -316,11 +305,11 @@ namespace srba
 	  *       [  H_Apf^t |   Hf    ]
 	  * \endcode
 	  */
-	template <class KF2KF_POSE_TYPE, class LANDMARK_TYPE,class OBS_TYPE>
+	template <class kf2kf_pose_t, class LANDMARK_TYPE,class obs_t>
 	struct hessian_traits
 	{
-		static const size_t OBS_DIMS      = OBS_TYPE::OBS_DIMS;
-		static const size_t REL_POSE_DIMS = KF2KF_POSE_TYPE::REL_POSE_DIMS;
+		static const size_t OBS_DIMS      = obs_t::OBS_DIMS;
+		static const size_t REL_POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
 		static const size_t LM_DIMS       = LANDMARK_TYPE::LM_DIMS;
 
 		typedef THessianSymbolicInfo<double,OBS_DIMS,REL_POSE_DIMS,REL_POSE_DIMS> hessian_Ap_info_t;
@@ -342,12 +331,14 @@ namespace srba
 
 	/** Useful data structures that depend of a combination of "OBSERVATION_TYPE"+"LANDMARK_PARAMETERIZATION_TYPE"+"RELATIVE_POSE_PARAMETERIZATION"
 	  */
-	template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
+	template <class kf2kf_pose_t,class landmark_t,class obs_t>
 	struct rba_joint_parameterization_traits_t
 	{
-		typedef kf2kf_pose_traits<KF2KF_POSE_TYPE> kf2kf_traits_t;
-		typedef observation_traits<OBS_TYPE>       obs_traits_t;
-		typedef landmark_traits<LM_TYPE>           lm_traits_t;
+		typedef landmark_t original_landmark_t;
+
+		typedef kf2kf_pose_traits<kf2kf_pose_t> kf2kf_traits_t;
+		typedef observation_traits<obs_t>       obs_traits_t;
+		typedef landmark_traits<landmark_t>           lm_traits_t;
 
 		typedef typename kf2kf_traits_t::k2k_edge_t k2k_edge_t;
 
@@ -393,9 +384,9 @@ namespace srba
 
 			typename lm_traits_t::array_landmark_t feat_rel_pos; //!< Ignored unless \a is_fixed OR \a is_unknown_with_init_val are true (only one of them at once).
 
-			/** Sets \a feat_rel_pos from any object that offers a [] operator and has the expected length "LM_TYPE::LM_DIMS" */
+			/** Sets \a feat_rel_pos from any object that offers a [] operator and has the expected length "landmark_t::LM_DIMS" */
 			template <class REL_POS> inline void setRelPos(const REL_POS &pos) {
-				for (size_t i=0;i<LM_TYPE::LM_DIMS;i++) feat_rel_pos[i]=pos[i];
+				for (size_t i=0;i<landmark_t::LM_DIMS;i++) feat_rel_pos[i]=pos[i];
 			}
 		};
 
@@ -448,21 +439,25 @@ namespace srba
 	  *  Operations on this structure are performed via the public API of srba::RbaEngine
 	  * \sa RbaEngine
 	  */
-	template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+	template <class RBA_SETTINGS_T>
 	struct TRBA_Problem_state
 	{
-		typedef typename KF2KF_POSE_TYPE::pose_t pose_t;
-		typedef typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_t         k2k_edge_t;
-		typedef typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t  k2k_edge_vector_t;
-		typedef typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::frameid2pose_map_t frameid2pose_map_t;
-		typedef typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::pose_flag_t        pose_flag_t;
-		typedef typename landmark_traits<LM_TYPE>::TRelativeLandmarkPosMap TRelativeLandmarkPosMap;
-		typedef typename landmark_traits<LM_TYPE>::TLandmarkEntry          TLandmarkEntry;
-		typedef typename hessian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::landmarks2infmatrix_t   landmarks2infmatrix_t;
-		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::keyframe_info          keyframe_info;
-		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::k2f_edge_t             k2f_edge_t;
-		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::new_kf_observations_t  new_kf_observations_t;
-		typedef typename rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::new_kf_observation_t   new_kf_observation_t;
+		typedef typename RBA_SETTINGS_T::kf2kf_pose_t  kf2kf_pose_t;
+		typedef typename RBA_SETTINGS_T::landmark_t    landmark_t;
+		typedef typename RBA_SETTINGS_T::obs_t         obs_t;
+
+		typedef typename kf2kf_pose_t::pose_t pose_t;
+		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_t         k2k_edge_t;
+		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t  k2k_edge_vector_t;
+		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::frameid2pose_map_t frameid2pose_map_t;
+		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::pose_flag_t        pose_flag_t;
+		typedef typename landmark_traits<landmark_t>::TRelativeLandmarkPosMap TRelativeLandmarkPosMap;
+		typedef typename landmark_traits<landmark_t>::TLandmarkEntry          TLandmarkEntry;
+		typedef typename hessian_traits<kf2kf_pose_t,landmark_t,obs_t>::landmarks2infmatrix_t   landmarks2infmatrix_t;
+		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::keyframe_info          keyframe_info;
+		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::k2f_edge_t             k2f_edge_t;
+		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::new_kf_observations_t  new_kf_observations_t;
+		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::new_kf_observation_t   new_kf_observation_t;
 
 		typedef typename mrpt::aligned_containers<k2k_edge_t>::deque_t  k2k_edges_deque_t;  // Note: A std::deque() does not invalidate pointers/references, as we always insert elements at the end; we'll exploit this...
 		typedef typename mrpt::aligned_containers<k2f_edge_t>::deque_t  all_observations_deque_t;
@@ -485,7 +480,7 @@ namespace srba
 				std::deque<std::pair<TKeyFrameID,std::map<TKeyFrameID, k2k_edge_vector_t > > >
 				> all_edges_maps_t;
 
-			const TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS> *m_parent;
+			const TRBA_Problem_state<RBA_SETTINGS_T> *m_parent;
 
 			/** @name Data structures
 			  *  @{ */
@@ -520,7 +515,7 @@ namespace srba
 			  *  NOTE: Both symmetric poses, e.g. (i,j) and also (j,i), are stored for convenience of
 			  *         being able to get references/pointers to them.
 			  */
-			typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::TRelativePosesForEachTarget num;
+			typename kf2kf_pose_traits<kf2kf_pose_t>::TRelativePosesForEachTarget num;
 
 			/** @} */
 
@@ -537,9 +532,7 @@ namespace srba
 			void update_symbolic_new_node(
 				const TKeyFrameID                    new_node_id,
 				const TPairKeyFrameID & new_edge,
-				const topo_dist_t                    max_depth,
-				const bool                           check_all_obs_are_connected = false,
-				const new_kf_observations_t        * obs = NULL
+				const topo_dist_t                    max_depth
 				);
 
 			/** Updates all the numeric SE(3) poses from ALL the \a sym.all_edges
@@ -592,8 +585,8 @@ namespace srba
 			{
 			}
 
-			typename jacobian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::TSparseBlocksJacobians_dh_dAp dh_dAp;   //!< Both symbolic & numeric info on the sparse Jacobians wrt. the edges
-			typename jacobian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::TSparseBlocksJacobians_dh_df  dh_df;    //!< Both symbolic & numeric info on the sparse Jacobians wrt. the observations
+			typename jacobian_traits<kf2kf_pose_t,landmark_t,obs_t>::TSparseBlocksJacobians_dh_dAp dh_dAp;   //!< Both symbolic & numeric info on the sparse Jacobians wrt. the edges
+			typename jacobian_traits<kf2kf_pose_t,landmark_t,obs_t>::TSparseBlocksJacobians_dh_df  dh_df;    //!< Both symbolic & numeric info on the sparse Jacobians wrt. the observations
 
 			void clear() {
 				dh_dAp.clearAll();
@@ -656,7 +649,7 @@ namespace srba
 			const TKeyFrameID           from,
 			const TKeyFrameID           to,
 			std::vector<TKeyFrameID>  * out_path_IDs,
-			typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t * out_path_edges = NULL) const;
+			typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t * out_path_edges = NULL) const;
 
 
 		/** Computes stats on the degree (# of adjacent nodes) of all the nodes in the graph. Runs in O(N) with N=# of keyframes */
@@ -692,18 +685,6 @@ namespace srba
 // Specializations MUST occur at the same namespace:
 namespace mrpt { namespace utils
 {
-	template <>
-	struct TEnumTypeFiller<srba::TEdgeCreationPolicy>
-	{
-		typedef srba::TEdgeCreationPolicy enum_t;
-		static void fill(bimap<enum_t,std::string>  &m_map)
-		{
-			m_map.insert(srba::ecpICRA2013,      "ecpICRA2013");
-			m_map.insert(srba::ecpLinearGraph,   "ecpLinearGraph");
-			m_map.insert(srba::ecpStarGraph,     "ecpStarGraph");
-		}
-	};
-
 	template <>
 	struct TEnumTypeFiller<srba::TCovarianceRecoveryPolicy>
 	{

@@ -10,7 +10,7 @@
 #pragma once
 
 /** \file RbaEngine.h
-  * \brief This file exposes the public API and data types of libmrpt-srba (it requires also including srba/models/{*.h} to have a complete SLAM/RBA system)
+  * \brief This file exposes the public API and data types of lib-srba (it requires also including srba/models/{*.h} to have a complete SLAM/RBA system)
   */
 
 #include <mrpt/utils/CTimeLogger.h>
@@ -21,15 +21,20 @@
 
 #include "srba_types.h"
 #include "srba_options.h"
+#include "srba_edge_creation_policies.h"
 #include "landmark_jacob_families.h"
-
-#define VERBOSE_LEVEL(_LEVEL) if (m_verbose_level>=_LEVEL) std::cout
 
 namespace srba
 {
-	/** The set of default settings for RbaEngine */
-	struct RBA_OPTIONS_DEFAULT
+	/** The set of default settings for RbaEngine. Use it to inherit your custom RBA_SETTINGS_T struct (see docs and examples).
+	  * Expected types: 
+	  * - kf2kf_pose_t The parameterization of keyframe-to-keyframe relative poses (edges, problem unknowns).
+	  * - landmark_t The parameterization of relative positions of landmarks relative poses (edges).
+	  * - obs_t The type of observations.
+	  */
+	struct RBA_SETTINGS_DEFAULT
 	{
+		typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  //!< One of the most important choices: how to construct the relative coordinates graph problem
 		typedef options::sensor_pose_on_robot_none      sensor_pose_on_robot_t;  //!< The sensor pose coincides with the robot pose
 		typedef options::observation_noise_identity     obs_noise_matrix_t;      //!< The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
 		typedef options::solver_LM_schur_dense_cholesky solver_t;                //!< Solver algorithm (Default: Lev-Marq, with Schur, with dense Cholesky)
@@ -47,43 +52,40 @@ namespace srba
 	  *		- Optional sensor parameters (e.g. camera calibration)
 	  *		- Optionally, the relative positions of a subset of landmarks wrt to their base frame (these are the "fixed" or "known" landmarks).
 	  *
-	  *  See http://www.mrpt.org/srba and the <a href="srba-guide.pdf" >library guide</a> for a list of possible template arguments, code examples, etc.
+	  *  See http://www.mrpt.org/srba and the `srba-guide.pdf` therein for a list of possible template arguments, code examples, etc.
 	  *
-	  * \tparam KF2KF_POSE_TYPE The parameterization of keyframe-to-keyframe relative poses (edges, problem unknowns).
-	  * \tparam LM_TYPE The parameterization of relative positions of landmarks relative poses (edges).
-	  * \tparam OBS_TYPE The type of observations.
-	  * \tparam RBA_OPTIONS A struct with nested typedefs which can be used to tune and customize the behavior of this class.
+	  * \tparam RBA_SETTINGS_T A struct with several typedefs used to configure the SLAM problem. Please, refer to docs, examples and RBA_SETTINGS_DEFAULT
 	  */
-	template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS = RBA_OPTIONS_DEFAULT>
+	template <class RBA_SETTINGS_T>
 	class RbaEngine
 	{
 	public:
 		/** @name Templatized typedef's
 		    @{ */
-		typedef RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS> rba_engine_t;
+		typedef RbaEngine<RBA_SETTINGS_T> rba_engine_t;
 
-		typedef KF2KF_POSE_TYPE kf2kf_pose_type;
-		typedef LM_TYPE         lm_type;
-		typedef OBS_TYPE        obs_type;
-		typedef RBA_OPTIONS     rba_options_type;
+		typedef typename RBA_SETTINGS_T                rba_settings_t;
+		typedef typename RBA_SETTINGS_T::kf2kf_pose_t  kf2kf_pose_t;
+		typedef typename RBA_SETTINGS_T::landmark_t    landmark_t;
+		typedef typename RBA_SETTINGS_T::obs_t         obs_t;
 
-		static const size_t REL_POSE_DIMS = KF2KF_POSE_TYPE::REL_POSE_DIMS;
-		static const size_t LM_DIMS       = LM_TYPE::LM_DIMS;
-		static const size_t OBS_DIMS      = OBS_TYPE::OBS_DIMS;
+		static const size_t REL_POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
+		static const size_t LM_DIMS       = landmark_t::LM_DIMS;
+		static const size_t OBS_DIMS      = obs_t::OBS_DIMS;
 
-		typedef typename KF2KF_POSE_TYPE::se_traits_t  se_traits_t; //!< The SE(2) or SE(3) traits struct (for Lie algebra log/exp maps, etc.)
+		typedef typename kf2kf_pose_t::se_traits_t  se_traits_t; //!< The SE(2) or SE(3) traits struct (for Lie algebra log/exp maps, etc.)
 
-		typedef rba_joint_parameterization_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>  traits_t;
-		typedef jacobian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>                      jacobian_traits_t;
-		typedef hessian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>                       hessian_traits_t;
-		typedef kf2kf_pose_traits<KF2KF_POSE_TYPE>                                     kf2kf_pose_traits_t;
-		typedef landmark_traits<LM_TYPE>                                               landmark_traits_t;
-		typedef observation_traits<OBS_TYPE>                                           observation_traits_t;
+		typedef rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>  traits_t;
+		typedef jacobian_traits<kf2kf_pose_t,landmark_t,obs_t>                      jacobian_traits_t;
+		typedef hessian_traits<kf2kf_pose_t,landmark_t,obs_t>                       hessian_traits_t;
+		typedef kf2kf_pose_traits<kf2kf_pose_t>                                     kf2kf_pose_traits_t;
+		typedef landmark_traits<landmark_t>                                               landmark_traits_t;
+		typedef observation_traits<obs_t>                                           observation_traits_t;
 
-		typedef sensor_model<LM_TYPE,OBS_TYPE>   sensor_model_t; //!< The sensor model for the specified combination of LM parameterization + observation type.
+		typedef sensor_model<landmark_t,obs_t>   sensor_model_t; //!< The sensor model for the specified combination of LM parameterization + observation type.
 
-		typedef typename KF2KF_POSE_TYPE::pose_t  pose_t; //!< The type of relative poses (e.g. mrpt::poses::CPose3D)
-		typedef TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS> rba_problem_state_t;
+		typedef typename kf2kf_pose_t::pose_t  pose_t; //!< The type of relative poses (e.g. mrpt::poses::CPose3D)
+		typedef TRBA_Problem_state<RBA_SETTINGS_T> rba_problem_state_t;
 
 		typedef typename rba_problem_state_t::k2f_edge_t k2f_edge_t;
 		typedef typename rba_problem_state_t::k2k_edge_t k2k_edge_t;
@@ -104,8 +106,8 @@ namespace srba
 		typedef typename observation_traits_t::residual_t          residual_t;
 		typedef typename observation_traits_t::vector_residuals_t  vector_residuals_t;
 
-		typedef typename jacobian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::TSparseBlocksJacobians_dh_dAp TSparseBlocksJacobians_dh_dAp;
-		typedef typename jacobian_traits<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::TSparseBlocksJacobians_dh_df TSparseBlocksJacobians_dh_df;
+		typedef typename jacobian_traits<kf2kf_pose_t,landmark_t,obs_t>::TSparseBlocksJacobians_dh_dAp TSparseBlocksJacobians_dh_dAp;
+		typedef typename jacobian_traits<kf2kf_pose_t,landmark_t,obs_t>::TSparseBlocksJacobians_dh_df TSparseBlocksJacobians_dh_df;
 		/** @} */
 
 		/** Default constructor */
@@ -133,7 +135,7 @@ namespace srba
 			std::vector<size_t> optimized_landmark_indices; //!< The 0-based indices of all landmarks whose relative positions were considered as unknowns in the optimization
 
 			/** Other solver-specific output information */
-			typename RBA_OPTIONS::solver_t::extra_results_t   extra_results;
+			typename RBA_SETTINGS_T::solver_t::extra_results_t   extra_results;
 
 			void clear()
 			{
@@ -215,7 +217,7 @@ namespace srba
 			);
 
 
-		struct TOpenGLRepresentationOptions : public LM_TYPE::render_mode_t::TOpenGLRepresentationOptionsExtra
+		struct TOpenGLRepresentationOptions : public landmark_t::render_mode_t::TOpenGLRepresentationOptionsExtra
 		{
 			TOpenGLRepresentationOptions() :
 				span_tree_max_depth(static_cast<size_t>(-1)),
@@ -375,23 +377,11 @@ namespace srba
 			/** See docs of mrpt::utils::CLoadableOptions */
 			virtual void  saveToConfigFile(mrpt::utils::CConfigFileBase &out,const std::string & section) const;
 
-
-			/** Parameters for determine_kf2kf_edges_to_create(); custom user-defined policies can be also defined (see tutorials) */
-			TEdgeCreationPolicy  edge_creation_policy;
-
 			/** Maximum depth for maintained spanning trees. */
 			topo_dist_t          max_tree_depth;
 
 			/** The maximum topological distance of keyframes to be optimized around the most recent keyframe. */
 			topo_dist_t          max_optimize_depth;
-
-			size_t              submap_size;
-			size_t              min_obs_to_loop_closure; //!< Default:6, reduce to 1 for relative graph-slam
-
-			MRPT_TODO("refactor these vars")
-			std::set<std::pair<TKeyFrameID,TKeyFrameID> > central2central_connected_areas; // 1st the lowest id, to avoid duplicates
-			std::set<size_t> last_kf_kf2kf_edges;
-
 			// -------------------------------------------------------
 
 			// Parameters for optimize_*()
@@ -417,20 +407,15 @@ namespace srba
 		/** The unique struct which hold all the parameters from the different SRBA modules (sensors, optional features, optimizers,...) */
 		struct TAllParameters
 		{
-			/** Different parameters for the SRBA methods \sa sensor_params */
-			TSRBAParameters  srba;
-
-			/** Sensor-specific parameters (sensor calibration, etc.) \sa parameters */
-			typename OBS_TYPE::TObservationParams   sensor;
-
-			/** Parameters related to the relative pose of sensors wrt the robot (if applicable) */
-			typename RBA_OPTIONS::sensor_pose_on_robot_t::parameters_t  sensor_pose;
-
-			/** Parameters related to the sensor noise covariance matrix */
-			typename RBA_OPTIONS::obs_noise_matrix_t::parameters_t      obs_noise;
+			TSRBAParameters                                                srba;        //!< Different parameters for the SRBA methods \sa sensor_params
+			typename obs_t::TObservationParams                             sensor;      //!< Sensor-specific parameters (sensor calibration, etc.) \sa parameters
+			typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  sensor_pose; //!< Parameters related to the relative pose of sensors wrt the robot (if applicable) 
+			typename RBA_SETTINGS_T::obs_noise_matrix_t::parameters_t      obs_noise;   //!< Parameters related to the sensor noise covariance matrix
+			typename RBA_SETTINGS_T::edge_creation_policy_t::parameters_t  ecp;         //!< Parameters for the edge creation policy
 		};
+		TAllParameters parameters; //!< Hierarchical struct with all parameters
 
-		TAllParameters parameters;
+		typename RBA_SETTINGS_T::edge_creation_policy_t   edge_creation_policy; //!< The edge creation policy object
 
 		/** @} */  // End of data fields
 
@@ -475,26 +460,11 @@ namespace srba
 	protected:
 		int m_verbose_level; //!< 0: None (only critical msgs), 1: verbose, 2:even more verbose, 3: even more
 
-		typedef std::multimap<size_t,TKeyFrameID,std::greater<size_t> > base_sorted_lst_t;
-
 		/** @name (Protected) Sub-algorithms
 		    @{ */
 
-		/** Make a list of base KFs of my new observations, ordered in descending order by # of shared observations: */
-		void make_ordered_list_base_kfs(
-			const typename traits_t::new_kf_observations_t & obs,
-			base_sorted_lst_t            & obs_for_each_base_sorted,
-			std::map<TKeyFrameID,size_t>       *out_obs_for_each_base =NULL ) const;
-
 		/** This method will call edge_creation_policy(), which has predefined algorithms but could be re-defined by the user in a derived class */
 		void determine_kf2kf_edges_to_create(
-			const TKeyFrameID               new_kf_id,
-			const typename traits_t::new_kf_observations_t   & obs,
-			std::vector<TNewEdgeInfo> &new_k2k_edge_ids );
-
-		/** Implements the edge-creation policy, by default depending on "parameters.edge_creation_policy" if the user doesn't re-implement this virtual method.
-		  * See tutorials for examples of how to implement custom policies. */
-		virtual void edge_creation_policy(
 			const TKeyFrameID               new_kf_id,
 			const typename traits_t::new_kf_observations_t   & obs,
 			std::vector<TNewEdgeInfo> &new_k2k_edge_ids );
@@ -696,8 +666,8 @@ namespace srba
 				const array_landmark_t & _xji_i,
 				const bool _is_inverse_dir,
 				const k2k_edges_deque_t  &_k2k_edges,
-				const typename OBS_TYPE::TObservationParams   & _sensor_params,
-				const typename RBA_OPTIONS::sensor_pose_on_robot_t::parameters_t  & _sensor_pose
+				const typename obs_t::TObservationParams   & _sensor_params,
+				const typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  & _sensor_pose
 				) :
 			k2k_edge_id(_k2k_edge_id),
 			pose_d1_wrt_obs(_pose_d1_wrt_obs),
@@ -716,8 +686,8 @@ namespace srba
 			const array_landmark_t & xji_i;
 			const bool is_inverse_dir;
 			const k2k_edges_deque_t  &k2k_edges;
-			const typename OBS_TYPE::TObservationParams   & sensor_params;
-			const typename RBA_OPTIONS::sensor_pose_on_robot_t::parameters_t  & sensor_pose;
+			const typename obs_t::TObservationParams   & sensor_params;
+			const typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  & sensor_pose;
 		};
 
 		struct TNumeric_dh_df_params
@@ -725,8 +695,8 @@ namespace srba
 			TNumeric_dh_df_params(
 				const pose_t * _pose_base_wrt_obs,
 				const array_landmark_t & _xji_i,
-				const typename OBS_TYPE::TObservationParams   & _sensor_params,
-				const typename RBA_OPTIONS::sensor_pose_on_robot_t::parameters_t  & _sensor_pose
+				const typename obs_t::TObservationParams   & _sensor_params,
+				const typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  & _sensor_pose
 				) :
 			pose_base_wrt_obs(_pose_base_wrt_obs),
 			xji_i(_xji_i),
@@ -737,8 +707,8 @@ namespace srba
 
 			const pose_t * pose_base_wrt_obs;
 			const array_landmark_t & xji_i;
-			const typename OBS_TYPE::TObservationParams   & sensor_params;
-			const typename RBA_OPTIONS::sensor_pose_on_robot_t::parameters_t  & sensor_pose;
+			const typename obs_t::TObservationParams   & sensor_params;
+			const typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  & sensor_pose;
 		};
 
 		/** Auxiliary method for numeric Jacobian: numerically evaluates the new observation "y" for a small increment "x" in a relative KF-to-KF pose */
@@ -794,6 +764,8 @@ namespace srba
 // -----------------------------------------------------------------
 //          Include all template implementation files
 // -----------------------------------------------------------------
+#include "impl/make_ordered_list_base_kfs.h"  // Internal aux function
+
 #include "impl/add-observations.h"
 #include "impl/alloc_keyframe.h"
 #include "impl/alloc_kf2kf_edge.h"
@@ -809,23 +781,17 @@ namespace srba
 #include "impl/spantree_update_symbolic.h"
 #include "impl/spantree_update_numeric.h"
 #include "impl/spantree_misc.h"
-
 #include "impl/jacobians.h"
 
 #include "impl/export_opengl.h"
 #include "impl/export_dot.h"
 #include "impl/get_global_graphslam_problem.h"
-
 #include "impl/eval_overall_error.h"
-
 #include "impl/determine_kf2kf_edges_to_create.h"
-#include "impl/edge_creation_policy.h"
-
 #include "impl/reprojection_residuals.h"
 #include "impl/compute_minus_gradient.h"
 #include "impl/optimize_edges.h"
 #include "impl/lev-marq_solvers.h"
-
 #include "impl/bfs_visitor.h"
 #include "impl/optimize_local_area.h"
 // -----------------------------------------------------------------

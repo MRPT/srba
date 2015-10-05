@@ -20,8 +20,8 @@ namespace srba {
 //
 // RbaEngine<>::build_opengl_representation
 //
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_representation(
+template <class RBA_SETTINGS_T>
+void RbaEngine<RBA_SETTINGS_T>::build_opengl_representation(
 	const srba::TKeyFrameID root_keyframe,
 	const TOpenGLRepresentationOptions &options,
 	mrpt::opengl::CSetOfObjectsPtr out_scene,
@@ -92,7 +92,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 			out_scene->insert(gl_edges);
 
 			// Render landmarks:
-			LandmarkRendererBase<typename LM_TYPE::render_mode_t>::render(*this,root_keyframe,spantree, options,*out_scene);
+			LandmarkRendererBase<typename landmark_t::render_mode_t>::render(*this,root_keyframe,spantree, options,*out_scene);
 
 		} // end if graph is not empty
 
@@ -184,8 +184,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 }
 
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::gl_aux_draw_node(mrpt::opengl::CSetOfObjects &soo, const std::string &label, const float x, const float y) const
+template <class RBA_SETTINGS_T>
+void RbaEngine<RBA_SETTINGS_T>::gl_aux_draw_node(mrpt::opengl::CSetOfObjects &soo, const std::string &label, const float x, const float y) const
 {
 	{
 		mrpt::opengl::CDiskPtr obj = mrpt::opengl::CDisk::Create();

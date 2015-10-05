@@ -11,8 +11,8 @@
 
 namespace srba {
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::create_kf2kf_edge(
+template <class RBA_SETTINGS_T>
+size_t RbaEngine<RBA_SETTINGS_T>::create_kf2kf_edge(
 	const TKeyFrameID        new_kf_id,
 	const TPairKeyFrameID  & new_edge,
 	const typename traits_t::new_kf_observations_t   & obs,
@@ -29,10 +29,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::create_kf2kf_edg
 	rba_state.spanning_tree.update_symbolic_new_node(
 		new_kf_id,
 		new_edge,
-		parameters.srba.max_tree_depth,
-		(parameters.srba.edge_creation_policy==ecpLinearGraph),   // check_all_obs_are_connected
-		&obs   // Only needed under the "linear graph" policy, to determine missing parts of the spanning tree to be filled in here
-		);
+		parameters.srba.max_tree_depth );
 
 	m_profiler.leave("define_new_keyframe.st.update_symbolic");
 

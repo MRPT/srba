@@ -16,8 +16,8 @@ namespace srba {
 
 	    grad = J^t * (h(x)-z)
  *******************************************/
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_gradient(
+template <class RBA_SETTINGS_T>
+void RbaEngine<RBA_SETTINGS_T>::compute_minus_gradient(
 	Eigen::VectorXd & minus_grad,
 	const std::vector<typename TSparseBlocksJacobians_dh_dAp::col_t*> & sparse_jacobs_Ap,
 	const std::vector<typename TSparseBlocksJacobians_dh_df::col_t*> & sparse_jacobs_f,
@@ -26,8 +26,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 	) const
 {
 	// Problem dimensions:
-	const size_t POSE_DIMS = KF2KF_POSE_TYPE::REL_POSE_DIMS;
-	const size_t LM_DIMS   = LM_TYPE::LM_DIMS;
+	const size_t POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
+	const size_t LM_DIMS   = landmark_t::LM_DIMS;
 
 	const size_t nUnknowns_k2k = sparse_jacobs_Ap.size();
 	const size_t nUnknowns_k2f = sparse_jacobs_f.size();
@@ -57,10 +57,10 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 
-			RBA_OPTIONS::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
+			RBA_SETTINGS_T::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
 		}
 		// Do scaling (if applicable):
-		RBA_OPTIONS::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
+		RBA_SETTINGS_T::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
 
 		minus_grad.block<POSE_DIMS,1>(i*POSE_DIMS,0) = accum_g_i;
 	}
@@ -81,10 +81,10 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 
-			RBA_OPTIONS::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
+			RBA_SETTINGS_T::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
 		}
 		// Do scaling (if applicable):
-		RBA_OPTIONS::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
+		RBA_SETTINGS_T::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
 
 		minus_grad.block<LM_DIMS,1>(idx_start_f+i*LM_DIMS,0) = accum_g_i;
 	}

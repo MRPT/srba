@@ -13,10 +13,10 @@ namespace srba {
 
 #define OBS_SUPER_VERBOSE   0
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
+template <class RBA_SETTINGS_T>
+size_t RbaEngine<RBA_SETTINGS_T>::add_observation(
 	const TKeyFrameID            observing_kf_id,
-	const typename observation_traits<OBS_TYPE>::observation_t     & new_obs,
+	const typename observation_traits<obs_t>::observation_t     & new_obs,
 	const array_landmark_t * fixed_relative_position,
 	const array_landmark_t * unknown_relative_position_init_val
 	)
@@ -63,7 +63,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 
 			// Add to list of all LMs:   Amortized O(1)
 			if (new_obs.feat_id >= rba_state.all_lms.size()) rba_state.all_lms.resize(new_obs.feat_id+1);
-			rba_state.all_lms[new_obs.feat_id] = typename landmark_traits<LM_TYPE>::TLandmarkEntry(true /*known pos.*/, &it_new->second);
+			rba_state.all_lms[new_obs.feat_id] = typename landmark_traits<landmark_t>::TLandmarkEntry(true /*known pos.*/, &it_new->second);
 		}
 		else
 		{	// LM with UNKNOWN relative position.
@@ -79,7 +79,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 				sensor_model_t::inverse_sensor_model(new_rfp.pos,new_obs.obs_data,this->parameters.sensor);
 
 				// Take into account the sensor pose wrt the KF:
-				RBA_OPTIONS::sensor_pose_on_robot_t::template sensor2robot_point<LM_TYPE>(new_rfp.pos, this->parameters.sensor_pose );
+				RBA_SETTINGS_T::sensor_pose_on_robot_t::template sensor2robot_point<landmark_t>(new_rfp.pos, this->parameters.sensor_pose );
 			}
 
 			typename TRelativeLandmarkPosMap::iterator it_new = rba_state.unknown_lms.insert(
@@ -89,7 +89,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 
 			// Add to list of all LMs:
 			if (new_obs.feat_id >= rba_state.all_lms.size()) rba_state.all_lms.resize(new_obs.feat_id+1);
-			rba_state.all_lms[new_obs.feat_id] = typename landmark_traits<LM_TYPE>::TLandmarkEntry(false /*unknown pos.*/, &it_new->second);
+			rba_state.all_lms[new_obs.feat_id] = typename landmark_traits<landmark_t>::TLandmarkEntry(false /*unknown pos.*/, &it_new->second);
 
 			// Expand Jacobian dh_df to accomodate a new column for a new unknown:
 			// ("Remap indices" in dh_df for each column are the feature IDs of those feature with unknown positions)

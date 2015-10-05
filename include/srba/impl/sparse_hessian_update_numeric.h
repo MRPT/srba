@@ -17,9 +17,9 @@ namespace srba {
 	* \tparam SPARSEBLOCKHESSIAN can be: TSparseBlocksHessian_6x6, TSparseBlocksHessian_3x3 or TSparseBlocksHessian_6x3
 	* \return The number of Jacobian multiplications skipped due to its observation being marked as "invalid"
 	*/
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+template <class RBA_SETTINGS_T>
 template <class SPARSEBLOCKHESSIAN>
-size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_update_numeric( SPARSEBLOCKHESSIAN & H ) const
+size_t RbaEngine<RBA_SETTINGS_T>::sparse_hessian_update_numeric( SPARSEBLOCKHESSIAN & H ) const
 {
 	size_t nInvalid = 0;
 	const size_t nUnknowns = H.getColCount();
@@ -45,13 +45,13 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_u
 				if (*sym_k.J1_valid && *sym_k.J2_valid)
 				{
 					// Accumulate Hessian sub-blocks:
-					RBA_OPTIONS::obs_noise_matrix_t::template accum_JtJ(Hij, *sym_k.J1, *sym_k.J2, sym_k.obs_idx, this->parameters.obs_noise );
+					RBA_SETTINGS_T::obs_noise_matrix_t::template accum_JtJ(Hij, *sym_k.J1, *sym_k.J2, sym_k.obs_idx, this->parameters.obs_noise );
 				}
 				else nInvalid++;
 			}
 
 			// Do scaling (if applicable):
-			RBA_OPTIONS::obs_noise_matrix_t::template scale_H(Hij, this->parameters.obs_noise );
+			RBA_SETTINGS_T::obs_noise_matrix_t::template scale_H(Hij, this->parameters.obs_noise );
 
 			entry.num = Hij;
 		}

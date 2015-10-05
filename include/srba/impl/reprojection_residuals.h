@@ -12,8 +12,8 @@
 namespace srba {
 
 /** reprojection_residuals */
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::reprojection_residuals(
+template <class RBA_SETTINGS_T>
+double RbaEngine<RBA_SETTINGS_T>::reprojection_residuals(
 	vector_residuals_t & residuals, // Out:
 	const std::vector<TObsUsed> & observations // In:
 	) const
@@ -53,8 +53,8 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::reprojection_res
 		}
 
 		// pose_robot2sensor(): pose wrt sensor = pose_wrt_robot (-) sensor_pose_on_the_robot
-		typename options::internal::resulting_pose_t<typename RBA_OPTIONS::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
-		RBA_OPTIONS::sensor_pose_on_robot_t::pose_robot2sensor( *base_pose_wrt_observer, base_pose_wrt_sensor, this->parameters.sensor_pose );
+		typename options::internal::resulting_pose_t<typename RBA_SETTINGS_T::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
+		RBA_SETTINGS_T::sensor_pose_on_robot_t::pose_robot2sensor( *base_pose_wrt_observer, base_pose_wrt_sensor, this->parameters.sensor_pose );
 
 		const array_obs_t & real_obs = observations[i].k2f->obs.obs_arr;
 		residual_t &delta = residuals[i];

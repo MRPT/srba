@@ -16,7 +16,7 @@
 namespace srba {
 namespace options
 {
-	/** \defgroup mrpt_srba_options_pose_on_robot Types for RBA_OPTIONS::sensor_pose_on_robot_t 
+	/** \defgroup mrpt_srba_options_pose_on_robot Types for RBA_SETTINGS_T::sensor_pose_on_robot_t 
 		* \ingroup mrpt_srba_options */
 
 		namespace internal {
@@ -25,7 +25,7 @@ namespace options
 			template <class SENSOR_POSE_CLASS, size_t KF_POSE_DIMS> struct resulting_pose_t;
 		}
 
-		/** Usage: A possible type for RBA_OPTIONS::sensor_pose_on_robot_t.
+		/** Usage: A possible type for RBA_SETTINGS_T::sensor_pose_on_robot_t.
 		  * Meaning: The robot pose and the sensor pose coincide, i.e. the sensor pose on the
 		  * robot is the identitity transformation.
 		  * \ingroup mrpt_srba_options_pose_on_robot */
@@ -54,7 +54,7 @@ namespace options
 
 			/** Converts a point relative to the robot coordinate frame (P) into a point relative
 			 * to the sensor (RES = P \ominus POSE_IN_ROBOT ) */
-			template <class LM_TYPE, class POINT>
+			template <class landmark_t, class POINT>
 			static inline void point_robot2sensor(const POINT & pt_wrt_robot,
 				POINT & pt_wrt_sensor, const parameters_t &p) {
 				MRPT_UNUSED_PARAM(p);
@@ -86,7 +86,7 @@ namespace options
 				typedef mrpt::poses::CPose3D pose_t; };
 		}
 
-		/** Usage: A possible type for RBA_OPTIONS::sensor_pose_on_robot_t.
+		/** Usage: A possible type for RBA_SETTINGS_T::sensor_pose_on_robot_t.
 		  * Meaning: The sensor is located at an arbitrary SE(3) pose wrt the robot reference frame.
 		  * \ingroup mrpt_srba_options_pose_on_robot */
 		struct sensor_pose_on_robot_se3
@@ -114,10 +114,10 @@ namespace options
 
 			/** Converts a point relative to the robot coordinate frame (P) into a point relative
 			 * to the sensor (RES = P \ominus POSE_IN_ROBOT ) */
-			template <class LM_TYPE,class POINT>
+			template <class landmark_t,class POINT>
 			static inline void point_robot2sensor(const POINT & pt_wrt_robot,
 				POINT & pt_wrt_sensor, const parameters_t &p) {
-				LM_TYPE::inverseComposePosePoint(pt_wrt_robot,pt_wrt_sensor,p.relative_pose);
+				landmark_t::inverseComposePosePoint(pt_wrt_robot,pt_wrt_sensor,p.relative_pose);
 			}
 
 			/** Take into account the possible displacement of the sensor wrt the keyframe when

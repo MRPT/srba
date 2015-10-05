@@ -29,8 +29,8 @@ namespace internal
 	{
 		typedef typename RBA_ENGINE::hessian_traits_t hessian_traits_t;
 
-		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_type::REL_POSE_DIMS;
-		static const size_t LM_DIMS   = RBA_ENGINE::lm_type::LM_DIMS;
+		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_t::REL_POSE_DIMS;
+		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
 		mrpt::utils::CTimeLogger &m_profiler;
@@ -201,7 +201,7 @@ namespace internal
 		}
 
 		/** Here, out_info is of type srba::options::solver_LM_schur_sparse_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::RBA_SETTINGS_T::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
 			if (sS) sS->swap(out_info.hessian);
@@ -215,8 +215,8 @@ namespace internal
 	{
 		typedef typename RBA_ENGINE::hessian_traits_t hessian_traits_t;
 
-		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_type::REL_POSE_DIMS;
-		static const size_t LM_DIMS   = RBA_ENGINE::lm_type::LM_DIMS;
+		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_t::REL_POSE_DIMS;
+		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
 		mrpt::utils::CTimeLogger &m_profiler;
@@ -394,7 +394,7 @@ namespace internal
 			return schur_compl.was_ith_feature_invertible(i);
 		}
 		/** Here, out_info is of type srba::options::solver_LM_no_schur_sparse_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::RBA_SETTINGS_T::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
 			if (sS) sS->swap(out_info.hessian);
@@ -408,8 +408,8 @@ namespace internal
 	{
 		typedef typename RBA_ENGINE::hessian_traits_t hessian_traits_t;
 
-		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_type::REL_POSE_DIMS;
-		static const size_t LM_DIMS   = RBA_ENGINE::lm_type::LM_DIMS;
+		static const size_t POSE_DIMS = RBA_ENGINE::kf2kf_pose_t::REL_POSE_DIMS;
+		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
 		mrpt::utils::CTimeLogger &m_profiler;
@@ -578,7 +578,7 @@ namespace internal
 			return schur_compl.was_ith_feature_invertible(i);
 		}
 		/** Here, out_info is of type srba::options::solver_LM_schur_dense_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_options_type::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::rba_settings_t::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = hessian_is_valid;
 			denseH.swap(out_info.hessian);

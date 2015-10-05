@@ -9,23 +9,7 @@
 
 #pragma once
 
-namespace srba {
+/** \defgroup mrpt_srba_ecps Edge creation policies
+	* \ingroup mrpt_srba_ecps */
 
-/** Append an empty new keyframe to the data structures
-  * \return The ID of the new KF.
-  * \note Runs in O(1)
-  */
-template <class RBA_SETTINGS_T>
-TKeyFrameID RbaEngine<RBA_SETTINGS_T>::alloc_keyframe()
-{
-	// ==== Assign a free ID to the new KF   : O(1) ====
-	const TKeyFrameID new_kf_id = rba_state.keyframes.size();
-
-	// ==== Create new KF struct: insert at end of std::map<>  : O(1) ====
-	rba_state.keyframes.push_back( keyframe_info() );
-	//keyframe_info &kfi_new = rba_state.keyframes.back();
-	return new_kf_id;
-}
-
-
-} // end NS
+#include "ecps/local_areas_fixed_size.h"

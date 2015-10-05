@@ -12,8 +12,8 @@
 namespace srba {
 
 /** Exports all the keyframes and landmarks as a directed graph in DOT (graphviz) format */
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-bool RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::save_graph_as_dot(
+template <class RBA_SETTINGS_T>
+bool RbaEngine<RBA_SETTINGS_T>::save_graph_as_dot(
 	const std::string &targetFileName,
 	const bool all_landmarks
 	) const

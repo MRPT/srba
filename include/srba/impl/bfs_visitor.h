@@ -11,14 +11,14 @@
 
 namespace srba {
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+template <class RBA_SETTINGS_T>
 template <
 	class KF_VISITOR,
 	class FEAT_VISITOR,
 	class K2K_EDGE_VISITOR,
 	class K2F_EDGE_VISITOR
 	>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::bfs_visitor(
+void RbaEngine<RBA_SETTINGS_T>::bfs_visitor(
 	const TKeyFrameID  root_id,
 	const topo_dist_t  max_distance,
 	const bool         rely_on_prebuilt_spanning_trees,
