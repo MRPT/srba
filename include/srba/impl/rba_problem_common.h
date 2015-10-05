@@ -37,7 +37,7 @@ RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::TSRBAP
 	max_tree_depth       ( 4 ),
 	max_optimize_depth   ( 4 ),
 	submap_size          ( 15 ),
-	min_obs_to_loop_closure ( 6 ),
+	min_obs_to_loop_closure ( 4 ),
 	// -------------------------------
 	optimize_new_edges_alone (true),
 	use_robust_kernel    ( false ),
