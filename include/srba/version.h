@@ -6,20 +6,8 @@
    | See: http://www.mrpt.org/Authors - All rights reserved.                   |
    | Released under BSD License. See details in http://www.mrpt.org/License    |
    +---------------------------------------------------------------------------+ */
-#ifndef mrpt_srba_H
-#define mrpt_srba_H
 
-#include <mrpt/config.h>
+#pragma once
 
-// Public API:
-#include "srba/version.h"
-#include "srba/srba_types.h"
-#include "srba/RbaEngine.h"
-
-// Models:
-#include "srba/models/kf2kf_poses.h"
-#include "srba/models/landmarks.h"
-#include "srba/models/observations.h"
-#include "srba/models/sensors.h"
-
-#endif
+/** Library version: 0xMmP (M=Major,m=minor,P=patch) */
+#define SRBA_VERSION 0x139
