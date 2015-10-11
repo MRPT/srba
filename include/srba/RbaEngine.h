@@ -16,6 +16,7 @@
 #include <mrpt/utils/CTimeLogger.h>
 #include <mrpt/utils/CLoadableOptions.h>
 #include <mrpt/opengl/CSetOfObjects.h>
+#include <mrpt/poses/CPose3DQuat.h> // Needed by "CNetworkOfPoses.h" in older mrpt versions
 #include <mrpt/graphs/CNetworkOfPoses.h>
 #include <mrpt/system/os.h>
 #include "impl/make_ordered_list_base_kfs.h"  // Internal aux function
