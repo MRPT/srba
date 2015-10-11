@@ -60,8 +60,8 @@ endif()
 # ---------------------------------------------------------------
 SET(THE_INCLUDE_DIRECTORIES "${SRBA_ALL_SOURCE_DIR}/include")
 CONFIGURE_FILE(
-	"${SRBA_ALL_SOURCE_DIR}/SRBA-config.cmake.in"
-    "${SRBA_ALL_BINARY_DIR}/SRBA-config.cmake" @ONLY IMMEDIATE )
+	"${SRBA_ALL_SOURCE_DIR}/srba-config.cmake.in"
+    "${SRBA_ALL_BINARY_DIR}/srba-config.cmake" @ONLY IMMEDIATE )
 
 SET(SRBA_DIR ${SRBA_ALL_BINARY_DIR} CACHE PATH "Directory for SRBA-config.cmake" )
 MARK_AS_ADVANCED(SRBA_DIR)
