@@ -145,8 +145,14 @@ struct local_areas_fixed_size
 					{
 						nei.has_aprox_init_val = true;
 						// Get the relative post from the numeric spanning tree, which should be up-to-date:
-						rba_engine.get_rba_state().k2k_edges[nei.id].inv_pose = rba_engine.get_rba_state().spanning_tree.num[central_kf_id][nei.id-1].pose;
-						MRPT_TODO("check missing entry");
+						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_engine.get_rba_state().spanning_tree.num.find(central_kf_id);
+						ASSERT_(it_tree4_central!=rba_engine.get_rba_state().spanning_tree.num.end())
+
+						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::frameid2pose_map_t::const_iterator it_nei_1 = 
+							it_tree4_central->second.find(nei.id-1);
+						ASSERT_(it_nei_1!=it_tree4_central->second.end())
+
+						rba_engine.get_rba_state().k2k_edges[nei.id].inv_pose = it_nei_1->second.pose;
 					}
 					else
 					{

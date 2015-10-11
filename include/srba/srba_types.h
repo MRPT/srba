@@ -334,7 +334,8 @@ namespace srba
 	template <class kf2kf_pose_t,class landmark_t,class obs_t>
 	struct rba_joint_parameterization_traits_t
 	{
-		typedef landmark_t original_landmark_t;
+		typedef landmark_t   original_landmark_t;
+		typedef kf2kf_pose_t original_kf2kf_pose_t;
 
 		typedef kf2kf_pose_traits<kf2kf_pose_t> kf2kf_traits_t;
 		typedef observation_traits<obs_t>       obs_traits_t;

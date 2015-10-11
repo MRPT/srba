@@ -88,7 +88,6 @@ RBASLAM_Params::RBASLAM_Params(int argc, char**argv) :
 	arg_max_opt_depth("","max-optimize-depth","Overrides this parameter in config files",false,4,"depth",cmd),
 	arg_max_lambda("","max-lambda","Marq-Lev. optimization: maximum lambda to stop iterating",false,1e20,"depth",cmd),
 	arg_max_iters("","max-iters","Max. number of optimization iterations.",false,20,"",cmd),
-	arg_edge_policy("","edge-policy","Policy for edge creation, as textual names of the enum TEdgeCreationPolicy",false,"ecpICRA2013","ecpICRA2013",cmd),
 	arg_submap_size("","submap-size","Number of KFs in each 'submap' of the arc-creation policy.",false,20,"20",cmd),
 	arg_verbose("v","verbose","0:quiet, 1:informative, 2:tons of info",false,1,"",cmd),
 	arg_random_seed("","random-seed","<0: randomize; >=0, use this random seed.",false,-1,"",cmd),

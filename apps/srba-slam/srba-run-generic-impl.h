@@ -33,13 +33,7 @@ using namespace mrpt::utils;
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
 RBA_Run_BasePtr RBA_Run_Factory<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::create()
 {
-	return RBA_Run_BasePtr(
-		new RBA_Run<
-			KF2KF_POSE_TYPE,
-			LM_TYPE,
-			OBS_TYPE,
-			typename problem_options_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::srba_options_t
-			>() );
+	return RBA_Run_BasePtr( new RBA_Run< KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE, problem_settings_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE> >() );
 }
 
 
@@ -87,16 +81,10 @@ struct InitializerSensorPoseParams<options::sensor_pose_on_robot_se3>
 };
 
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS>
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_SETTINGS>
 struct RBA_Run : public RBA_Run_Base
 {
-	typedef RbaEngine<
-		KF2KF_POSE_TYPE, // Parameterization  KF-to-KF poses
-		LM_TYPE,         // Parameterization of landmark positions
-		OBS_TYPE,        // Type of observations
-		RBA_OPTIONS      // Other parameters
-		>
-		my_srba_t;
+	typedef RbaEngine<RBA_SETTINGS> my_srba_t;
 
 	// Constructor:
 	virtual int run(RBASLAM_Params &cfg)
@@ -118,7 +106,7 @@ struct RBA_Run : public RBA_Run_Base
 
 
 		// Init sensor-to-robot relative pose parameters:
-		InitializerSensorPoseParams<typename RBA_OPTIONS::sensor_pose_on_robot_t>::init(rba, cfg);
+		InitializerSensorPoseParams<typename RBA_SETTINGS::sensor_pose_on_robot_t>::init(rba, cfg);
 
 		// Process cmd-line flags:
 		// ------------------------------------------
@@ -153,13 +141,6 @@ struct RBA_Run : public RBA_Run_Base
 			cout << "Overriding max_tree_depth to value: " << rba.parameters.srba.max_tree_depth << endl;
 		}
 
-		// Override policy:
-		if (cfg.arg_edge_policy.isSet())
-		{
-			rba.parameters.srba.edge_creation_policy = mrpt::utils::TEnumType<srba::TEdgeCreationPolicy>::name2value(cfg.arg_edge_policy.getValue());
-			cout << "Overriding edge_creation_policy to value: " <<cfg.arg_edge_policy.getValue() << endl;
-		}
-
 		// Override max optimize depth:
 		if (cfg.arg_max_opt_depth.isSet())
 		{
@@ -184,13 +165,13 @@ struct RBA_Run : public RBA_Run_Base
 		// Override submap
 		if (cfg.arg_submap_size.isSet())
 		{
-			rba.parameters.srba.submap_size =cfg.arg_submap_size.getValue();
-			cout << "Overriding submap_size to value: " << rba.parameters.srba.submap_size << endl;
+			rba.parameters.ecp.submap_size =cfg.arg_submap_size.getValue();
+			cout << "Overriding submap_size to value: " << rba.parameters.ecp.submap_size << endl;
 		}
 
 		if (cfg.arg_graph_slam.isSet())
 		{
-			rba.parameters.srba.min_obs_to_loop_closure = 1;
+			rba.parameters.ecp.min_obs_to_loop_closure = 1;
 			rba.parameters.srba.optimize_new_edges_alone = true;
 		}
 

@@ -43,7 +43,6 @@ struct RBASLAM_Params
 	TCLAP::ValueArg<unsigned int> arg_max_opt_depth;
 	TCLAP::ValueArg<double> arg_max_lambda;
 	TCLAP::ValueArg<unsigned int> arg_max_iters;
-	TCLAP::ValueArg<std::string>       arg_edge_policy;
 	TCLAP::ValueArg<unsigned int> arg_submap_size;
 	TCLAP::ValueArg<unsigned int> arg_verbose;
 	TCLAP::ValueArg<int> arg_random_seed;
@@ -82,7 +81,7 @@ struct RBA_Run_Base
 #endif
 
 // Forward decl:
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS>
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_SETTINGS>
 struct RBA_Run;
 
 // ----------- RBA Problem factories ----------------------------
@@ -124,11 +123,11 @@ private:
 // Declare a "srba_options_t" type for each kind of problem:
 // ------------------------------------------------------------------------
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
-struct problem_options_traits_t
+struct problem_settings_traits_t : public srba::RBA_SETTINGS_DEFAULT
 {
-	// Default implementation:
-	typedef srba::RBA_OPTIONS_DEFAULT srba_options_t;
-
+	typedef KF2KF_POSE_TYPE  kf2kf_pose_t;
+	typedef LM_TYPE          landmark_t;
+	typedef OBS_TYPE         obs_t;
 };
 
 

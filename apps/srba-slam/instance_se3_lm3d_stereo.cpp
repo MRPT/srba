@@ -34,15 +34,15 @@ struct InitializerSensorParams<srba::observations::StereoCamera>
 
 // Specializations:
 template <>
-struct problem_options_traits_t<kf2kf_poses::SE3,landmarks::Euclidean3D,observations::StereoCamera>
+struct problem_settings_traits_t<kf2kf_poses::SE3,landmarks::Euclidean3D,observations::StereoCamera>  : public srba::RBA_SETTINGS_DEFAULT
 {
+	typedef kf2kf_poses::SE3                  kf2kf_pose_t;
+	typedef landmarks::Euclidean3D            landmark_t;
+	typedef observations::StereoCamera        obs_t;
+
 	// Camera sensors have a different coordinate system wrt the robot (rotated yaw=-90, pitch=0, roll=-90)
-	struct srba_options_t
-	{
-		typedef options::sensor_pose_on_robot_se3     sensor_pose_on_robot_t;
-		typedef options::observation_noise_identity   obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
-		typedef options::solver_LM_schur_dense_cholesky      solver_t;
-	};
+	typedef options::sensor_pose_on_robot_se3     sensor_pose_on_robot_t;
+	typedef options::solver_LM_schur_dense_cholesky      solver_t;
 };
 
 // Explicit instantiation:

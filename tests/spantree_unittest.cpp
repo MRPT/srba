@@ -46,10 +46,10 @@ void test_spantree_topology(
 	const uint32_t rnd_seed)
 {
 	randomGenerator.randomize(rnd_seed);
-	my_rba_t::traits_t::new_kf_observations_t  dummy_obs; // Not used
+	my_srba_t::traits_t::new_kf_observations_t  dummy_obs; // Not used
 
 	// The test object:
-	my_rba_t rba;
+	my_srba_t rba;
 	rba.enable_time_profiler(false);
 	rba.parameters.srba.max_tree_depth = max_depth;
 
@@ -127,15 +127,15 @@ void test_spantree_topology(
 
 	// Compare incremental STs with BFS trees:
 	// --------------------------------------------
-	const my_rba_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t & kf_nexts = rba.get_rba_state().spanning_tree.sym.next_edge;
+	const my_srba_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t & kf_nexts = rba.get_rba_state().spanning_tree.sym.next_edge;
 	for (size_t kf=0;kf<nKFs;kf++)
 	{
 		// Run BFS to find reachable KFs:
-		my_rba_t::frameid2pose_map_t st;
+		my_srba_t::frameid2pose_map_t st;
 		rba.create_complete_spanning_tree(kf,st,max_depth);
 
 		// Check if number of reachable KFs matches:
-		my_rba_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_st_it = kf_nexts.find(kf);
+		my_srba_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_st_it = kf_nexts.find(kf);
 		ASSERT_(it_st_it != kf_nexts.end())
 
 		const std::map<TKeyFrameID,TSpanTreeEntry> & st_i = it_st_it->second;
@@ -155,13 +155,13 @@ void test_spantree_topology(
 		}
 
 		// Get the numeric ST of this KF:
-		kf2kf_pose_traits<my_rba_t::kf2kf_pose_type>::TRelativePosesForEachTarget::const_iterator it_num_st_i = rba.get_rba_state().spanning_tree.num.find(kf);
+		kf2kf_pose_traits<my_srba_t::kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_num_st_i = rba.get_rba_state().spanning_tree.num.find(kf);
 		ASSERT_(it_num_st_i != rba.get_rba_state().spanning_tree.num.end())
 
-		const my_rba_t::frameid2pose_map_t & num_st_i = it_num_st_i->second;
+		const my_srba_t::frameid2pose_map_t & num_st_i = it_num_st_i->second;
 
 		// For each reachable KF:
-		for (my_rba_t::frameid2pose_map_t::const_iterator it=st.begin();it!=st.end();++it)
+		for (my_srba_t::frameid2pose_map_t::const_iterator it=st.begin();it!=st.end();++it)
 		{
 			const TKeyFrameID dst_kf = it->first;
 			if (dst_kf==kf) continue;
@@ -204,7 +204,7 @@ void test_spantree_topology(
 			// -------------------------------------------------------------------------------
 			const mrpt::poses::CPose3D &rel_pose_complete_st = it->second.pose;
 
-			my_rba_t::frameid2pose_map_t::const_iterator it_num_st_i_j = num_st_i.find(dst_kf);
+			my_srba_t::frameid2pose_map_t::const_iterator it_num_st_i_j = num_st_i.find(dst_kf);
 			ASSERT_(it_num_st_i_j != num_st_i.end())
 
 			const mrpt::poses::CPose3D &rel_pose_incr_st = it_num_st_i_j->second.pose;

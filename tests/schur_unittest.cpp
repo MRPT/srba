@@ -82,7 +82,7 @@ protected:
 		const double lambda = 1e3 )
 	{
 		// A linear system object holds the sparse Jacobians for a set of observations.
-		my_rba_t::rba_problem_state_t::TLinearSystem  lin_system;
+		my_srba_t::rba_problem_state_t::TLinearSystem  lin_system;
 
 		size_t nUnknowns_k2k=0, nUnknowns_k2f=0;
 
@@ -115,7 +115,7 @@ protected:
 			size_t idx_obs = 0;
 			for (size_t nKF=0;nKF<=nUnknowns_k2k;nKF++)
 			{
-				my_rba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_dAp::col_t * dh_dAp_i = (nKF==0) ? NULL : (&lin_system.dh_dAp.getCol(nKF-1));
+				my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_dAp::col_t * dh_dAp_i = (nKF==0) ? NULL : (&lin_system.dh_dAp.getCol(nKF-1));
 
 				for (size_t nLM=0;nLM<nUnknowns_k2f;nLM++)
 				{
@@ -129,7 +129,7 @@ protected:
 					if (add_this)
 					{
 						// Create observation: KF[nKF] -> LM[nLM]
-						my_rba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_df::col_t & dh_df_j = lin_system.dh_df.getCol(nLM);
+						my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_df::col_t & dh_df_j = lin_system.dh_df.getCol(nLM);
 
 						// Random is ok for this test:
 						if (dh_dAp_i)
@@ -192,8 +192,8 @@ protected:
 		// 2nd) Evaluate using sparse Schur implementation
 		// ------------------------------------------------------------
 		// Build a list with ALL the unknowns:
-		vector<my_rba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_dAp::col_t*> dh_dAp;
-		vector<my_rba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_df::col_t*>  dh_df;
+		vector<my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_dAp::col_t*> dh_dAp;
+		vector<my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_df::col_t*>  dh_df;
 
 		for (size_t i=0;i<lin_system.dh_dAp.getColCount();i++)
 			dh_dAp.push_back( & lin_system.dh_dAp.getCol(i) );
@@ -210,18 +210,18 @@ protected:
 	}
 #endif
 
-		my_rba_t::hessian_traits_t::TSparseBlocksHessian_Ap  HAp;
-		my_rba_t::hessian_traits_t::TSparseBlocksHessian_f   Hf;
-		my_rba_t::hessian_traits_t::TSparseBlocksHessian_Apf HApf;  // This one stores in row-compressed form (i.e. it's stored transposed!!!)
+		my_srba_t::hessian_traits_t::TSparseBlocksHessian_Ap  HAp;
+		my_srba_t::hessian_traits_t::TSparseBlocksHessian_f   Hf;
+		my_srba_t::hessian_traits_t::TSparseBlocksHessian_Apf HApf;  // This one stores in row-compressed form (i.e. it's stored transposed!!!)
 
 		// This resizes and fills in the structs HAp,Hf,HApf from Jacobians:
-		my_rba_t::sparse_hessian_build_symbolic(
+		my_srba_t::sparse_hessian_build_symbolic(
 			HAp,Hf,HApf,
 			dh_dAp,dh_df
 			);
 
 
-		my_rba_t rba;
+		my_srba_t rba;
 
 		rba.sparse_hessian_update_numeric(HAp);
 		rba.sparse_hessian_update_numeric(Hf);
@@ -237,9 +237,9 @@ protected:
 
 		// The constructor builds the symbolic Schur.
 		SchurComplement<
-			my_rba_t::hessian_traits_t::TSparseBlocksHessian_Ap,
-			my_rba_t::hessian_traits_t::TSparseBlocksHessian_f,
-			my_rba_t::hessian_traits_t::TSparseBlocksHessian_Apf
+			my_srba_t::hessian_traits_t::TSparseBlocksHessian_Ap,
+			my_srba_t::hessian_traits_t::TSparseBlocksHessian_f,
+			my_srba_t::hessian_traits_t::TSparseBlocksHessian_Apf
 			>
 			schur_compl(
 				HAp,Hf,HApf, // The different symbolic/numeric Hessian

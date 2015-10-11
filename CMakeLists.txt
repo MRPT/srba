@@ -78,13 +78,13 @@ FILE(GLOB srba_hdrs
 	"${SRBA_ALL_SOURCE_DIR}/include/*.h"
 	"${SRBA_ALL_SOURCE_DIR}/include/srba/*.h"
 	)
-SOURCE_GROUP("Main API .h" FILES ${srba_hdrs})
+SOURCE_GROUP("Hdrs: Public API" FILES ${srba_hdrs})
 FILE(GLOB srba_hdrs_models "${SRBA_ALL_SOURCE_DIR}/include/srba/models/*.h")
-SOURCE_GROUP("Models .h" FILES ${srba_hdrs_models})
+SOURCE_GROUP("Hdrs: models" FILES ${srba_hdrs_models})
 FILE(GLOB srba_hdrs_impl "${SRBA_ALL_SOURCE_DIR}/include/srba/impl/*.h")
-SOURCE_GROUP("Impl .h" FILES ${srba_hdrs_impl})
+SOURCE_GROUP("Hdrs: impl" FILES ${srba_hdrs_impl})
 FILE(GLOB srba_hdrs_ecps "${SRBA_ALL_SOURCE_DIR}/include/srba/ecps/*.h")
-SOURCE_GROUP("Edge creation policies .h" FILES ${srba_hdrs_ecps})
+SOURCE_GROUP("Hdrs: ecps" FILES ${srba_hdrs_ecps})
 
 set(srba_all_srcs ${srba_hdrs} ${srba_hdrs_models} ${srba_hdrs_impl} ${srba_hdrs_ecps})
 add_custom_target(srba DEPENDS ${srba_all_srcs} SOURCES ${srba_all_srcs})
