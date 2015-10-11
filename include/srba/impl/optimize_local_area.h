@@ -22,6 +22,13 @@ void RbaEngine<RBA_SETTINGS_T>::optimize_local_area(
 {
 	m_profiler.enter("optimize_local_area");
 
+	// Use prebuilt spanning trees if possible (should be always!)
+	const bool use_prebuilt_st = (win_size<= parameters.srba.max_tree_depth);
+	if (!use_prebuilt_st)
+	{
+		VERBOSE_LEVEL(1) << "[optimize_local_area] *WARNING* Optimize win_size > max_tree_depth of prebuilt spanning trees. This is not efficient!\n";
+	}
+
 	// 1st) Find list of edges to optimize:
 	// --------------------------------------------------
 	m_profiler.enter("optimize_local_area.find_edges2opt");
@@ -31,7 +38,7 @@ void RbaEngine<RBA_SETTINGS_T>::optimize_local_area(
 	this->bfs_visitor(
 		root_id,  // Starting keyframe
 		win_size, // max. depth
-		true, // Use prebuilt spanning trees for speed-up
+		use_prebuilt_st, // Use prebuilt spanning trees for speed-up
 		my_visitor, //kf_visitor,
 		my_visitor, //feat_visitor,
 		my_visitor, //k2k_edge_visitor,
