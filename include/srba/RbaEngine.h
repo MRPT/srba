@@ -133,6 +133,12 @@ namespace srba
 			double  total_sqr_error_init, total_sqr_error_final; //!< Initial and final total squared error for all the observations
 			double  HAp_condition_number; //!< To be computed only if enabled in parameters.compute_condition_number
 
+			/** Sparsity stats of (the active part of) the Jacobian matrix and hessian matrices: total number of blocks and how many of them are non-zero
+			  * To be computed only if enabled in parameters.compute_sparsity_stats
+			  */
+			size_t  sparsity_dh_dAp_nnz, sparsity_dh_dAp_max_size, sparsity_dh_df_nnz, sparsity_dh_df_max_size, sparsity_HAp_nnz, sparsity_HAp_max_size,
+			        sparsity_Hf_nnz, sparsity_Hf_max_size, sparsity_HApf_nnz, sparsity_HApf_max_size;
+
 			std::vector<size_t> optimized_k2k_edge_indices; //!< The 0-based indices of all kf-to-kf edges which were considered in the optimization
 			std::vector<size_t> optimized_landmark_indices; //!< The 0-based indices of all landmarks whose relative positions were considered as unknowns in the optimization
 
@@ -150,6 +156,8 @@ namespace srba
 				total_sqr_error_init=0.;
 				total_sqr_error_final=0.;
 				HAp_condition_number=0.;
+				sparsity_dh_dAp_nnz = sparsity_dh_dAp_max_size = sparsity_dh_df_nnz = sparsity_dh_df_max_size = 
+				sparsity_HAp_nnz = sparsity_HAp_max_size = sparsity_Hf_nnz = sparsity_Hf_max_size =  sparsity_HApf_nnz = sparsity_HApf_max_size = 0;
 				optimized_k2k_edge_indices.clear();
 				optimized_landmark_indices.clear();
 				extra_results.clear();
@@ -400,6 +408,7 @@ namespace srba
 			bool   numeric_jacobians; //!< (Default:false) Use a numeric approximation of the Jacobians (very slow!) instead of analytical ones.
 			void (*feedback_user_iteration)(unsigned int iter, const double total_sq_err, const double mean_sqroot_error);
 			bool   compute_condition_number; //!< Compute and return to the user the Hessian condition number of k2k edges (default=false)
+			bool   compute_sparsity_stats;   //!< Compute stats on the sparsity of the problem matrices (default=false)
 
 			TCovarianceRecoveryPolicy  cov_recovery; //!< Recover covariance? What method to use? (Default: crpLandmarksApprox)
 			// -------------------------------------

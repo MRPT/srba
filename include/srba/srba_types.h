@@ -279,6 +279,86 @@ namespace srba
 		list_jacob_blocks_t lst_jacob_blocks; //!< The list of Jacobian blocks itself
 	};
 
+
+	/** A wrapper of mrpt::math::MatrixBlockSparseCols<> with extended functionality. Refer to the docs of the base class. 
+	  * A templated column-indexed efficient storage of block-sparse Jacobian or Hessian matrices, together with other arbitrary information.
+	  * Columns are stored in a non-associative container, but the contents of each column are kept within an std::map<> indexed by row.
+	  * All submatrix blocks have the same size, which allows dense storage of them in fixed-size matrices, avoiding costly memory allocations.
+	  */
+	template <
+		typename Scalar,
+		int NROWS,
+		int NCOLS,
+		typename INFO,
+		bool HAS_REMAP,
+		typename INDEX_REMAP_MAP_IMPL = mrpt::utils::map_as_vector<size_t,size_t>
+	>
+	struct SparseBlockMatrix : public mrpt::math::MatrixBlockSparseCols<Scalar,NROWS,NCOLS,INFO,HAS_REMAP,INDEX_REMAP_MAP_IMPL>
+	{
+		typedef mrpt::math::MatrixBlockSparseCols<Scalar,NROWS,NCOLS,INFO,HAS_REMAP,INDEX_REMAP_MAP_IMPL> base_t;
+
+		/** Goes over all the columns and keep the largest span MAX_ROW_INDEX - MIN_ROW_INDEX, the column length */
+		size_t findRowSpan(size_t *row_min_idx=NULL, size_t *row_max_idx=NULL) const
+		{
+			size_t row_min=std::numeric_limits<size_t>::max();
+			size_t row_max=0;
+			const size_t nCols = base_t::getColCount();
+			for (size_t j=0;j<nCols;j++)
+				for (typename col_t::const_iterator itRow=base_t::getCol(j).begin();itRow!=base_t::getCol(j).end();++itRow) {
+					mrpt::utils::keep_max(row_max, itRow->first);
+					mrpt::utils::keep_min(row_min, itRow->first);
+				}
+			if (row_min==std::numeric_limits<size_t>::max())
+				row_min=0;
+			if (row_min_idx) *row_min_idx = row_min;
+			if (row_max_idx) *row_max_idx = row_max;
+			return (row_max-row_min)-1;
+		}
+
+		//! \overload For a subset of columns
+		static size_t findRowSpan(const std::vector<typename base_t::col_t*> &lstColumns, size_t *row_min_idx=NULL, size_t *row_max_idx=NULL)
+		{
+			size_t row_min=std::numeric_limits<size_t>::max();
+			size_t row_max=0;
+			for (size_t i=0;i<lstColumns.size();++i)
+				for (typename base_t::col_t::const_iterator itRow=lstColumns[i]->begin();itRow!=lstColumns[i]->end();++itRow) {
+					mrpt::utils::keep_max(row_max, itRow->first);
+					mrpt::utils::keep_min(row_min, itRow->first);
+				}
+			if (row_min==std::numeric_limits<size_t>::max())
+				row_min=0;
+			if (row_min_idx) *row_min_idx = row_min;
+			if (row_max_idx) *row_max_idx = row_max;
+			return (row_max-row_min)-1;
+		}
+
+		/** Returns the number of (symbolically) non-zero blocks, etc. 
+			* \param[out] nMaxBlocks The maximum number of block matrices fitting in this sparse matrix if it was totally dense
+			* \param[out] nNonZeroBlocks The number of non-zero blocks
+			*/
+		void getSparsityStats(size_t &nMaxBlocks, size_t &nNonZeroBlocks  ) const {
+			const size_t nCols = base_t::getColCount();
+			const size_t nRows = findRowSpan();
+			nMaxBlocks = nCols * nRows;
+			nNonZeroBlocks = 0;
+			for (size_t j=0;j<nCols;j++)
+				nNonZeroBlocks+= base_t::getCol(j).size();
+		}
+
+		//! \overload For a subset of columns
+		static void getSparsityStats(const std::vector<typename base_t::col_t*> &lstColumns, size_t &nMaxBlocks, size_t &nNonZeroBlocks  )
+		{
+			const size_t nCols = lstColumns.size();
+			const size_t nRows = findRowSpan(lstColumns);
+			nMaxBlocks = nCols * nRows;
+			nNonZeroBlocks = 0;
+			for (size_t j=0;j<nCols;j++)
+				nNonZeroBlocks+=lstColumns[j]->size();
+		}
+
+	}; // end SparseBlockMatrix()
+
+
 	/** Types for the Jacobians:
 	  * \code
 	  *   J = [  dh_dAp  |  dh_df ]
@@ -294,8 +374,8 @@ namespace srba
 		typedef TJacobianSymbolicInfo_dh_dAp<kf2kf_pose_t,LANDMARK_TYPE> jacob_dh_dAp_info_t;
 		typedef TJacobianSymbolicInfo_dh_df<kf2kf_pose_t,LANDMARK_TYPE>  jacob_dh_df_info_t;
 
-		typedef mrpt::math::MatrixBlockSparseCols<double,OBS_DIMS,REL_POSE_DIMS,jacob_dh_dAp_info_t, false>  TSparseBlocksJacobians_dh_dAp;  //!< The "false" is since we don't need to "remap" indices
-		typedef mrpt::math::MatrixBlockSparseCols<double,OBS_DIMS,LM_DIMS,jacob_dh_df_info_t,  true >   TSparseBlocksJacobians_dh_df;  // The "true" is to "remap" indices
+		typedef SparseBlockMatrix<double,OBS_DIMS,REL_POSE_DIMS,jacob_dh_dAp_info_t, false>  TSparseBlocksJacobians_dh_dAp;  //!< The "false" is since we don't need to "remap" indices
+		typedef SparseBlockMatrix<double,OBS_DIMS,LM_DIMS,jacob_dh_df_info_t,  true >   TSparseBlocksJacobians_dh_df;  // The "true" is to "remap" indices
 	};
 
 	/** Types for the Hessian blocks:
@@ -317,9 +397,9 @@ namespace srba
 		typedef THessianSymbolicInfo<double,OBS_DIMS,REL_POSE_DIMS,LM_DIMS>       hessian_Apf_info_t;
 
 		// (the final "false" in all types is because we don't need remapping of indices in hessians)
-		typedef mrpt::math::MatrixBlockSparseCols<double,REL_POSE_DIMS , REL_POSE_DIMS , hessian_Ap_info_t , false> TSparseBlocksHessian_Ap;
-		typedef mrpt::math::MatrixBlockSparseCols<double,LM_DIMS       , LM_DIMS       , hessian_f_info_t  , false> TSparseBlocksHessian_f;
-		typedef mrpt::math::MatrixBlockSparseCols<double,REL_POSE_DIMS , LM_DIMS       , hessian_Apf_info_t, false> TSparseBlocksHessian_Apf;
+		typedef SparseBlockMatrix<double,REL_POSE_DIMS , REL_POSE_DIMS , hessian_Ap_info_t , false> TSparseBlocksHessian_Ap;
+		typedef SparseBlockMatrix<double,LM_DIMS       , LM_DIMS       , hessian_f_info_t  , false> TSparseBlocksHessian_f;
+		typedef SparseBlockMatrix<double,REL_POSE_DIMS , LM_DIMS       , hessian_Apf_info_t, false> TSparseBlocksHessian_Apf;
 
 		/** The list with all the information matrices (estimation uncertainty) for each unknown landmark. */
 		typedef mrpt::utils::map_as_vector<

@@ -291,6 +291,17 @@ void RbaEngine<RBA_SETTINGS_T>::optimize_edges(
 		);
 	DETAILED_PROFILING_LEAVE("opt.sparse_hessian_build_symbolic")
 
+	if (parameters.srba.compute_sparsity_stats)
+	{
+		DETAILED_PROFILING_ENTER("opt.sparsity_stats")
+		TSparseBlocksJacobians_dh_dAp::getSparsityStats(dh_dAp, out_info.sparsity_dh_dAp_max_size, out_info.sparsity_dh_dAp_nnz );
+		TSparseBlocksJacobians_dh_df::getSparsityStats (dh_df , out_info.sparsity_dh_df_max_size, out_info.sparsity_dh_df_nnz );
+		HAp.getSparsityStats( out_info.sparsity_HAp_max_size, out_info.sparsity_HAp_nnz );
+		Hf.getSparsityStats( out_info.sparsity_Hf_max_size, out_info.sparsity_Hf_nnz );
+		HApf.getSparsityStats( out_info.sparsity_HApf_max_size, out_info.sparsity_HApf_nnz );
+		DETAILED_PROFILING_LEAVE("opt.sparsity_stats")
+	}
+
 	// and then we only have to do a numeric evaluation upon changes:
 	size_t nInvalidJacobs = 0;
 	DETAILED_PROFILING_ENTER("opt.sparse_hessian_update_numeric")

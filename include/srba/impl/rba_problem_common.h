@@ -48,6 +48,7 @@ RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::TSRBAParameters() :
 	numeric_jacobians    ( false ),
 	feedback_user_iteration(NULL),
 	compute_condition_number(false),
+	compute_sparsity_stats  (false),
 	cov_recovery         ( crpLandmarksApprox )
 {
 }
