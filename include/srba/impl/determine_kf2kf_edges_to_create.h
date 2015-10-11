@@ -27,7 +27,7 @@ void RbaEngine<RBA_SETTINGS_T>::determine_kf2kf_edges_to_create(
 		return;
 	}
 
-	edge_creation_policy.eval<traits_t,rba_engine_t>(new_kf_id,obs,new_k2k_edge_ids, *this,parameters.ecp);
+	edge_creation_policy.template eval<traits_t,rba_engine_t>(new_kf_id,obs,new_k2k_edge_ids, *this,parameters.ecp);
 }
 
 } // End of namespaces

@@ -18,6 +18,7 @@
 #include <mrpt/opengl/CSetOfObjects.h>
 #include <mrpt/graphs/CNetworkOfPoses.h>
 #include <mrpt/system/os.h>
+#include "impl/make_ordered_list_base_kfs.h"  // Internal aux function
 
 #include "srba_types.h"
 #include "srba_options.h"
@@ -64,7 +65,7 @@ namespace srba
 		    @{ */
 		typedef RbaEngine<RBA_SETTINGS_T> rba_engine_t;
 
-		typedef typename RBA_SETTINGS_T                rba_settings_t;
+		typedef RBA_SETTINGS_T                         rba_settings_t;
 		typedef typename RBA_SETTINGS_T::kf2kf_pose_t  kf2kf_pose_t;
 		typedef typename RBA_SETTINGS_T::landmark_t    landmark_t;
 		typedef typename RBA_SETTINGS_T::obs_t         obs_t;
@@ -764,8 +765,6 @@ namespace srba
 // -----------------------------------------------------------------
 //          Include all template implementation files
 // -----------------------------------------------------------------
-#include "impl/make_ordered_list_base_kfs.h"  // Internal aux function
-
 #include "impl/add-observations.h"
 #include "impl/alloc_keyframe.h"
 #include "impl/alloc_kf2kf_edge.h"

@@ -62,6 +62,7 @@ struct local_areas_fixed_size
 		rba_engine_t       & rba_engine,
 		const parameters_t &params)
 	{
+		using namespace std;
 		ASSERT_(new_kf_id>=1)
 
 		const size_t MINIMUM_OBS_TO_LOOP_CLOSURE = params.min_obs_to_loop_closure;
