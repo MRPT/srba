@@ -8,11 +8,17 @@
 #
 #    FIND_PACKAGE( SRBA REQUIRED )
 #    INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
+#    FIND_PACKAGE( MRPT REQUIRED ${SRBA_REQUIRED_MRPT_MODULES} )  # You may add additional MRPT modules at the end of the list for your app
 #
 #   This file will define the following variables:
 #    - SRBA_INCLUDE_DIRS: The list of include directories
 #    - SRBA_VERSION: The SRBA version (e.g. "1.0.0").
 #    - SRBA_VERSION_{MAJOR,MINOR,PATCH}: 3 variables for the version parts
+#    - SRBA_REQUIRED_MRPT_MODULES: The minimum list of required MRPT modules
+#
+#   Remember to link against MRPT libraries in your program with:
+#
+#     TARGET_LINK_LIBRARIES(YOUR_TARGET ${MRPT_LIBS})
 #
 # =========================================================================
 
@@ -21,6 +27,9 @@ SET(SRBA_VERSION @CMAKE_SRBA_FULL_VERSION@)
 SET(SRBA_VERSION_MAJOR @CMAKE_SRBA_VERSION_NUMBER_MAJOR@)
 SET(SRBA_VERSION_MINOR @CMAKE_SRBA_VERSION_NUMBER_MINOR@)
 SET(SRBA_VERSION_PATCH @CMAKE_SRBA_VERSION_NUMBER_PATCH@)
+
+# MRPT dependencies:
+SET(SRBA_REQUIRED_MRPT_MODULES base opengl graphs opengl)
 
 # Extract the directory where *this* file has been installed (determined at cmake run-time)
 get_filename_component(THIS_SRBA_CONFIG_PATH "${CMAKE_CURRENT_LIST_FILE}" PATH)

@@ -8,9 +8,9 @@ if(COMMAND cmake_policy)
 	endif()
 endif(COMMAND cmake_policy)
 
-FIND_PACKAGE(MRPT REQUIRED gui graphslam)
 FIND_PACKAGE(SRBA REQUIRED)
 INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
+FIND_PACKAGE(MRPT REQUIRED ${SRBA_REQUIRED_MRPT_MODULES} gui graphslam)
 
 # Set optimized building in GCC:
 IF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -18,7 +18,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
 
 
-MACRO(DEFINE_TUTORIAL_EXECUTABLE name extradeps)
+MACRO(DEFINE_TUTORIAL_EXECUTABLE name)
 	ADD_EXECUTABLE(${name} ${name}.cpp)
 	TARGET_LINK_LIBRARIES(${name} ${MRPT_LIBS}) # Add the required libraries for linking:
 	
@@ -30,14 +30,14 @@ ENDMACRO(DEFINE_TUTORIAL_EXECUTABLE)
 # --------------------------------------------------------------------
 #  List of tutorials/examples:
 # --------------------------------------------------------------------
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-monocular-se3" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-stereo-se2" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-stereo-se3" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-cartesian2d-se2" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-cartesian3d-se3" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-range-bearing-se2" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-range-bearing-se3" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-relative-graph-slam-se2" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-relative-graph-slam-se3" "")
-DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-remove-observation" "")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-monocular-se3")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-stereo-se2")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-stereo-se3")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-cartesian2d-se2")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-cartesian3d-se3")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-range-bearing-se2")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-range-bearing-se3")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-relative-graph-slam-se2")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-relative-graph-slam-se3")
+DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-remove-observation")
 DEFINE_TUTORIAL_EXECUTABLE("tutorial-srba-how-to-recover-global-map" "mrpt-graphslam")

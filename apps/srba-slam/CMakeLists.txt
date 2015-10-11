@@ -4,9 +4,9 @@
 # --------------------------------------------------------------
 PROJECT(srba_slam)
 
-FIND_PACKAGE(MRPT REQUIRED gui vision)
 FIND_PACKAGE(SRBA REQUIRED)
 INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
+FIND_PACKAGE(MRPT REQUIRED ${SRBA_REQUIRED_MRPT_MODULES} gui vision)
 
 # ---------------------------------------------
 # TARGET:

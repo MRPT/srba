@@ -24,7 +24,7 @@ struct local_areas_fixed_size
 	struct parameters_t
 	{
 		size_t              submap_size;  //!< Default:15, Fixed submap size (number of keyframes)
-		size_t              min_obs_to_loop_closure; //!< Default:6, reduce to 1 for relative graph-slam
+		size_t              min_obs_to_loop_closure; //!< Default:4, reduce to 1 for relative graph-slam
 		size_t              min_dist_for_loop_closure; //!< Deault: 3
 
 		/** Ctor for default values */

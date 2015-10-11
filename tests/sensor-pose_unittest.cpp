@@ -8,7 +8,6 @@
    +---------------------------------------------------------------------------+ */
 
 #include <srba.h>
-#include <mrpt/gui.h>  // For rendering results as a 3D scene
 #include <mrpt/random.h>
 
 #include <gtest/gtest.h>

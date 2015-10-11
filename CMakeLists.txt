@@ -38,9 +38,6 @@ endif(COMMAND cmake_policy)
 
 SET(EXECUTABLE_OUTPUT_PATH "${${PROJECT_NAME}_BINARY_DIR}/bin")
 
-# MRPT:
-FIND_PACKAGE(MRPT REQUIRED graphs opengl base gui)
-
 # Shared options between GCC and CLANG:
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
     # We need pthread's
