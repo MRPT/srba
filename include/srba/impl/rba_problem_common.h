@@ -17,6 +17,7 @@ namespace srba {
 /** Default constructor */
 template <class RBA_SETTINGS_T>
 RbaEngine<RBA_SETTINGS_T>::RbaEngine() :
+	m_verbose_level(1),
 	rba_state(),
 	m_profiler(true)
 {

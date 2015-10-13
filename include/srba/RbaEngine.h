@@ -469,7 +469,7 @@ namespace srba
 
 
 	protected:
-		int m_verbose_level; //!< 0: None (only critical msgs), 1: verbose, 2:even more verbose, 3: even more
+		int m_verbose_level; //!< 0: None (only critical msgs), 1: verbose (default value), 2:even more verbose, 3: even more
 
 		/** @name (Protected) Sub-algorithms
 		    @{ */
