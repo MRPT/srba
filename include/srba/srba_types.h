@@ -304,7 +304,7 @@ namespace srba
 			size_t row_max=0;
 			const size_t nCols = base_t::getColCount();
 			for (size_t j=0;j<nCols;j++)
-				for (typename col_t::const_iterator itRow=base_t::getCol(j).begin();itRow!=base_t::getCol(j).end();++itRow) {
+				for (typename base_t::col_t::const_iterator itRow=base_t::getCol(j).begin();itRow!=base_t::getCol(j).end();++itRow) {
 					mrpt::utils::keep_max(row_max, itRow->first);
 					mrpt::utils::keep_min(row_min, itRow->first);
 				}
