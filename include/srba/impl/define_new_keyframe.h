@@ -73,7 +73,7 @@ void RbaEngine<RBA_SETTINGS_T>::define_new_keyframe(
 
 				for (size_t i=0;i<new_k2k_edge_ids.size();i++)
 				{
-					if (new_k2k_edge_ids[i].has_aprox_init_val)
+					if (new_k2k_edge_ids[i].has_approx_init_val)
 						continue;  // Already initialized, can skip it.
 					k2k_edges_to_opt[0] = new_k2k_edge_ids[i].id ;
 

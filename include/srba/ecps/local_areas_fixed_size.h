@@ -140,26 +140,30 @@ struct local_areas_fixed_size
 
 					nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( central_kf_id, new_kf_id), obs);
 
+					nei.has_approx_init_val = false; // // By default: Will need to estimate this one
+
 					// look at last kf's kf2kf edges for an initial guess to ease optimization:
-					std::set<size_t>::const_iterator it_lkf_ed = last_kf_kf2kf_edges.find(central_kf_id);
-					if ( it_lkf_ed != last_kf_kf2kf_edges.end() )
+					if ( last_timestep_touched_kfs.count(central_kf_id) != 0 )
 					{
-						nei.has_aprox_init_val = true;
 						// Get the relative post from the numeric spanning tree, which should be up-to-date:
 						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_engine.get_rba_state().spanning_tree.num.find(central_kf_id);
 						ASSERT_(it_tree4_central!=rba_engine.get_rba_state().spanning_tree.num.end())
 
 						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::frameid2pose_map_t::const_iterator it_nei_1 = 
-							it_tree4_central->second.find(nei.id-1);
-						ASSERT_(it_nei_1!=it_tree4_central->second.end())
-
-						rba_engine.get_rba_state().k2k_edges[nei.id].inv_pose = it_nei_1->second.pose;
+							it_tree4_central->second.find(new_kf_id-1);
+						if (it_nei_1!=it_tree4_central->second.end())
+						{
+							// Found: reuse this relative pose as a good initial guess for the estimation
+							rba_engine.get_rba_state().k2k_edges[nei.id].inv_pose = -it_nei_1->second.pose; // Note the "-" inverse operator, it is important
+							nei.has_approx_init_val = true;
+						}
 					}
-					else
+
+					if (!nei.has_approx_init_val)
 					{
-					// Otherwise: estimate
+						// Otherwise: estimate
 						MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
-						nei.has_aprox_init_val = false; // Will need to estimate this one
+						std::cout << "TODO: init rel pos bootstrap\n";
 					}
 
 					new_k2k_edge_ids.push_back(nei);
@@ -189,7 +193,7 @@ struct local_areas_fixed_size
 					TNewEdgeInfo nei;
 
 					nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( most_connected_kf_id, new_kf_id), obs);
-					nei.has_aprox_init_val = false; // Will need to estimate this one
+					nei.has_approx_init_val = false; // Will need to estimate this one
 					new_k2k_edge_ids.push_back(nei);
 
 					//VERBOSE_LEVEL(0) << "[edge_creation_policy] Created edge of last resort #"<< nei.id << ": "<< most_connected_kf_id <<"->"<<new_kf_id << " with #obs: "<< most_connected_nObs<< endl;
@@ -201,9 +205,11 @@ struct local_areas_fixed_size
 		ASSERTMSG_(new_k2k_edge_ids.size()>=1, mrpt::format("Error for new KF#%u: no suitable linking KF found with a minimum of %u common observation: the node becomes isolated of the graph!", static_cast<unsigned int>(new_kf_id),static_cast<unsigned int>(MINIMUM_OBS_TO_LOOP_CLOSURE) ))
 
 		// save for the next timestep:
-		last_kf_kf2kf_edges.clear();
-		for (size_t i=0;i<new_k2k_edge_ids.size();i++)
-			last_kf_kf2kf_edges.insert( new_k2k_edge_ids[i].id );
+		last_timestep_touched_kfs.clear();
+		for (size_t i=0;i<new_k2k_edge_ids.size();i++) {
+			last_timestep_touched_kfs.insert( rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[i].id].from );
+			last_timestep_touched_kfs.insert( rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[i].id].to );
+		}
 
 		// Debug:
 		if (new_k2k_edge_ids.size()>1) // && m_verbose_level>=1)
@@ -222,7 +228,7 @@ struct local_areas_fixed_size
 
 private:
 	std::set<std::pair<TKeyFrameID,TKeyFrameID> > central2central_connected_areas; // 1st the lowest id, to avoid duplicates
-	std::set<size_t> last_kf_kf2kf_edges;
+	std::set<size_t> last_timestep_touched_kfs;
 
 };  // end of struct
 

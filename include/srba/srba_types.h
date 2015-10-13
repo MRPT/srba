@@ -177,7 +177,7 @@ namespace srba
 	struct TNewEdgeInfo
 	{
 		size_t  id; //!< The new edge ID
-		bool    has_aprox_init_val; //!< Whether the edge was assigned an approximated initial value. If not, it will need an independent optimization step before getting into the complete problem optimization.
+		bool    has_approx_init_val; //!< Whether the edge was assigned an approximated initial value. If not, it will need an independent optimization step before getting into the complete problem optimization.
 	};
 
 	/** Symbolic information of each Jacobian dh_dAp
