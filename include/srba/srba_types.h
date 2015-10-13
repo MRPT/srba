@@ -25,6 +25,9 @@ namespace srba
 	typedef std::multimap<size_t,TKeyFrameID,std::greater<size_t> > base_sorted_lst_t;  //!< A list of keyframes, sorted in descending order by some count number
 
 	#define VERBOSE_LEVEL(_LEVEL) if (m_verbose_level>=_LEVEL) std::cout
+	
+	#define SRBA_INVALID_KEYFRAMEID  static_cast<TKeyFrameID>(-1)
+	#define SRBA_INVALID_INDEX       static_cast<size_t>(-1)
 
 	// -------------------------------------------------------------------------------
 	/** @name Generic traits for observations, kf-to-kf poses, landmarks, etc.
@@ -189,33 +192,35 @@ namespace srba
 		typedef landmark_traits<LANDMARK_TYPE>     lm_traits_t;
 
 		/** The two relative poses used in this Jacobian (see papers)
-		  * Pointers to the elements in the "numeric" part of the spanning tree ( TRBA_Problem_state::TSpanningTree )
-		  */
+		  * Pointers to the elements in the "numeric" part of the spanning tree ( TRBA_Problem_state::TSpanningTree ) */
 		const typename kf2kf_traits_t::pose_flag_t * rel_pose_d1_from_obs, * rel_pose_base_from_d1;
 
 		/** If true, the edge direction points in the "canonical" direction: from "d" towards the direction of "obs"
-		  *  If false, this fact should be taking into account while computing the derivatives...
-		  */
+		  *  If false, this fact should be taking into account while computing the derivatives... */
 		bool  edge_normal_dir;
 
 		/** Pointer to the relative feature position wrt its base KF */
 		const typename lm_traits_t::TRelativeLandmarkPos * feat_rel_pos;
 
 		/** The ID of the keyframe *before* the edge wrt which we are taking derivatives (before if going
-		  *  backwards from the observer KF towards the base KF of the feature). "d+1" in paper figures.
-		  */
+		  *  backwards from the observer KF towards the base KF of the feature). "d+1" in paper figures */
 		TKeyFrameID  kf_d;
+		TKeyFrameID  kf_base;  //!< The ID of the base keyframe of the observed feature
+		size_t       k2k_edge_id; //!< The ID (0-based index in \a k2k_edges) of the edge wrt we are taking derivatives
+		size_t       obs_idx; //!< The global index of the observation that generates this Jacobian
+		char       * is_valid; //!< A reference to the validity bit in the global list \a TRBA_Problem_state::all_observations_Jacob_validity
 
-		/** The ID of the base keyframe of the observed feature */
-		TKeyFrameID  kf_base;
-
-		/** The ID (0-based index in \a k2k_edges) of the edge wrt we are taking derivatives */
-		size_t k2k_edge_id;
-
-		/** The global index of the observation that generates this Jacobian.  */
-		size_t obs_idx;
-
-		char * is_valid; //!< A reference to the validity bit in the global list \a TRBA_Problem_state::all_observations_Jacob_validity
+		TJacobianSymbolicInfo_dh_dAp() : 
+			rel_pose_d1_from_obs(NULL),
+			rel_pose_base_from_d1(NULL),
+			edge_normal_dir(true),
+			feat_rel_pos(NULL),
+			kf_d(SRBA_INVALID_KEYFRAMEID),
+			kf_base(SRBA_INVALID_KEYFRAMEID),
+			k2k_edge_id(SRBA_INVALID_INDEX),
+			obs_idx(SRBA_INVALID_INDEX),
+			is_valid(NULL)
+		{}
 	};
 
 
@@ -227,19 +232,21 @@ namespace srba
 		typedef kf2kf_pose_traits<kf2kf_pose_t> kf2kf_traits_t;
 		typedef landmark_traits<LANDMARK_TYPE>     lm_traits_t;
 
-		/** A pointer to the relative position structure within rba_state.unknown_lms[] for this feature
-		  */
-		typename lm_traits_t::TRelativeLandmarkPos  *feat_rel_pos;
+		typename lm_traits_t::TRelativeLandmarkPos  *feat_rel_pos;  //!< A pointer to the relative position structure within rba_state.unknown_lms[] for this feature
 
 		/** The relative poses used in this Jacobian (see papers)
-		  * Pointers to the elements in the "numeric" part of the spanning tree ( TRBA_Problem_state::TSpanningTree )
-		  */
+		  * Pointers to the elements in the "numeric" part of the spanning tree ( TRBA_Problem_state::TSpanningTree ) */
 		const typename kf2kf_traits_t::pose_flag_t * rel_pose_base_from_obs;
 
-		/** The global index of the observation that generates this Jacobian.  */
-		size_t obs_idx;
+		size_t   obs_idx;  //!< The global index of the observation that generates this Jacobian
+		char   * is_valid; //!< A reference to the validity bit in the global list \a TRBA_Problem_state::all_observations_Jacob_validity
 
-		char*   is_valid; //!< A reference to the validity bit in the global list \a TRBA_Problem_state::all_observations_Jacob_validity
+		TJacobianSymbolicInfo_dh_df() :
+			feat_rel_pos(NULL),
+			rel_pose_base_from_obs(NULL),
+			obs_idx(SRBA_INVALID_INDEX),
+			is_valid(NULL)
+		{}
 	};
 
 	/** Symbolic information of each Hessian block
