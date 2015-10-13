@@ -18,7 +18,7 @@ using namespace mrpt::math;
 using namespace mrpt::random;
 using namespace std;
 
-struct RBA_SETTINGS : RBA_SETTINGS_DEFAULT
+struct RBA_SETTINGS : public RBA_SETTINGS_DEFAULT
 {
 	// Parameterization  of KF-to-KF poses
 	typedef kf2kf_poses::SE3            kf2kf_pose_t;
@@ -66,7 +66,6 @@ struct TGraphInitManual
 	const bool * visible;
 };
 
-
 class SchurTests : public ::testing::Test
 {
 protected:
@@ -107,7 +106,7 @@ protected:
 		// -----------------------------------------------------------------
 		// Create observations:
 		// Don't populate the symbolic structure, just the numeric part.
-        static char valid_true = 1; // Just to initialize valid bit pointers to this one.
+		static char valid_true = 1; // Just to initialize valid bit pointers to this one.
 		{
 
 			lin_system.dh_dAp.setColCount(nUnknowns_k2k);

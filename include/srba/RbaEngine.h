@@ -19,6 +19,7 @@
 #include <mrpt/poses/CPose3DQuat.h> // Needed by "CNetworkOfPoses.h" in older mrpt versions
 #include <mrpt/graphs/CNetworkOfPoses.h>
 #include <mrpt/system/os.h>
+#include <mrpt/system/memory.h> // MRPT_MAKE_ALIGNED_OPERATOR_NEW 
 #include "impl/make_ordered_list_base_kfs.h"  // Internal aux function
 
 #include "srba_types.h"
@@ -162,6 +163,8 @@ namespace srba
 				optimized_landmark_indices.clear();
 				extra_results.clear();
 			}
+
+			MRPT_MAKE_ALIGNED_OPERATOR_NEW  // Required by Eigen containers
 		};
 
 		/** Information returned by RbaEngine::define_new_keyframe() */
@@ -178,6 +181,8 @@ namespace srba
 				created_edge_ids.clear();
 				optimize_results.clear();
 			}
+
+			MRPT_MAKE_ALIGNED_OPERATOR_NEW  // Required by Eigen containers
 		};
 
 		/** @name Main API methods
@@ -423,6 +428,8 @@ namespace srba
 			typename RBA_SETTINGS_T::sensor_pose_on_robot_t::parameters_t  sensor_pose; //!< Parameters related to the relative pose of sensors wrt the robot (if applicable) 
 			typename RBA_SETTINGS_T::obs_noise_matrix_t::parameters_t      obs_noise;   //!< Parameters related to the sensor noise covariance matrix
 			typename RBA_SETTINGS_T::edge_creation_policy_t::parameters_t  ecp;         //!< Parameters for the edge creation policy
+
+			MRPT_MAKE_ALIGNED_OPERATOR_NEW  // Required by Eigen containers
 		};
 		TAllParameters parameters; //!< Hierarchical struct with all parameters
 
@@ -767,6 +774,7 @@ namespace srba
 			return std::abs(2*mrpt::utils::square(kernel_param)*(std::sqrt(1+mrpt::utils::square(delta/kernel_param))-1));
 		}
 
+		MRPT_MAKE_ALIGNED_OPERATOR_NEW  // Required by Eigen containers
 	}; // end of class "RbaEngine"
 
 
