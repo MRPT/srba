@@ -16,7 +16,7 @@
 namespace srba {
 namespace options
 {
-	/** \defgroup mrpt_srba_options_pose_on_robot Types for RBA_SETTINGS_T::sensor_pose_on_robot_t 
+	/** \defgroup mrpt_srba_options_pose_on_robot Types for RBA_OPTIONS::sensor_pose_on_robot_t 
 		* \ingroup mrpt_srba_options */
 
 		namespace internal {
@@ -25,7 +25,7 @@ namespace options
 			template <class SENSOR_POSE_CLASS, size_t KF_POSE_DIMS> struct resulting_pose_t;
 		}
 
-		/** Usage: A possible type for RBA_SETTINGS_T::sensor_pose_on_robot_t.
+		/** Usage: A possible type for RBA_OPTIONS::sensor_pose_on_robot_t.
 		  * Meaning: The robot pose and the sensor pose coincide, i.e. the sensor pose on the
 		  * robot is the identitity transformation.
 		  * \ingroup mrpt_srba_options_pose_on_robot */
@@ -86,7 +86,7 @@ namespace options
 				typedef mrpt::poses::CPose3D pose_t; };
 		}
 
-		/** Usage: A possible type for RBA_SETTINGS_T::sensor_pose_on_robot_t.
+		/** Usage: A possible type for RBA_OPTIONS::sensor_pose_on_robot_t.
 		  * Meaning: The sensor is located at an arbitrary SE(3) pose wrt the robot reference frame.
 		  * \ingroup mrpt_srba_options_pose_on_robot */
 		struct sensor_pose_on_robot_se3

@@ -86,8 +86,8 @@ namespace internal {
 
 
 /** Numeric implementation of the partial Jacobian dh_dAp */
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::numeric_dh_dAp(const array_pose_t &x, const TNumeric_dh_dAp_params& params, array_obs_t &y)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::numeric_dh_dAp(const array_pose_t &x, const TNumeric_dh_dAp_params& params, array_obs_t &y)
 {
 	pose_t incr(mrpt::poses::UNINITIALIZED_POSE);
 	mrpt::poses::SE_traits<pose_t::rotation_dimensions>::pseudo_exp(x,incr);
@@ -121,8 +121,8 @@ void RbaEngine<RBA_SETTINGS_T>::numeric_dh_dAp(const array_pose_t &x, const TNum
 	}
 
 	// pose_robot2sensor(): pose wrt sensor = pose_wrt_robot (-) sensor_pose_on_the_robot
-	typename options::internal::resulting_pose_t<typename RBA_SETTINGS_T::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::pose_robot2sensor( base_from_obs, base_pose_wrt_sensor, params.sensor_pose );
+	typename options::internal::resulting_pose_t<typename RBA_OPTIONS::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
+	RBA_OPTIONS::sensor_pose_on_robot_t::pose_robot2sensor( base_from_obs, base_pose_wrt_sensor, params.sensor_pose );
 
 	// Generate observation:
 	array_obs_t z_zero;
@@ -166,8 +166,8 @@ TNumSTData check_num_st_entry_exists(
 
 #endif
 
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::numeric_dh_df(const array_landmark_t &x, const TNumeric_dh_df_params& params, array_obs_t &y)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::numeric_dh_df(const array_landmark_t &x, const TNumeric_dh_df_params& params, array_obs_t &y)
 {
 	static const pose_t my_aux_null_pose;
 
@@ -175,8 +175,8 @@ void RbaEngine<RBA_SETTINGS_T>::numeric_dh_df(const array_landmark_t &x, const T
 	const pose_t * pos_cam = params.pose_base_wrt_obs!=NULL ? params.pose_base_wrt_obs : &my_aux_null_pose;
 
 	// pose_robot2sensor(): pose wrt sensor = pose_wrt_robot (-) sensor_pose_on_the_robot
-	typename options::internal::resulting_pose_t<typename RBA_SETTINGS_T::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t  base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::pose_robot2sensor( *pos_cam, base_pose_wrt_sensor, params.sensor_pose );
+	typename options::internal::resulting_pose_t<typename RBA_OPTIONS::sensor_pose_on_robot_t,REL_POSE_DIMS>::pose_t  base_pose_wrt_sensor(mrpt::poses::UNINITIALIZED_POSE);
+	RBA_OPTIONS::sensor_pose_on_robot_t::pose_robot2sensor( *pos_cam, base_pose_wrt_sensor, params.sensor_pose );
 
 	// Generate observation:
 	array_obs_t z_zero;
@@ -203,8 +203,8 @@ struct compute_jacobian_dAepsDx_deps;
 //   "A tutorial on SE(3) transformation parameterizations and
 //    on-manifold optimization", Jose-Luis Blanco.
 // ====================================================================
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_dp(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_dh_dp(
 	typename TSparseBlocksJacobians_dh_dAp::TEntry  &jacob,
 	const k2f_edge_t & observation,
 	const k2k_edges_deque_t  &k2k_edges,
@@ -315,7 +315,7 @@ void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_dp(
 	Eigen::Matrix<double,OBS_DIMS,LM_DIMS>  dh_dx;
 
 	// Converts a point relative to the robot coordinate frame (P) into a point relative to the sensor (RES = P \ominus POSE_IN_ROBOT )
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::template point_robot2sensor<landmark_t,array_landmark_t>(xji_l,xji_l,this->parameters.sensor_pose );
+	RBA_OPTIONS::sensor_pose_on_robot_t::template point_robot2sensor<landmark_t,array_landmark_t>(xji_l,xji_l,this->parameters.sensor_pose );
 
 	// Invoke sensor model:
 	if (!sensor_model_t::eval_jacob_dh_dx(dh_dx,xji_l, this->parameters.sensor))
@@ -327,7 +327,7 @@ void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_dp(
 	}
 
 	// take into account the possible displacement of the sensor wrt the keyframe:
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::jacob_dh_dx_rotate( dh_dx, this->parameters.sensor_pose );
+	RBA_OPTIONS::sensor_pose_on_robot_t::jacob_dh_dx_rotate( dh_dx, this->parameters.sensor_pose );
 
 	// Second Jacobian: (uses xji_i)
 	// ------------------------------
@@ -884,8 +884,8 @@ struct compute_jacobian_dAepsDx_deps<jacob_relpose_landmark /* Jacobian family: 
 //
 //   Note: f=relative position of landmark with respect to its base kf
 // ====================================================================
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_df(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_dh_df(
 	typename TSparseBlocksJacobians_dh_df::TEntry  &jacob,
 	const k2f_edge_t & observation,
 	std::vector<const pose_flag_t*> *out_list_of_required_num_poses) const
@@ -965,7 +965,7 @@ void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_df(
 	Eigen::Matrix<double,OBS_DIMS,LM_DIMS>  dh_dx;
 
 	// Converts a point relative to the robot coordinate frame (P) into a point relative to the sensor (RES = P \ominus POSE_IN_ROBOT )
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::template point_robot2sensor<landmark_t,array_landmark_t>(xji_l,xji_l,this->parameters.sensor_pose );
+	RBA_OPTIONS::sensor_pose_on_robot_t::template point_robot2sensor<landmark_t,array_landmark_t>(xji_l,xji_l,this->parameters.sensor_pose );
 
 	// Invoke sensor model:
 	if (!sensor_model_t::eval_jacob_dh_dx(dh_dx,xji_l, this->parameters.sensor))
@@ -977,7 +977,7 @@ void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_df(
 	}
 
 	// take into account the possible displacement of the sensor wrt the keyframe:
-	RBA_SETTINGS_T::sensor_pose_on_robot_t::jacob_dh_dx_rotate( dh_dx, this->parameters.sensor_pose );
+	RBA_OPTIONS::sensor_pose_on_robot_t::jacob_dh_dx_rotate( dh_dx, this->parameters.sensor_pose );
 
 	// Second Jacobian: Simply the 2x2 or 3x3 rotation matrix of base wrt observing
 	// ------------------------------
@@ -1016,8 +1016,8 @@ void RbaEngine<RBA_SETTINGS_T>::compute_jacobian_dh_df(
 // ------------------------------------------------------------------------
 //   prepare_Jacobians_required_tree_roots()
 // ------------------------------------------------------------------------
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::prepare_Jacobians_required_tree_roots(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::prepare_Jacobians_required_tree_roots(
 	std::set<TKeyFrameID>  & lst,
 	const std::vector<typename TSparseBlocksJacobians_dh_dAp::col_t*> &lst_JacobCols_dAp,
 	const std::vector<typename TSparseBlocksJacobians_dh_df::col_t*>  &lst_JacobCols_df )
@@ -1079,8 +1079,8 @@ void RbaEngine<RBA_SETTINGS_T>::prepare_Jacobians_required_tree_roots(
 // ------------------------------------------------------------------------
 //   recompute_all_Jacobians(): Re-evaluate all Jacobians numerically
 // ------------------------------------------------------------------------
-template <class RBA_SETTINGS_T>
-size_t RbaEngine<RBA_SETTINGS_T>::recompute_all_Jacobians(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::recompute_all_Jacobians(
 	std::vector<typename TSparseBlocksJacobians_dh_dAp::col_t*> &lst_JacobCols_dAp,
 	std::vector<typename TSparseBlocksJacobians_dh_df::col_t*>  &lst_JacobCols_df,
 	std::vector<const typename kf2kf_pose_traits<kf2kf_pose_t>::pose_flag_t*>    * out_list_of_required_num_poses )

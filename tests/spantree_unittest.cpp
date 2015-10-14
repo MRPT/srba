@@ -19,16 +19,12 @@ using namespace mrpt::math;
 using namespace mrpt::random;
 using namespace std;
 
-struct RBA_SETTINGS : RBA_SETTINGS_DEFAULT
-{
-	// Parameterization  of KF-to-KF poses
-	typedef kf2kf_poses::SE3            kf2kf_pose_t;
-	// Parameterization of landmark positions
-	typedef landmarks::Euclidean3D      landmark_t;
-	// Type of observations
-	typedef observations::MonocularCamera  obs_t;
-};
-typedef RbaEngine<RBA_SETTINGS>  my_srba_t;
+typedef RbaEngine<
+	kf2kf_poses::SE3,                // Parameterization  KF-to-KF poses
+	landmarks::Euclidean3D,          // Parameterization of landmark positions
+	observations::MonocularCamera    // Type of observations
+	>
+	my_srba_t;
 
 /*
  topo=0 -> linear graph

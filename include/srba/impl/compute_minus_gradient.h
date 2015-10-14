@@ -16,8 +16,8 @@ namespace srba {
 
 	    grad = J^t * (h(x)-z)
  *******************************************/
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::compute_minus_gradient(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_gradient(
 	Eigen::VectorXd & minus_grad,
 	const std::vector<typename TSparseBlocksJacobians_dh_dAp::col_t*> & sparse_jacobs_Ap,
 	const std::vector<typename TSparseBlocksJacobians_dh_df::col_t*> & sparse_jacobs_f,
@@ -57,10 +57,10 @@ void RbaEngine<RBA_SETTINGS_T>::compute_minus_gradient(
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 
-			RBA_SETTINGS_T::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
+			RBA_OPTIONS::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
 		}
 		// Do scaling (if applicable):
-		RBA_SETTINGS_T::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
+		RBA_OPTIONS::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
 
 		minus_grad.block<POSE_DIMS,1>(i*POSE_DIMS,0) = accum_g_i;
 	}
@@ -81,10 +81,10 @@ void RbaEngine<RBA_SETTINGS_T>::compute_minus_gradient(
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 
-			RBA_SETTINGS_T::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
+			RBA_OPTIONS::obs_noise_matrix_t::template accum_Jtr(accum_g_i, itJ->second.num, residuals[ resid_idx ], obs_idx, this->parameters.obs_noise );
 		}
 		// Do scaling (if applicable):
-		RBA_SETTINGS_T::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
+		RBA_OPTIONS::obs_noise_matrix_t::template scale_Jtr(accum_g_i, this->parameters.obs_noise );
 
 		minus_grad.block<LM_DIMS,1>(idx_start_f+i*LM_DIMS,0) = accum_g_i;
 	}

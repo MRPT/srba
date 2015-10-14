@@ -20,17 +20,11 @@ using namespace std;
 // --------------------------------------------------------------------------------
 // Declare a typedef "my_srba_t" for easily referring to my RBA problem type:
 // --------------------------------------------------------------------------------
-struct RBA_SETTINGS : RBA_SETTINGS_DEFAULT
-{
-	// Parameterization  of KF-to-KF poses
-	typedef kf2kf_poses::SE3            kf2kf_pose_t;
-	// Parameterization of landmark positions
-	typedef landmarks::Euclidean3D      landmark_t;
-	// Type of observations
-	typedef observations::Cartesian_3D  obs_t;
-};
-typedef RbaEngine<RBA_SETTINGS>  my_srba_t;
-
+typedef RbaEngine<
+	kf2kf_poses::SE3, // Parameterization  of KF-to-KF poses
+	landmarks::Euclidean3D, // Parameterization of landmark positions
+	observations::Cartesian_3D // Type of observations
+	>  my_srba_t;
 
 // --------------------------------------------------------------------------------
 // A test dataset. Generated with https://github.com/jlblancoc/recursive-world-toolkit 

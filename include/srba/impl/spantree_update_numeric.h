@@ -15,8 +15,8 @@ namespace srba {
 #define DEBUG_GARBAGE_FILL_ALL_NUMS	0
 
 /** Updates all the numeric SE(3) poses from a given entry from \a sym.all_edges[i] */
-template <class RBA_SETTINGS_T>
-size_t TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_numeric_only_all_from_node(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::update_numeric_only_all_from_node(
 	const typename all_edges_maps_t::const_iterator & it,
 	bool skip_marked_as_uptodate)
 {
@@ -82,8 +82,8 @@ size_t TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_numeric_only_al
 
 #if DEBUG_GARBAGE_FILL_ALL_NUMS
 
-template <class RBA_SETTINGS_T>
-void setAllNumericToGarbage(typename TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree &st)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void setAllNumericToGarbage(typename TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree &st)
 {
 	// Mark all numeric values to trash so we detect if some goes un-initialized.
 	for (typename kf2kf_pose_traits<kf2kf_pose_t>::TRelativePosesForEachTarget::iterator it=st.num.begin();it!=st.num.end();++it)
@@ -95,8 +95,8 @@ void setAllNumericToGarbage(typename TRBA_Problem_state<RBA_SETTINGS_T>::TSpanni
 }
 #endif
 
-template <class RBA_SETTINGS_T>
-size_t TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_numeric(bool skip_marked_as_uptodate)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::update_numeric(bool skip_marked_as_uptodate)
 {
 #if DEBUG_GARBAGE_FILL_ALL_NUMS
 	setAllNumericToGarbage<RBA_SETTINGS_T>(*this);
@@ -107,8 +107,8 @@ size_t TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_numeric(bool sk
 	return pose_count;
 }
 
-template <class RBA_SETTINGS_T>
-size_t TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_numeric(const std::set<TKeyFrameID> & kfs_to_update,bool skip_marked_as_uptodate)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::update_numeric(const std::set<TKeyFrameID> & kfs_to_update,bool skip_marked_as_uptodate)
 {
 #if DEBUG_GARBAGE_FILL_ALL_NUMS
 	setAllNumericToGarbage<RBA_SETTINGS_T>(*this);

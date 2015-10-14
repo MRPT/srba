@@ -86,10 +86,6 @@ struct TEST_DATASET0
 {
 	struct my_srba_options
 	{
-		typedef kf2kf_poses::SE3 kf2kf_pose_t;
-		typedef landmarks::Euclidean3D landmark_t;
-		typedef observations::Cartesian_3D obs_t;
-
 		typedef options::sensor_pose_on_robot_none sensor_pose_on_robot_t;
 		typedef options::observation_noise_identity   obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
 		typedef options::solver_LM_schur_dense_cholesky      solver_t;
@@ -182,10 +178,6 @@ struct TEST_DATASET1
 {
 	struct my_srba_options
 	{
-		typedef kf2kf_poses::SE3 kf2kf_pose_t;
-		typedef landmarks::Euclidean3D landmark_t;
-		typedef observations::Cartesian_3D obs_t;
-
 		typedef options::sensor_pose_on_robot_se3 sensor_pose_on_robot_t;
 		typedef options::observation_noise_identity   obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
 		typedef options::solver_LM_schur_dense_cholesky      solver_t;
@@ -225,7 +217,13 @@ template <class DATASET>
 void run_test()
 {
 	// Declare a typedef "my_srba_t" for easily referring to my RBA problem type:
-	typedef RbaEngine<typename DATASET::my_srba_options > my_srba_t;
+	typedef RbaEngine<
+		kf2kf_poses::SE3,                // Parameterization  KF-to-KF poses
+		landmarks::Euclidean3D,          // Parameterization of landmark positions
+		observations::Cartesian_3D,       // Type of observations
+		typename DATASET::my_srba_options
+		>
+		my_srba_t;
 
 	my_srba_t rba;     //  Create an empty RBA problem
 

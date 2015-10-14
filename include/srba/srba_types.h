@@ -36,7 +36,7 @@ namespace srba
 	/** Generic declaration, of which specializations are defined for each combination of LM+OBS type.
 	  * \sa Implementations are in srba/models/sensors.h
 	  */
-	template <class LANDMARK_TYPE,class obs_t>
+	template <class landmark_t,class obs_t>
 	struct sensor_model;
 
 	/** The argument "POSE_TRAITS" can be any of those defined in srba/models/kf2kf_poses.h (typically, either kf2kf_poses::SE3 or kf2kf_poses::SE2).
@@ -527,13 +527,9 @@ namespace srba
 	  *  Operations on this structure are performed via the public API of srba::RbaEngine
 	  * \sa RbaEngine
 	  */
-	template <class RBA_SETTINGS_T>
+	template <class kf2kf_pose_t,class landmark_t,class obs_t,class RBA_OPTIONS>
 	struct TRBA_Problem_state
 	{
-		typedef typename RBA_SETTINGS_T::kf2kf_pose_t  kf2kf_pose_t;
-		typedef typename RBA_SETTINGS_T::landmark_t    landmark_t;
-		typedef typename RBA_SETTINGS_T::obs_t         obs_t;
-
 		typedef typename kf2kf_pose_t::pose_t pose_t;
 		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_t         k2k_edge_t;
 		typedef typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t  k2k_edge_vector_t;
@@ -568,7 +564,7 @@ namespace srba
 				std::deque<std::pair<TKeyFrameID,std::map<TKeyFrameID, k2k_edge_vector_t > > >
 				> all_edges_maps_t;
 
-			const TRBA_Problem_state<RBA_SETTINGS_T> *m_parent;
+			const TRBA_Problem_state<kf2kf_pose_t,landmark_t,obs_t,RBA_OPTIONS> *m_parent;
 
 			/** @name Data structures
 			  *  @{ */

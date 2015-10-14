@@ -201,7 +201,7 @@ namespace internal
 		}
 
 		/** Here, out_info is of type srba::options::solver_LM_schur_sparse_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_settings_t::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::rba_options_t::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
 			if (sS) sS->swap(out_info.hessian);
@@ -394,7 +394,7 @@ namespace internal
 			return schur_compl.was_ith_feature_invertible(i);
 		}
 		/** Here, out_info is of type srba::options::solver_LM_no_schur_sparse_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_settings_t::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::rba_options_t::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = sS_is_valid;
 			if (sS) sS->swap(out_info.hessian);
@@ -578,7 +578,7 @@ namespace internal
 			return schur_compl.was_ith_feature_invertible(i);
 		}
 		/** Here, out_info is of type srba::options::solver_LM_schur_dense_cholesky::extra_results_t */
-		void get_extra_results(typename RBA_ENGINE::rba_settings_t::solver_t::extra_results_t & out_info )
+		void get_extra_results(typename RBA_ENGINE::rba_options_t::solver_t::extra_results_t & out_info )
 		{
 			out_info.hessian_valid = hessian_is_valid;
 			denseH.swap(out_info.hessian);

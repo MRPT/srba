@@ -11,8 +11,8 @@
 
 namespace srba {
 
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::optimize_local_area(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_local_area(
 	const TKeyFrameID  root_id,
 	const unsigned int win_size,
 	TOptimizeExtraOutputInfo & out_info,

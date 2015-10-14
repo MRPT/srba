@@ -16,10 +16,10 @@
 namespace srba {
 namespace options
 {
-	/** \defgroup mrpt_srba_options_noise Types for RBA_SETTINGS_T::obs_noise_matrix_t 
+	/** \defgroup mrpt_srba_options_noise Types for RBA_OPTIONS::obs_noise_matrix_t 
 		* \ingroup mrpt_srba_options */
 
-		/** Usage: A possible type for RBA_SETTINGS_T::obs_noise_matrix_t.
+		/** Usage: A possible type for RBA_OPTIONS::obs_noise_matrix_t.
 		  * Meaning: The sensor noise matrix is the same for all observations and equal to \sigma * I(identity).  
 		  * \ingroup mrpt_srba_options_noise */
 		struct observation_noise_identity
@@ -72,7 +72,7 @@ namespace options
 
 		};  // end of "observation_noise_identity"
 
-		/** Usage: A possible type for RBA_SETTINGS_T::obs_noise_matrix_t.
+		/** Usage: A possible type for RBA_OPTIONS::obs_noise_matrix_t.
 		  * Meaning: The sensor noise matrix is an arbitrary matrix and the same for all observations. 
 		  * \ingroup mrpt_srba_options_noise */
 		template <class obs_t>

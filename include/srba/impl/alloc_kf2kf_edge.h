@@ -13,8 +13,8 @@
 namespace srba {
 
 // See header & papers for docs
-template <class RBA_SETTINGS_T>
-size_t TRBA_Problem_state<RBA_SETTINGS_T>::alloc_kf2kf_edge(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::alloc_kf2kf_edge(
 	const TPairKeyFrameID &ids,
 	const pose_t &init_inv_pose_val )
 {

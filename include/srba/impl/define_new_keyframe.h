@@ -12,8 +12,8 @@
 namespace srba {
 
 // The main entry point of SRBA. See .h and papers for docs.
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::define_new_keyframe(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::define_new_keyframe(
 	const typename traits_t::new_kf_observations_t  & obs,
 	TNewKeyFrameInfo  & out_new_kf_info,
 	const bool          run_local_optimization )

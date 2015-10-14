@@ -15,10 +15,10 @@ namespace srba {
 namespace options
 {
 
-	/** \defgroup mrpt_srba_options_solver Types for RBA_SETTINGS_T::solver_t 
+	/** \defgroup mrpt_srba_options_solver Types for RBA_OPTIONS::solver_t 
 		* \ingroup mrpt_srba_options */
 
-		/** Usage: A possible type for RBA_SETTINGS_T::solver_t.
+		/** Usage: A possible type for RBA_OPTIONS::solver_t.
 		  * Meaning: Levenberg-Marquardt solver, Schur complement to reduce landmarks, dense Cholesky solver for Ax=b.
 		  * \ingroup mrpt_srba_options_solver */
 		struct solver_LM_schur_dense_cholesky
@@ -37,7 +37,7 @@ namespace options
 			};
 		};
 
-		/** Usage: A possible type for RBA_SETTINGS_T::solver_t.
+		/** Usage: A possible type for RBA_OPTIONS::solver_t.
 		  * Meaning: Levenberg-Marquardt solver, Schur complement to reduce landmarks, sparse Cholesky solver for Ax=b.
 		  * \ingroup mrpt_srba_options_solver */
 		struct solver_LM_schur_sparse_cholesky
@@ -56,7 +56,7 @@ namespace options
 			};
 		};
 
-		/** Usage: A possible type for RBA_SETTINGS_T::solver_t.
+		/** Usage: A possible type for RBA_OPTIONS::solver_t.
 		  * Meaning: Levenberg-Marquardt solver, without Schur complement, sparse Cholesky solver for Ax=b.
 		  * \ingroup mrpt_srba_options_solver */
 		struct solver_LM_no_schur_sparse_cholesky

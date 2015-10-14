@@ -15,8 +15,8 @@
 namespace srba {
 
 /** Default constructor */
-template <class RBA_SETTINGS_T>
-RbaEngine<RBA_SETTINGS_T>::RbaEngine() :
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::RbaEngine() :
 	m_verbose_level(1),
 	rba_state(),
 	m_profiler(true)
@@ -25,14 +25,14 @@ RbaEngine<RBA_SETTINGS_T>::RbaEngine() :
 }
 
 /** Reset the entire problem to an empty state (automatically called at construction) */
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::clear()
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::clear()
 {
 	this->rba_state.clear();
 }
 
-template <class RBA_SETTINGS_T>
-RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::TSRBAParameters() :
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::TSRBAParameters() :
 	// -------------------------------
 	max_tree_depth       ( 4 ),
 	max_optimize_depth   ( 4 ),
@@ -55,8 +55,8 @@ RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::TSRBAParameters() :
 }
 
 /** See docs of mrpt::utils::CLoadableOptions */
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
 {
 	MRPT_LOAD_CONFIG_VAR(max_tree_depth,uint64_t,source,section)
 	MRPT_LOAD_CONFIG_VAR(max_optimize_depth,uint64_t,source,section)
@@ -74,8 +74,8 @@ void RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::loadFromConfigFile(const mrpt::
 }
 
 /** See docs of mrpt::utils::CLoadableOptions */
-template <class RBA_SETTINGS_T>
-void RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
 {
 	out.write(section,"max_tree_depth",max_tree_depth,  /* text width */ 30, 30, "Maximum depth of all spanning trees");
 	out.write(section,"max_optimize_depth",max_optimize_depth, /* text width */ 30, 30, "Max. local optimization distance");
@@ -93,8 +93,8 @@ void RbaEngine<RBA_SETTINGS_T>::TSRBAParameters::saveToConfigFile(mrpt::utils::C
 
 
 /** Computes stats on the degree (# of adjacent nodes) of all the nodes in the graph. Runs in O(N) with N=# of keyframes */
-template <class RBA_SETTINGS_T>
-void TRBA_Problem_state<RBA_SETTINGS_T>::compute_all_node_degrees(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_all_node_degrees(
 	double &out_mean_degree,
 	double &out_std_degree,
 	double &out_max_degree) const
@@ -118,8 +118,8 @@ void TRBA_Problem_state<RBA_SETTINGS_T>::compute_all_node_degrees(
 
 /** Returns true if the pair of KFs are connected thru a kf2kf edge, no matter the direction of the edge.
   * Runs in worst-case O(D) with D the degree of the KF graph (that is, the maximum number of edges adjacent to one KF) */
-template <class RBA_SETTINGS_T>
-bool TRBA_Problem_state<RBA_SETTINGS_T>::are_keyframes_connected(const TKeyFrameID id1, const TKeyFrameID id2) const
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::are_keyframes_connected(const TKeyFrameID id1, const TKeyFrameID id2) const
 {
 	ASSERT_BELOW_(id1, keyframes.size())
 	ASSERT_BELOW_(id2, keyframes.size())

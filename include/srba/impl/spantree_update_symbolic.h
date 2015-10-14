@@ -15,8 +15,8 @@ namespace srba {
 #define SYM_ST_SUPER_VERBOSE 0
 
 /** Incremental update of spanning trees after the insertion of ONE new node and ONE OR MORE edges */
-template <class RBA_SETTINGS_T>
-void TRBA_Problem_state<RBA_SETTINGS_T>::TSpanningTree::update_symbolic_new_node(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::update_symbolic_new_node(
 	const TKeyFrameID                    new_node_id,
 	const TPairKeyFrameID & new_edge,
 	const topo_dist_t                    max_depth
@@ -183,7 +183,7 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 		const TKeyFrameID to   = std::min(dst_kf_id, kf_id);
 
 		// find_path_bfs
-		typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t & path = sym.all_edges[from][to];  // O(1) in map_as_vector
+		typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t & path = sym.all_edges[from][to];  // O(1) in map_as_vector
 		path.clear();
 		bool path_found = m_parent->find_path_bfs(from,to, NULL, &path);
 		ASSERT_(path_found)
@@ -223,12 +223,12 @@ struct TBFSEntry
 
 //  Breadth-first search (BFS) for "trg_node"
 //  Return: true: found
-template <class RBA_SETTINGS_T>
-bool TRBA_Problem_state<RBA_SETTINGS_T>::find_path_bfs(
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
+bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::find_path_bfs(
 	const TKeyFrameID           cur_node,
 	const TKeyFrameID           trg_node,
 	std::vector<TKeyFrameID>  * out_path_IDs,
-	typename kf2kf_pose_traits<kf2kf_pose_t>::k2k_edge_vector_t * out_path_edges ) const
+	typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t * out_path_edges ) const
 {
 	if (out_path_IDs) out_path_IDs->clear();
 	if (out_path_edges) out_path_edges->clear();
