@@ -33,7 +33,7 @@ using namespace mrpt::utils;
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
 RBA_Run_BasePtr RBA_Run_Factory<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::create()
 {
-	return RBA_Run_BasePtr( new RBA_Run< KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE, problem_settings_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE> >() );
+	return RBA_Run_BasePtr( new RBA_Run< KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE, typename problem_options_traits_t<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE>::srba_options_t >() );
 }
 
 
@@ -81,10 +81,16 @@ struct InitializerSensorPoseParams<options::sensor_pose_on_robot_se3>
 };
 
 
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_SETTINGS>
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS>
 struct RBA_Run : public RBA_Run_Base
 {
-	typedef RbaEngine<RBA_SETTINGS> my_srba_t;
+	typedef RbaEngine<
+		KF2KF_POSE_TYPE, // Parameterization  KF-to-KF poses
+		LM_TYPE,         // Parameterization of landmark positions
+		OBS_TYPE,        // Type of observations
+		RBA_OPTIONS      // Other parameters
+		>
+		my_srba_t;
 
 	// Constructor:
 	virtual int run(RBASLAM_Params &cfg)
@@ -106,7 +112,7 @@ struct RBA_Run : public RBA_Run_Base
 
 
 		// Init sensor-to-robot relative pose parameters:
-		InitializerSensorPoseParams<typename RBA_SETTINGS::sensor_pose_on_robot_t>::init(rba, cfg);
+		InitializerSensorPoseParams<typename RBA_OPTIONS::sensor_pose_on_robot_t>::init(rba, cfg);
 
 		// Process cmd-line flags:
 		// ------------------------------------------

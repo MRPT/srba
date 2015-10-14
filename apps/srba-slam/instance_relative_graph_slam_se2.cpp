@@ -14,14 +14,14 @@
 #include "CDatasetParser_RelGraphSLAM2D.h"
 
 template <>
-struct problem_settings_traits_t<kf2kf_poses::SE2,landmarks::RelativePoses2D,observations::RelativePoses_2D>  : public srba::RBA_SETTINGS_DEFAULT
+struct problem_options_traits_t<kf2kf_poses::SE2,landmarks::RelativePoses2D,observations::RelativePoses_2D>
 {
-	typedef kf2kf_poses::SE2                  kf2kf_pose_t;
-	typedef landmarks::RelativePoses2D        landmark_t;
-	typedef observations::RelativePoses_2D    obs_t;
-
-	typedef options::observation_noise_constant_matrix<observations::RelativePoses_2D> obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to an arbitrary matrix
-	typedef options::solver_LM_no_schur_sparse_cholesky  solver_t;
+	struct srba_options_t : public srba::RBA_OPTIONS_DEFAULT
+	{
+//		typedef options::sensor_pose_on_robot_none   sensor_pose_on_robot_t;
+		typedef options::observation_noise_constant_matrix<observations::RelativePoses_2D> obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to an arbitrary matrix
+		typedef options::solver_LM_no_schur_sparse_cholesky  solver_t;
+	};
 };
 
 // Explicit instantiation:

@@ -16,23 +16,20 @@ using namespace mrpt::random;
 using namespace std;
 using mrpt::utils::DEG2RAD;
 
-struct RBA_SETTINGS
+struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
-	// Parameterization  of KF-to-KF poses
-	typedef kf2kf_poses::SE3            kf2kf_pose_t;
-	// Parameterization of landmark positions
-	typedef landmarks::Euclidean3D      landmark_t;
-	// Type of observations
-	typedef observations::MonocularCamera  obs_t;
-
-	typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  //!< One of the most important choices: how to construct the relative coordinates graph problem
+//	typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  //!< One of the most important choices: how to construct the relative coordinates graph problem
 	typedef options::sensor_pose_on_robot_se3        sensor_pose_on_robot_t;
 	typedef options::observation_noise_identity      obs_noise_matrix_t;      // The sensor noise matrix is the same for all observations and equal to \sigma * I(identity)
-	typedef options::solver_LM_schur_dense_cholesky solver_t;                //!< Solver algorithm (Default: Lev-Marq, with Schur, with dense Cholesky)
+//	typedef options::solver_LM_schur_dense_cholesky solver_t;                //!< Solver algorithm (Default: Lev-Marq, with Schur, with dense Cholesky)
 };
 
-typedef RbaEngine<RBA_SETTINGS>  my_srba_t;
-
+typedef RbaEngine<
+	kf2kf_poses::SE3,              // Parameterization  of KF-to-KF poses
+	landmarks::Euclidean3D,        // Parameterization of landmark positions
+	observations::MonocularCamera, // Type of observations
+	RBA_OPTIONS
+	>  my_srba_t;
 
 // --------------------------------------------------------------------------------
 // A test dataset. Generated with https://github.com/jlblancoc/recursive-world-toolkit

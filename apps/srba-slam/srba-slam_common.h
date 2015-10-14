@@ -81,7 +81,7 @@ struct RBA_Run_Base
 #endif
 
 // Forward decl:
-template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_SETTINGS>
+template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS>
 struct RBA_Run;
 
 // ----------- RBA Problem factories ----------------------------
@@ -123,8 +123,11 @@ private:
 // Declare a "srba_options_t" type for each kind of problem:
 // ------------------------------------------------------------------------
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
-struct problem_settings_traits_t : public srba::RBA_SETTINGS_DEFAULT
+struct problem_options_traits_t
 {
+	// Default implementation:
+	typedef srba::RBA_OPTIONS_DEFAULT srba_options_t;
+
 	typedef KF2KF_POSE_TYPE  kf2kf_pose_t;
 	typedef LM_TYPE          landmark_t;
 	typedef OBS_TYPE         obs_t;
