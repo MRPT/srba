@@ -13,3 +13,4 @@
 	* \ingroup mrpt_srba_ecps */
 
 #include "ecps/local_areas_fixed_size.h"
+#include "ecps/classic_linear_rba.h"

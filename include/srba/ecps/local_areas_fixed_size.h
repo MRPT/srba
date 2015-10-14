@@ -25,13 +25,13 @@ struct local_areas_fixed_size
 	{
 		size_t              submap_size;  //!< Default:15, Fixed submap size (number of keyframes)
 		size_t              min_obs_to_loop_closure; //!< Default:4, reduce to 1 for relative graph-slam
-		size_t              min_dist_for_loop_closure; //!< Deault: 3
+		size_t              min_dist_for_loop_closure; //!< Default: 4. Ideally, set to SRBA param `max_optimize_depth`+1
 
 		/** Ctor for default values */
 		parameters_t() :
 			submap_size          ( 15 ),
 			min_obs_to_loop_closure ( 4 ),
-			min_dist_for_loop_closure ( 3 )
+			min_dist_for_loop_closure ( 4 )
 		{ }
 
 		/** See docs of mrpt::utils::CLoadableOptions */
@@ -47,7 +47,7 @@ struct local_areas_fixed_size
 		{
 			out.write(section,"submap_size",static_cast<uint64_t>(submap_size), /* text width */ 30, 30, "Max. local optimization distance");
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
-			out.write(section,"min_dist_for_loop_closure",static_cast<uint64_t>(min_dist_for_loop_closure), /* text width */ 30, 30, "Min. topological distance to observed features base to create LC edges");
+			out.write(section,"min_dist_for_loop_closure",static_cast<uint64_t>(min_dist_for_loop_closure), /* text width */ 30, 30, "Min. topological distance to observed features base to create LC edges. Ideally = max_optimize_depth+1");
 		}
 	};
 	
