@@ -239,19 +239,23 @@ namespace srba
 		struct TOpenGLRepresentationOptions : public landmark_t::render_mode_t::TOpenGLRepresentationOptionsExtra
 		{
 			TOpenGLRepresentationOptions() :
-				span_tree_max_depth(static_cast<size_t>(-1)),
+				span_tree_max_depth( std::numeric_limits<size_t>::max() ),
 				draw_unknown_feats(true),
 				draw_unknown_feats_ellipses(true),
 				draw_unknown_feats_ellipses_quantiles(1),
-				show_unknown_feats_ids(true)
+				show_unknown_feats_ids(true),
+				draw_kf_hierarchical(true),
+				draw_kf_hierarchical_height(10.0)
 			{
 			}
 
-			size_t span_tree_max_depth; //!< Maximum spanning tree depth for reconstructing relative poses (default=-1 : infinity)
+			size_t span_tree_max_depth; //!< Maximum spanning tree depth for reconstructing relative poses (default=std::numeric_limits<size_t>::max() : infinity)
 			bool   draw_unknown_feats;  //!< Draw features with non-fixed rel.pos as well?
 			bool   draw_unknown_feats_ellipses;
 			double draw_unknown_feats_ellipses_quantiles;
 			bool   show_unknown_feats_ids;
+			bool   draw_kf_hierarchical; //!< Draw in a special way those KFs with more than one kf-to-kf edge, to help visualize the structure of the map
+			double draw_kf_hierarchical_height; //!< (If draw_kf_hierarchical==true) The height in Z to offset the KF
 		};
 
 		/** Build an opengl representation of the current state of this RBA problem
@@ -271,6 +275,15 @@ namespace srba
 		bool save_graph_as_dot(
 			const std::string &targetFileName,
 			const bool all_landmarks = false
+			) const;
+
+		/** Exports the "high-level" structure of the map as a directed graph in DOT (graphviz) format: 
+		  * like \a save_graph_as_dot but only exporting those KFs with more than one kf2kf edge. 
+		  *  Optionally, using "global" coordinates (from a spanning tree) to make it more similar to the real-world structure.
+		  * \return false on any error writing to target file */
+		bool save_graph_top_structure_as_dot(
+			const std::string &targetFileName,
+			const bool set_node_coordinates
 			) const;
 
 		/** Evaluates the quality of the overall map/landmark estimations, by computing the sum of the squared

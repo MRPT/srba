@@ -53,8 +53,19 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 
 				const CPose3D p = itP->second.pose;
 
-				mrpt::opengl::CSetOfObjectsPtr o = mrpt::opengl::stock_objects::CornerXYZSimple(0.75,2.0);
-				o->setPose(p);
+				const bool is_elevated_hiearchical_kf = (options.draw_kf_hierarchical && rba_state.keyframes[itP->first].adjacent_k2k_edges.size()>=2);
+
+				mrpt::opengl::CSetOfObjectsPtr o = mrpt::opengl::stock_objects::CornerXYZSimple(is_elevated_hiearchical_kf ? 3.0 : 0.75, is_elevated_hiearchical_kf ? 4.0 : 2.0);
+				if (options.draw_kf_hierarchical) {
+					// Hierarchical map:
+					CPose3D p_mod = p;
+					if (is_elevated_hiearchical_kf)
+						p_mod.z_incr( options.draw_kf_hierarchical_height );
+					o->setPose(p_mod);
+				} else {
+					// Flat map:
+					o->setPose(p);
+				}
 				o->setName( mrpt::format("%d",int(itP->first)).c_str() );
 				o->enableShowName();
 				out_scene->insert(o);
@@ -78,6 +89,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 					if(itN1==spantree.end())
 						continue;
 					p1 = itN1->second.pose;
+					if (options.draw_kf_hierarchical && rba_state.keyframes[itEdge->from].adjacent_k2k_edges.size()>=2)
+						p1.z_incr( options.draw_kf_hierarchical_height );
 				}
 				CPose3D p2;
 				if (itEdge->to!=root_keyframe)
@@ -86,6 +99,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 					if(itN2==spantree.end())
 						continue;
 					p2 = itN2->second.pose;
+					if (options.draw_kf_hierarchical && rba_state.keyframes[itEdge->to].adjacent_k2k_edges.size()>=2)
+						p2.z_incr( options.draw_kf_hierarchical_height );
 				}
 				gl_edges->appendLine(p1.x(),p1.y(),p1.z(), p2.x(),p2.y(),p2.z());
 			}
