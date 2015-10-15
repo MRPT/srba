@@ -30,16 +30,16 @@
 
 
 
-% Read MRPT version:
+% Read Library version:
 \newread\file
-\openin\file=../../version_prefix.txt
-\read\file to\MRPTVERSION % Reads a line of the file 
+\openin\file=../version
+\read\file to\SRBALIBVERSION % Reads a line of the file 
 \closein\file
 
 % Title Page
-\title{User guide for \texttt{libmrpt-srba}: A generic C++ framework for Relative Bundle Adjustment (RBA)}
-\author{Jose-Luis Blanco-Claraco \\ joseluisblancoc@gmail.com \\ \texttt{http://www.mrpt.org/} }
-\date{MRPT version: \MRPTVERSION \\ Document build: \today }
+\title{User guide for \texttt{libsrba}: A generic C++ framework for Relative Bundle Adjustment (RBA)}
+\author{Jose Luis Blanco-Claraco \\ joseluisblancoc@gmail.com \\ \texttt{http://www.mrpt.org/} }
+\date{Library version: \SRBALIBVERSION \\ Document build: \today }
 
 % C++ listings settings
 \lstset{ %
@@ -106,9 +106,9 @@ In case you want to cite SRBA in your academic publications, here is a BibTeX en
 \noindent and here the one for this guide:
 
 \begin{verbatim}
-@MISC{libmrpt-srba-guide,
+@MISC{libsrba-guide,
   author = {Jose-Luis Blanco-Claraco},
-  title = {{User guide for \texttt{libmrpt-srba}: A generic 
+  title = {{User guide for \texttt{libsrba}: A generic 
       C++ framework for Relative Bundle Adjustment (RBA)}},
   howpublished = {http://www.mrpt.org/srba},
   year = {2013}
@@ -135,13 +135,13 @@ kind of feature maps, not necessarily involving visual information, or even to m
 For readers without a solid background in mobile robotics or computer vision, it is \emph{strongly} recommended 
 to start reading seminar works on SLAM \cite{thrun2005pr,durrantwhyte2006sla,bailey2006sla}, 
 BA \cite{triggs2000bundle} and graph-SLAM \cite{grisetti2010tgb} before putting hands on
-programming with \texttt{libmrpt-srba}.
+programming with \texttt{libsrba}.
 
 The idea of \emph{Relative Bundle Adjustment (RBA)} and \emph{Relative SLAM} was introduced in a series 
 of works by Gabe Sibley and colleagues in \cite{sibley2009rba,sibley2009adaptive,mei2011rslam}. 
 
 \emph{Sparser RBA (SRBA)} is the name of the generic and extensible framework for RBA, implemented in 
-the C++ library \texttt{libmrpt-srba}. It features the introduction of 
+the C++ library \texttt{libsrba}. It features the introduction of 
 a \emph{constant-time algorithm} for maintaining problem graphs with arbitrary topologies \cite{blanco2013srba}, 
 as well as a generic design which allows turning RBA 
 into \emph{relative Graph-SLAM} (i.e. networks of relative pose constraints whose solutions are also relative poses).
@@ -151,7 +151,7 @@ of the involved matrices \cite{blanco2013srba}.
 \newpage
 \section{Library installation}
 
-\texttt{libmrpt-srba} is one of the libraries of the Mobile Robot Programming Toolkit (MRPT). 
+\texttt{libsrba} is one of the libraries of the Mobile Robot Programming Toolkit (MRPT). 
 It is header-only and makes \emph{intensive} use of templates and design patterns for the sake of customization, 
 flexibility and extensibility. 
 
@@ -161,7 +161,7 @@ the RBA problems. Despite its name, the latter library can be built for platform
 functional \texttt{OpenGL} implementation, though it is recommended to always visualize the results for getting a better 
 insight of what is going on in your programs. The header-only library \texttt{Eigen} \cite{eigenweb} is also a mandatory dependency, but 
 an embedded version is shipped with \texttt{mrpt-base}.}, 
-so in practice before using \texttt{libmrpt-srba} in your program you need
+so in practice before using \texttt{libsrba} in your program you need
 both (i) access to headers (\texttt{.h} files) and (ii) binary libraries to link against. 
 
 In Ubuntu, installing the package \texttt{libmrpt-dev} (version 1.0.0 or newer) is the easiest way to have 
@@ -183,7 +183,7 @@ for detailed instructions.
 If you prefer to build MRPT from sources and do not need all the functionality of the rest of libraries, 
 uncheck all the CMake configuration variables \texttt{BUILD\_mrpt-*} for the unneeded modules. 
 To make sure everything is working properly it is recommended to run the set of \emph{unit tests} associated 
-to \texttt{libmrpt-srba} with: 
+to \texttt{libsrba} with: 
 
 \begin{lstlisting}
  make run_tests_mrpt_srba  # To run the unit tests of mrpt-srba only
@@ -191,7 +191,7 @@ to \texttt{libmrpt-srba} with:
 \end{lstlisting}
 
 The tests include solving a few predefined datasets, verifying the expected results from 
-Sch\"ur-complement functions, etc. At present there are 13 unit tests just for \texttt{libmrpt-srba}
+Sch\"ur-complement functions, etc. At present there are 13 unit tests just for \texttt{libsrba}
 and more than 160 for the entire MRPT. 
 It is almost impossible to guarantee that a library is bug-free with 100\% certainty, 
 but at least those tests assure that no regressions will be introduced along future features of bug fixes.
@@ -216,7 +216,7 @@ The illustration depicts many elements, some of which are \emph{known} data, oth
 The goal of RBA is to recover a \emph{maximum-likelihood estimation (MLE)} of those unknowns. Optionally, the covariances and 
 cross-covariances between estimated variables can be also evaluated.
 
-We find the following entities in \texttt{libmrpt-srba} (refer to Fig.~\ref{fig:rba.entities}):
+We find the following entities in \texttt{libsrba} (refer to Fig.~\ref{fig:rba.entities}):
 
 \begin{itemize}
 \item{\textbf{Keyframes}: A keyframe (KF), as each $KF_i$ in the figure, represents the \emph{pose} of the robot (or the 
@@ -258,7 +258,7 @@ observed LM.
 \section{Programmer's first steps}
 \label{sect:program_first}
 
-The central class in \texttt{libmrpt-srba} is the template \texttt{RbaEngine<>}, which 
+The central class in \texttt{libsrba} is the template \texttt{RbaEngine<>}, which 
 adopts a ``policy-based design'' \cite{andrei2001modern}:
 
 \begin{lstlisting}
@@ -1157,7 +1157,7 @@ are added to the problem.
 
 \subsection{Directory layout}
 
-As said above, \texttt{libmrpt-srba} is a header-only library. 
+As said above, \texttt{libsrba} is a header-only library. 
 Thus the headers include both: ``public'' declarations and template implementations. 
 
 The user normally includes just one public header,
