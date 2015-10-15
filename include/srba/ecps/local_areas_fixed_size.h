@@ -25,13 +25,11 @@ struct local_areas_fixed_size
 	{
 		size_t              submap_size;  //!< Default:15, Fixed submap size (number of keyframes)
 		size_t              min_obs_to_loop_closure; //!< Default:4, reduce to 1 for relative graph-slam
-		size_t              min_dist_for_loop_closure; //!< Default: 4. Ideally, set to SRBA param `max_optimize_depth`+1
 
 		/** Ctor for default values */
 		parameters_t() :
 			submap_size          ( 15 ),
-			min_obs_to_loop_closure ( 4 ),
-			min_dist_for_loop_closure ( 4 )
+			min_obs_to_loop_closure ( 4 )
 		{ }
 
 		/** See docs of mrpt::utils::CLoadableOptions */
@@ -39,7 +37,6 @@ struct local_areas_fixed_size
 		{
 			MRPT_LOAD_CONFIG_VAR(submap_size,uint64_t,source,section)
 			MRPT_LOAD_CONFIG_VAR(min_obs_to_loop_closure,uint64_t,source,section)
-			MRPT_LOAD_CONFIG_VAR(min_dist_for_loop_closure,uint64_t,source,section)
 		}
 
 		/** See docs of mrpt::utils::CLoadableOptions */
@@ -47,7 +44,6 @@ struct local_areas_fixed_size
 		{
 			out.write(section,"submap_size",static_cast<uint64_t>(submap_size), /* text width */ 30, 30, "Max. local optimization distance");
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
-			out.write(section,"min_dist_for_loop_closure",static_cast<uint64_t>(min_dist_for_loop_closure), /* text width */ 30, 30, "Min. topological distance to observed features base to create LC edges. Ideally = max_optimize_depth+1");
 		}
 	};
 	
@@ -124,7 +120,9 @@ struct local_areas_fixed_size
 				// Since this means that the KF is aisolated from the rest of the world, leave the topological distance to infinity.
 			}
 
-			if ( found_distance>=params.min_dist_for_loop_closure)
+			const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
+
+			if ( found_distance>=min_dist_for_loop_closure)
 			{
 				// Skip if there is already a topo connection between the two areas:
 				const std::pair<TKeyFrameID,TKeyFrameID> c2c_pair = make_pair( std::min(central_kf_id,cur_localmap_center), std::max(central_kf_id,cur_localmap_center) );

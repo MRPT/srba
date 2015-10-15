@@ -24,26 +24,22 @@ struct classic_linear_rba
 	struct parameters_t
 	{
 		size_t              min_obs_to_loop_closure; //!< Default:4, reduce to 1 for relative graph-slam
-		size_t              min_dist_for_loop_closure; //!< Default: 4. Ideally, set to SRBA param `max_optimize_depth`+1
 
 		/** Ctor for default values */
 		parameters_t() :
-			min_obs_to_loop_closure ( 4 ),
-			min_dist_for_loop_closure ( 4 )
+			min_obs_to_loop_closure ( 4 )
 		{ }
 
 		/** See docs of mrpt::utils::CLoadableOptions */
 		void loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
 		{
 			MRPT_LOAD_CONFIG_VAR(min_obs_to_loop_closure,uint64_t,source,section)
-			MRPT_LOAD_CONFIG_VAR(min_dist_for_loop_closure,uint64_t,source,section)
 		}
 
 		/** See docs of mrpt::utils::CLoadableOptions */
 		void saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
 		{
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
-			out.write(section,"min_dist_for_loop_closure",static_cast<uint64_t>(min_dist_for_loop_closure), /* text width */ 30, 30, "Min. topological distance to observed features base to create LC edges.Ideally = max_optimize_depth+1");
 		}
 	};
 	
@@ -70,6 +66,8 @@ struct classic_linear_rba
 		nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( new_kf_id-1, new_kf_id), obs, init_inv_pose);
 
 		new_k2k_edge_ids.push_back(nei);
+
+		const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
 
 	} // end of eval()
 
