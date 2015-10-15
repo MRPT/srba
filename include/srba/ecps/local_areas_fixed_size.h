@@ -59,11 +59,11 @@ struct local_areas_fixed_size
 		const parameters_t &params)
 	{
 		using namespace std;
-		ASSERT_(new_kf_id>=1)
+		ASSERT_(new_kf_id>=1) // We can run an ECP only if we have 2 KFs in the map
 
 		const size_t MINIMUM_OBS_TO_LOOP_CLOSURE = params.min_obs_to_loop_closure;
 		const size_t SUBMAP_SIZE = params.submap_size; // In # of KFs
-		const TKeyFrameID cur_localmap_center = SUBMAP_SIZE*((new_kf_id-1)/SUBMAP_SIZE);
+		const TKeyFrameID current_center_kf_id = SUBMAP_SIZE*(new_kf_id/SUBMAP_SIZE);
 		const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
 
 		// Go thru all observations and for those already-seen LMs, check the distance between their base KFs and (i_id):
@@ -88,20 +88,43 @@ struct local_areas_fixed_size
 		for (map<TKeyFrameID,size_t>::const_iterator it=obs_for_each_area.begin();it!=obs_for_each_area.end();++it)
 			obs_for_each_area_sorted.insert( make_pair(it->second,it->first) );
 
-		// Go thru candidate areas:
+		// First: always create one edge:
+		//  Regular KFs:      new KF                         ==> current_center_kf_id
+		//  New area center:  new KF (=current_center_kf_id) ==> center of previous 
+		{
+			if (current_center_kf_id == new_kf_id) {
+				// We are about to start an empty, new area: link with the most connected area (in the general code above)
+			}
+			else {
+				// Connect to the local area center:
+				TNewEdgeInfo nei;
+				nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( current_center_kf_id, new_kf_id), obs);
+				nei.has_approx_init_val = false; // // By default: Will need to estimate this one
+
+				// Otherwise: estimate
+				MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
+				std::cout << "TODO: init rel pos bootstrap\n";
+
+				new_k2k_edge_ids.push_back(nei);
+			}
+		}
+
+		// Go thru candidate areas for loop closures:
 		for (base_sorted_lst_t::const_iterator it=obs_for_each_area_sorted.begin();it!=obs_for_each_area_sorted.end();++it)
 		{
 			const size_t      num_obs_this_base = it->first;
-			const TKeyFrameID central_kf_id = it->second;
+			const TKeyFrameID remote_center_kf_id = it->second;
 			const bool        is_strongest_connected_edge =  (it==obs_for_each_area_sorted.begin()); // Is this the first one?
 
-			//VERBOSE_LEVEL(2) << "[edge_creation_policy] Consider: area central kf#"<< central_kf_id << " with #obs:"<< num_obs_this_base << endl;
+			//VERBOSE_LEVEL(2) << "[edge_creation_policy] Consider: area central kf#"<< remote_center_kf_id << " with #obs:"<< num_obs_this_base << endl;
 
 			// Create edges to all these central KFs if they're too far:
 
-			// Find the distance between "central_kf_id" <=> "new_kf_id"
-			const TKeyFrameID from_id = new_kf_id;
-			const TKeyFrameID to_id   = central_kf_id;
+			// Find the distance between "remote_center_kf_id" <=> "new_kf_id"
+			const TKeyFrameID from_id = current_center_kf_id; //new_kf_id;
+			const TKeyFrameID to_id   = remote_center_kf_id;
+			if (from_id==to_id)
+				continue; // Local area, we are ok
 
 			typename rba_engine_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_from = rba_engine.get_rba_state().spanning_tree.sym.next_edge.find(from_id);
 
@@ -121,29 +144,29 @@ struct local_areas_fixed_size
 				// Since this means that the KF is aisolated from the rest of the world, leave the topological distance to infinity.
 			}
 
-			if ( found_distance>=min_dist_for_loop_closure)
+			if ( found_distance >= min_dist_for_loop_closure - 2 /* the edges OBSERVER_KF ===> CENTER1->CENTER2 ===> BASE_KF*/ )
 			{
-				// Skip if there is already a topo connection between the two areas:
-				const std::pair<TKeyFrameID,TKeyFrameID> c2c_pair = make_pair( std::min(central_kf_id,cur_localmap_center), std::max(central_kf_id,cur_localmap_center) );
-				const bool already_connected = 
-					(is_strongest_connected_edge ? false : true) 
-					&& 
-					central2central_connected_areas.find(c2c_pair)!=central2central_connected_areas.end();
+				//// Skip if there is already a topo connection between the two areas:
+				//const std::pair<TKeyFrameID,TKeyFrameID> c2c_pair = make_pair( std::min(remote_center_kf_id,current_center_kf_id), std::max(remote_center_kf_id,current_center_kf_id) );
+				//const bool already_connected = 
+				//	(is_strongest_connected_edge ? false : true) 
+				//	&& 
+				//	central2central_connected_areas.find(c2c_pair)!=central2central_connected_areas.end();
 
-				if (num_obs_this_base>=MINIMUM_OBS_TO_LOOP_CLOSURE && !already_connected)
+				if (num_obs_this_base>=MINIMUM_OBS_TO_LOOP_CLOSURE) // && !already_connected)
 				{
 					// The KF is TOO FAR: We will need to create an additional edge:
 					TNewEdgeInfo nei;
 
-					nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( central_kf_id, new_kf_id), obs);
+					nei.id = rba_engine.create_kf2kf_edge(from_id, TPairKeyFrameID( to_id, from_id), obs);
 
 					nei.has_approx_init_val = false; // // By default: Will need to estimate this one
 
 					// look at last kf's kf2kf edges for an initial guess to ease optimization:
-					if ( last_timestep_touched_kfs.count(central_kf_id) != 0 )
+					if ( last_timestep_touched_kfs.count(to_id) != 0 )
 					{
 						// Get the relative post from the numeric spanning tree, which should be up-to-date:
-						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_engine.get_rba_state().spanning_tree.num.find(central_kf_id);
+						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_engine.get_rba_state().spanning_tree.num.find(to_id);
 						ASSERT_(it_tree4_central!=rba_engine.get_rba_state().spanning_tree.num.end())
 
 						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::frameid2pose_map_t::const_iterator it_nei_1 = 
@@ -164,41 +187,19 @@ struct local_areas_fixed_size
 					}
 
 					new_k2k_edge_ids.push_back(nei);
-					central2central_connected_areas.insert(c2c_pair);
+					//central2central_connected_areas.insert(c2c_pair);
 
 					mrpt::system::setConsoleColor(mrpt::system::CONCOL_BLUE);
-					//VERBOSE_LEVEL(2) << "[edge_creation_policy] Created edge #"<< nei.id << ": "<< central_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base<< endl;
+					//VERBOSE_LEVEL(2) << "[edge_creation_policy] Created edge #"<< nei.id << ": "<< remote_center_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base<< endl;
 					mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL);
 				}
 				else
 				{
-					//VERBOSE_LEVEL(1) << "[edge_creation_policy] Skipped extra edge " << central_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base << " and already_connected="<< (already_connected?"TRUE":"FALSE") << endl;
+					//VERBOSE_LEVEL(1) << "[edge_creation_policy] Skipped extra edge " << remote_center_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base << " and already_connected="<< (already_connected?"TRUE":"FALSE") << endl;
 				}
 			}
 		}
 
-		// At least we must create 1 edge!
-		if (new_k2k_edge_ids.empty())
-		{
-			// Try linking to a "non-central" KF but at least having the min. # of desired shared observations:
-			if (!obs_for_each_base_sorted.empty())
-			{
-				const size_t     most_connected_nObs  = obs_for_each_base_sorted.begin()->first;
-				const TKeyFrameID most_connected_kf_id = obs_for_each_base_sorted.begin()->second;
-				if (most_connected_nObs>=MINIMUM_OBS_TO_LOOP_CLOSURE)
-				{
-					TNewEdgeInfo nei;
-
-					nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( most_connected_kf_id, new_kf_id), obs);
-					nei.has_approx_init_val = false; // Will need to estimate this one
-					new_k2k_edge_ids.push_back(nei);
-
-					//VERBOSE_LEVEL(0) << "[edge_creation_policy] Created edge of last resort #"<< nei.id << ": "<< most_connected_kf_id <<"->"<<new_kf_id << " with #obs: "<< most_connected_nObs<< endl;
-				}
-			}
-		}
-
-		// Recheck: if even with the last attempt we don't have any edge, it's bad:
 		ASSERTMSG_(new_k2k_edge_ids.size()>=1, mrpt::format("Error for new KF#%u: no suitable linking KF found with a minimum of %u common observation: the node becomes isolated of the graph!", static_cast<unsigned int>(new_kf_id),static_cast<unsigned int>(MINIMUM_OBS_TO_LOOP_CLOSURE) ))
 
 		// save for the next timestep:
@@ -224,7 +225,7 @@ struct local_areas_fixed_size
 	}
 
 private:
-	std::set<std::pair<TKeyFrameID,TKeyFrameID> > central2central_connected_areas; // 1st the lowest id, to avoid duplicates
+	//std::set<std::pair<TKeyFrameID,TKeyFrameID> > central2central_connected_areas; // 1st the lowest id, to avoid duplicates
 	std::set<size_t> last_timestep_touched_kfs;
 
 };  // end of struct
