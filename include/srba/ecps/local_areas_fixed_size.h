@@ -64,6 +64,7 @@ struct local_areas_fixed_size
 		const size_t MINIMUM_OBS_TO_LOOP_CLOSURE = params.min_obs_to_loop_closure;
 		const size_t SUBMAP_SIZE = params.submap_size; // In # of KFs
 		const TKeyFrameID cur_localmap_center = SUBMAP_SIZE*((new_kf_id-1)/SUBMAP_SIZE);
+		const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
 
 		// Go thru all observations and for those already-seen LMs, check the distance between their base KFs and (i_id):
 		// Make a list of base KFs of my new observations, ordered in descending order by # of shared observations:
@@ -119,8 +120,6 @@ struct local_areas_fixed_size
 				// The new KF doesn't still have any edge created to it, that's why we didn't found any spanning tree for it.
 				// Since this means that the KF is aisolated from the rest of the world, leave the topological distance to infinity.
 			}
-
-			const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
 
 			if ( found_distance>=min_dist_for_loop_closure)
 			{

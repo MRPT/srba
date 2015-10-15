@@ -244,7 +244,7 @@ namespace srba
 				draw_unknown_feats_ellipses(true),
 				draw_unknown_feats_ellipses_quantiles(1),
 				show_unknown_feats_ids(true),
-				draw_kf_hierarchical(true),
+				draw_kf_hierarchical(false),
 				draw_kf_hierarchical_height(10.0)
 			{
 			}
@@ -254,8 +254,8 @@ namespace srba
 			bool   draw_unknown_feats_ellipses;
 			double draw_unknown_feats_ellipses_quantiles;
 			bool   show_unknown_feats_ids;
-			bool   draw_kf_hierarchical; //!< Draw in a special way those KFs with more than one kf-to-kf edge, to help visualize the structure of the map
-			double draw_kf_hierarchical_height; //!< (If draw_kf_hierarchical==true) The height in Z to offset the KF
+			bool   draw_kf_hierarchical; //!< (default:false) Draw in a special way those KFs with more than one kf-to-kf edge, to help visualize the structure of the map
+			double draw_kf_hierarchical_height; //!< (default: 10.0) (If draw_kf_hierarchical==true) The height in Z to offset the "border" KFs
 		};
 
 		/** Build an opengl representation of the current state of this RBA problem
