@@ -323,7 +323,7 @@ namespace srba
 				row_min=0;
 			if (row_min_idx) *row_min_idx = row_min;
 			if (row_max_idx) *row_max_idx = row_max;
-			return (row_max-row_min)-1;
+			return (row_max-row_min)+1;
 		}
 
 		//! \overload For a subset of columns
@@ -340,7 +340,7 @@ namespace srba
 				row_min=0;
 			if (row_min_idx) *row_min_idx = row_min;
 			if (row_max_idx) *row_max_idx = row_max;
-			return (row_max-row_min)-1;
+			return (row_max-row_min)+1;
 		}
 
 		/** Returns the number of (symbolically) non-zero blocks, etc. 
