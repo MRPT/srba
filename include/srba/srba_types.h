@@ -25,7 +25,11 @@ namespace srba
 	typedef std::multimap<size_t,TKeyFrameID,std::greater<size_t> > base_sorted_lst_t;  //!< A list of keyframes, sorted in descending order by some count number
 
 	#define VERBOSE_LEVEL(_LEVEL) if (m_verbose_level>=_LEVEL) std::cout
-	
+
+	#define VERBOSE_LEVEL_COLOR(_LEVEL,_TEXT_COLOR) if (m_verbose_level>=_LEVEL) { mrpt::system::setConsoleColor(_TEXT_COLOR); std::cout
+	#define VERBOSE_LEVEL_COLOR_POST() mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL); }
+
+
 	#define SRBA_INVALID_KEYFRAMEID  static_cast<TKeyFrameID>(-1)
 	#define SRBA_INVALID_INDEX       static_cast<size_t>(-1)
 

@@ -287,7 +287,10 @@ namespace internal
 			DETAILED_PROFILING_LEAVE("opt.schur_build_reduced")
 
 			if (schur_compl.getNumFeaturesFullRank()!=schur_compl.getNumFeatures())
-				VERBOSE_LEVEL(1) << "[OPT] Schur warning: only " << schur_compl.getNumFeaturesFullRank() << " out of " << schur_compl.getNumFeatures() << " features have full-rank.\n";
+			{
+				VERBOSE_LEVEL_COLOR(1,mrpt::system::CONCOL_RED) << "[OPT] Schur warning: only " << schur_compl.getNumFeaturesFullRank() << " out of " << schur_compl.getNumFeatures() << " features have full-rank.\n";
+				VERBOSE_LEVEL_COLOR_POST();
+			}
 
 			// Only the H_Ap part of the Hessian:
 			if (!sS) sS = new mrpt::math::CSparseMatrix(nUnknowns_k2k*POSE_DIMS,nUnknowns_k2k*POSE_DIMS);
@@ -478,8 +481,10 @@ namespace internal
 			schur_compl.numeric_build_reduced_system(lambda);
 			DETAILED_PROFILING_LEAVE("opt.schur_build_reduced")
 
-			if (schur_compl.getNumFeaturesFullRank()!=schur_compl.getNumFeatures())
-				VERBOSE_LEVEL(1) << "[OPT] Schur warning: only " << schur_compl.getNumFeaturesFullRank() << " out of " << schur_compl.getNumFeatures() << " features have full-rank.\n";
+			if (schur_compl.getNumFeaturesFullRank()!=schur_compl.getNumFeatures()) {
+				VERBOSE_LEVEL_COLOR(1,mrpt::system::CONCOL_RED) << "[OPT] Schur warning: only " << schur_compl.getNumFeaturesFullRank() << " out of " << schur_compl.getNumFeatures() << " features have full-rank.\n";
+				VERBOSE_LEVEL_COLOR_POST();
+			}
 
 			if (!denseChol_is_uptodate)
 			{
