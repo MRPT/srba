@@ -55,6 +55,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	
 	m_profiler.enter("opt");
 
+	out_info = TOptimizeExtraOutputInfo();
+
 	// Problem dimensions:
 	const size_t POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
 	const size_t LM_DIMS   = landmark_t::LM_DIMS;
@@ -69,10 +71,17 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	std::vector<size_t> run_k2k_edges; run_k2k_edges.reserve(run_k2k_edges_in.size());
 	std::vector<size_t> run_feat_ids; run_feat_ids.reserve(run_feat_ids_in.size());
 
+	std::set<TKeyFrameID> touched_KFs; // Only for stats
+	std::set<TLandmarkID> touched_LMs; // Only for stats
+
 	for (size_t i=0;i<run_k2k_edges_in.size();i++)
 	{
 		const typename TSparseBlocksJacobians_dh_dAp::col_t & col_i = rba_state.lin_system.dh_dAp.getCol( run_k2k_edges_in[i] );
-		if (!col_i.empty()) run_k2k_edges.push_back( run_k2k_edges_in[i] );
+		if (!col_i.empty()) {
+			run_k2k_edges.push_back( run_k2k_edges_in[i] );
+			touched_KFs.insert( rba_state.k2k_edges[run_k2k_edges_in[i]].from );
+			touched_KFs.insert( rba_state.k2k_edges[run_k2k_edges_in[i]].to );
+		}
 		else 
 		{
 			const TKeyFrameID from = rba_state.k2k_edges[run_k2k_edges_in[i]].from;
@@ -98,10 +107,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 
 		const typename TSparseBlocksJacobians_dh_df::col_t & col_i = rba_state.lin_system.dh_df.getCol( it_remap->second );
 
-		if (!col_i.empty()) run_feat_ids.push_back( run_feat_ids_in[i] );
+		if (!col_i.empty()) {
+			run_feat_ids.push_back( feat_id );
+			touched_LMs.insert( feat_id );
+		}
 		else {
 			mrpt::system::setConsoleColor(mrpt::system::CONCOL_RED, true /*cerr*/);
-			std::cerr << "[RbaEngine::optimize_edges] *Warning*: Skipping optimization of k2f edge #"<<run_feat_ids_in[i] << " since no observation depends on it.\n";
+			std::cerr << "[RbaEngine::optimize_edges] *Warning*: Skipping optimization of k2f edge #"<< feat_id << " since no observation depends on it.\n";
 			mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL, true /*cerr*/);
 		}
 	}
@@ -112,6 +124,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	// -------------------------------------------------------------------------------
 	const size_t nUnknowns_k2k = run_k2k_edges.size();
 	const size_t nUnknowns_k2f = run_feat_ids.size();
+	out_info.num_kf_optimized = touched_KFs.size();
+	out_info.num_lm_optimized = touched_LMs.size();
 
 	const size_t idx_start_f = POSE_DIMS*nUnknowns_k2k; // In the vector of unknowns, the 0-based first index of the first feature variable (before that, all are SE(3) edges)
 	const size_t nUnknowns_scalars = POSE_DIMS*nUnknowns_k2k + LM_DIMS*nUnknowns_k2f;
@@ -120,7 +134,6 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		mrpt::system::setConsoleColor(mrpt::system::CONCOL_RED, true /*cerr*/);
 		std::cerr << "[RbaEngine::optimize_edges] *Warning*: Skipping optimization since no observation depends on any of the given variables.\n";
 		mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL, true /*cerr*/);
-		out_info = TOptimizeExtraOutputInfo();
 		return;
 	}
 

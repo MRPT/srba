@@ -133,6 +133,8 @@ namespace srba
 			size_t  num_kf2kf_edges_optimized; //!< Number of solved unknowns of type "kf-to-kf edge".
 			size_t  num_kf2lm_edges_optimized; //!< Number of solved unknowns of type "kf-to-landmark".
 			size_t  num_total_scalar_optimized;  //!< The total number of dimensions (scalar values) in all the optimized unknowns.
+			size_t  num_kf_optimized;            //!< Number of individual keyframes taken into account in the optimization
+			size_t  num_lm_optimized;            //!< Number of individual landmarks taken into account in the optimization
 			size_t  num_span_tree_numeric_updates; //!< Number of poses updated in the spanning tree numeric-update stage.
 			double  obs_rmse; //!< RMSE for each observation after optimization
 			double  total_sqr_error_init, total_sqr_error_final; //!< Initial and final total squared error for all the observations
@@ -157,6 +159,8 @@ namespace srba
 				num_kf2kf_edges_optimized = 0;
 				num_kf2lm_edges_optimized = 0;
 				num_total_scalar_optimized = 0;
+				num_kf_optimized = 0;
+				num_lm_optimized = 0;
 				num_span_tree_numeric_updates=0;
 				total_sqr_error_init=0.;
 				total_sqr_error_final=0.;
