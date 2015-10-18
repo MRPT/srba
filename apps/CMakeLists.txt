@@ -5,4 +5,5 @@
 
 # Apps:
 add_subdirectory(srba-slam)
+add_subdirectory(rel-graph-slam)
 

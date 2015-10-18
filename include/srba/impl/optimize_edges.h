@@ -55,7 +55,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	
 	m_profiler.enter("opt");
 
-	out_info = TOptimizeExtraOutputInfo();
+	out_info.clear();
 
 	// Problem dimensions:
 	const size_t POSE_DIMS = kf2kf_pose_t::REL_POSE_DIMS;
