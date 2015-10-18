@@ -93,7 +93,10 @@ set_target_properties(srba PROPERTIES FOLDER "SRBA lib")
 # Apps
 add_subdirectory(apps)
 # Examples
-add_subdirectory(examples)
+SET(BUILD_EXAMPLES ON CACHE BOOL "Build tutorial and example C++ programs")
+if (BUILD_EXAMPLES)
+	add_subdirectory(examples)
+endif()
 # tests
 add_subdirectory(tests)
 
