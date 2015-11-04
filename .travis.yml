@@ -10,12 +10,18 @@ before_install:
   - sudo apt-get update -d
 
 install:
-  - sudo apt-get install build-essential pkg-config cmake libmrpt-dev
+  - sudo apt-get install build-essential pkg-config cmake libmrpt-dev doxygen
 
 script:
   - bash .travis.sh
 
 env:
+  global:
+  - GH_REF: github.com/MRPT/srba.git
+  - secure: "RsmSfBqNnjVjg0YFL4kfrXYizCvhihQV028wpbq3HXzttAUcPMROo9u35j/FJXFTtNHMts3vW9G/M5PtjPwPeLdEWSDKOLBwzScNueOkEFpBoWJJWGNYtksAjBxjSCZKujrgBBRQR62QpLU1zZ80KHgwPCCBAXHo5u+6zBmabPxz/wUtyeCPxPsd12Tid7ZZgrzQNn4fISd37DeGAUUfJyJx3KnJXl50+GPgBtEp2HecaPVbISsNPcf/IQCi1wPkbBeUIQrCrJE6lEqkZTixXOyZ+bb4JYkfuQKrParhJBxV1OlgN7XkpgmrTGnrPc+94z1CVKl5cnesxL4Gs+5HX2yPXEEfo0yVgwbChxceep3HVSHXEHUwLDx7yDLtxex3htVKVvEZj3lJJGsOsejz/9WBw1clQCoBp2P5K2XCYyAKBNuOSsX+tftVPaIkOhH5gjwKbUYENrd576Zqb+KfB0Vi8LTfZ3xZniUrKzYbV1jp3muQgj+ZRiNTt6zY3tWEaGCXwv8SumdMp3Ls9faiRWKp19ETsQ3fB7n5kS5hJ0U26EKGOd+XwybiS9JcOTKeBYu/PZR/QSTRqBIfvBdHNus3HzncCcgGkuTglXvsxA9Yup8oj8YlfFJ3gfzPTGAn+bbcJZDms7y64P43p5YGJ39meTe+ZfM+fyX7hgnC/BI="
+  matrix:
   - TASK="build"
+  - TASK="docs"
   - TASK="test"
+  
   
