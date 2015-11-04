@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+set -e # exit with nonzero exit code if anything fails
+set -x
 
 SRC_DIR=`pwd`
 BUILD_DIR=build
@@ -8,7 +10,6 @@ CMAKE_CXX_FLAGS="-Wall -Wextra -Wabi -O2"
 
 function build ()
 {
-  #env 
   mkdir $BUILD_DIR && cd $BUILD_DIR
   cmake $SRC_DIR
   make
@@ -24,7 +25,7 @@ function test ()
 function build_docs ()
 {
 # Do not build docs twice, once for each compiler!!
-if [ "$CC" != "gcc" ]; then
+if [ "$CC" == "clang" ]; then
   return
 fi
 
