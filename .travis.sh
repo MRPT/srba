@@ -67,6 +67,7 @@ git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:gh-pages > /dev/
 case $TASK in
   build ) build;;
   test ) test;;
+  docs ) build_docs;;
 esac
 
 
