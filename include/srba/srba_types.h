@@ -707,6 +707,8 @@ namespace srba
 		  */
 		std::deque<char>       all_observations_Jacob_validity;
 
+		/** List of KFs touched by new KF2KF edges in the previous timesteps. Used in determine_kf2kf_edges_to_create() to bootstrap initial relative poses. */
+		std::set<size_t>       last_timestep_touched_kfs;  
 		/** @} */
 
 		/** Empties all members */
@@ -720,6 +722,7 @@ namespace srba
 			spanning_tree.clear();
 			all_observations.clear();
 			lin_system.clear();
+			last_timestep_touched_kfs.clear();
 		}
 
 		/** Ctor */
