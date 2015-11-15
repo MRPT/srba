@@ -99,10 +99,15 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 			// Run matcher:
 			pose_t pose_new_kf_wrt_old_kf;
 			m_profiler.enter("define_new_keyframe.determine_edges.lm_matcher");
-			const bool found_ok = srba::observations::landmark_matcher<obs_t>::find_relative_pose(new_kf_obs, old_kf_obs,pose_new_kf_wrt_old_kf);
+			const bool found_ok = srba::observations::landmark_matcher<obs_t>::find_relative_pose(new_kf_obs, old_kf_obs, parameters.sensor,pose_new_kf_wrt_old_kf);
 			m_profiler.leave("define_new_keyframe.determine_edges.lm_matcher");
 			if (found_ok)
 			{
+				// Take into account the sensor pose wrt the KF: Rotate/translate if the sensor is not at the robot origin of coordinates: 
+				pose_t sensor_pose;
+				RBA_OPTIONS::sensor_pose_on_robot_t::template robot2sensor<pose_t>(pose_t(), sensor_pose, this->parameters.sensor_pose);
+				pose_new_kf_wrt_old_kf = (sensor_pose + pose_new_kf_wrt_old_kf)+ (-sensor_pose);
+
 				// Found: reuse this relative pose as a good initial guess for the estimation
 				nei.has_approx_init_val = true;
 				if (edge_dir_to_newkf)

@@ -55,6 +55,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & old_kf_obs,
+			const MonocularCamera::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			return false; // We cannot find any absolute relative pose only from 2 sets of monocular features, right?
@@ -96,12 +97,51 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & old_kf_obs,
-			POSE &pose_new_kf_wrt_old_kf)
+			const StereoCamera::TObservationParams &params,
+			POSE &pose_new_kf_wrt_old_kf
+			)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
-			if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
-			if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
-			MRPT_TODO("Implement!")
+			const size_t N=new_kf_obs.size();
+			// project stereo points to 3D and use them to find out the relative pose:
+			const double cx = params.camera_calib.leftCamera.cx(), cy = params.camera_calib.leftCamera.cy(), baseline = params.camera_calib.rightCameraPose.x(), f = params.camera_calib.leftCamera.fx();
+			mrpt::utils::TMatchingPairList matches;
+			matches.reserve(N);
+			for (size_t i=0;i<N;i++)
+			{
+				// Point 1:
+				const double disparity_old = old_kf_obs[i].left_px.x - old_kf_obs[i].right_px.x;
+				if (disparity_old<=.0) continue; // Invalid 3D point
+				const mrpt::math::TPoint3D pt_old(
+					( old_kf_obs[i].left_px.x - cx )*baseline/disparity_old,
+					( old_kf_obs[i].left_px.y - cy )*baseline/disparity_old,
+					f*baseline/disparity_old );
+				// Point 2:
+				const double disparity_new = new_kf_obs[i].left_px.x - new_kf_obs[i].right_px.x;
+				if (disparity_new<=.0) continue; // Invalid 3D point
+				const mrpt::math::TPoint3D pt_new(
+					( new_kf_obs[i].left_px.x - cx )*baseline/disparity_new,
+					( new_kf_obs[i].left_px.y - cy )*baseline/disparity_new,
+					f*baseline/disparity_new );
+
+				matches.push_back( mrpt::utils::TMatchingPair(i,i, pt_old.x,pt_old.y,pt_old.z, pt_new.x,pt_new.y,pt_new.z ) );
+			}
+			// Least-square optimal transformation:
+			if (POSE::rotation_dimensions==2)
+			{ // SE(2)
+				mrpt::math::TPose2D found_pose;
+				if (!mrpt::tfest::se2_l2(matches,found_pose))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE( mrpt::poses::CPose2D(found_pose));
+			}
+			else
+			{  // SE(3)
+				mrpt::poses::CPose3DQuat found_pose;
+				double found_scale;
+				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE(found_pose);
+			}
 			return true;
 		}
 	};
@@ -140,6 +180,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & old_kf_obs,
+			const Cartesian_3D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 			{
 				ASSERT_(new_kf_obs.size()==old_kf_obs.size())
@@ -202,6 +243,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<Cartesian_2D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<Cartesian_2D::obs_data_t>::vector_t & old_kf_obs,
+			const Cartesian_2D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
@@ -246,6 +288,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<RangeBearing_3D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<RangeBearing_3D::obs_data_t>::vector_t & old_kf_obs,
+			const RangeBearing_3D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
@@ -290,6 +333,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & old_kf_obs,
+			const RangeBearing_2D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
@@ -333,6 +377,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<RelativePoses_2D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<RelativePoses_2D::obs_data_t>::vector_t & old_kf_obs,
+			const RelativePoses_2D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
@@ -378,6 +423,7 @@ namespace observations {
 		static bool find_relative_pose(
 			const mrpt::aligned_containers<RelativePoses_3D::obs_data_t>::vector_t & new_kf_obs,
 			const mrpt::aligned_containers<RelativePoses_3D::obs_data_t>::vector_t & old_kf_obs,
+			const RelativePoses_3D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
