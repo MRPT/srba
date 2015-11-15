@@ -772,7 +772,6 @@ namespace srba
 
 	}; // end of TRBA_Problem_state
 
-
 } // end of namespace "srba"
 
 // Specializations MUST occur at the same namespace:

@@ -26,6 +26,7 @@
 #include "srba_options.h"
 #include "srba_edge_creation_policies.h"
 #include "landmark_jacob_families.h"
+#include "landmark_matcher.h"
 
 namespace srba
 {
