@@ -11,6 +11,7 @@
 
 #include <mrpt/utils/TCamera.h>
 #include <mrpt/utils/TStereoCamera.h>
+#include <mrpt/tfest.h>  // for use in landmark_matcher_find_relative_pose()
 
 namespace srba {
 namespace observations {
@@ -47,7 +48,7 @@ namespace observations {
 		};
 	};
 
-	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & new_kf_obs,
@@ -85,7 +86,7 @@ namespace observations {
 		};
 	};
 
-	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & new_kf_obs,
@@ -126,7 +127,7 @@ namespace observations {
 		};
 	};
 
-	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & new_kf_obs,
@@ -134,9 +135,27 @@ namespace observations {
 		POSE &pose_new_kf_wrt_old_kf)
 	{
 		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
-		if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
-		if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
-		MRPT_TODO("Implement!")
+		const size_t N=new_kf_obs.size();
+		mrpt::utils::TMatchingPairList matches;
+		matches.reserve(N);
+		for (size_t i=0;i<N;i++)
+			matches.push_back( mrpt::utils::TMatchingPair(i,i, old_kf_obs[i].pt.x,old_kf_obs[i].pt.y,old_kf_obs[i].pt.z,  new_kf_obs[i].pt.x,new_kf_obs[i].pt.y,new_kf_obs[i].pt.z  ) );
+		// Least-square optimal transformation:
+		if (POSE::rotation_dimensions==2)
+		{ // SE(2)
+			mrpt::math::TPose2D found_pose;
+			if (!mrpt::tfest::se2_l2(matches,found_pose))
+				return false;
+			pose_new_kf_wrt_old_kf = POSE( mrpt::poses::CPose2D(found_pose));
+		}
+		else
+		{  // SE(3)
+			mrpt::poses::CPose3DQuat found_pose; 
+			double found_scale;
+			if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
+				return false;
+			pose_new_kf_wrt_old_kf = POSE(found_pose);
+		}
 		return true;
 	}
 
@@ -167,6 +186,7 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<Cartesian_2D::obs_data_t>::vector_t & new_kf_obs,
@@ -207,6 +227,7 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<RangeBearing_3D::obs_data_t>::vector_t & new_kf_obs,
@@ -247,6 +268,7 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & new_kf_obs,
@@ -287,6 +309,7 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<RelativePoses_2D::obs_data_t>::vector_t & new_kf_obs,
@@ -328,6 +351,7 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <class OBS_T,class POSE>
 	bool landmark_matcher_find_relative_pose(
 		const mrpt::aligned_containers<RelativePoses_3D::obs_data_t>::vector_t & new_kf_obs,

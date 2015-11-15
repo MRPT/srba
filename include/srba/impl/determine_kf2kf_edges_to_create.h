@@ -61,9 +61,6 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 		// Method #2: use relative pose from sensor model implementation, if provided:
 		if (!nei.has_approx_init_val)
 		{
-			MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
-			std::cout << "TODO: init rel pos bootstrap\n";
-
 			// Landmarks in this new KF are in `obs`: const typename traits_t::new_kf_observations_t   & obs
 			// Landmarks in the old reference KF are in: `other_k2f_edges`
 			const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
