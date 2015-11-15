@@ -507,6 +507,8 @@ namespace srba
 			bool              is_first_obs_of_unknown;  //!< true if this is the first observation of a feature with unknown relative position
 			typename lm_traits_t::TRelativeLandmarkPos *feat_rel_pos; //!< Pointer to the known/unknown rel.pos. (always!=NULL)
 
+			inline const TLandmarkID get_observed_feature_id() const { return obs.obs.feat_id; }
+
 			MRPT_MAKE_ALIGNED_OPERATOR_NEW  // This forces aligned mem allocation
 		};
 
@@ -707,6 +709,8 @@ namespace srba
 		  */
 		std::deque<char>       all_observations_Jacob_validity;
 
+		/** List of KFs touched by new KF2KF edges in the previous timesteps. Used in determine_kf2kf_edges_to_create() to bootstrap initial relative poses. */
+		std::set<size_t>       last_timestep_touched_kfs;  
 		/** @} */
 
 		/** Empties all members */
@@ -720,6 +724,7 @@ namespace srba
 			spanning_tree.clear();
 			all_observations.clear();
 			lin_system.clear();
+			last_timestep_touched_kfs.clear();
 		}
 
 		/** Ctor */
@@ -766,7 +771,6 @@ namespace srba
 		TRBA_Problem_state & operator =(const TRBA_Problem_state &);
 
 	}; // end of TRBA_Problem_state
-
 
 } // end of namespace "srba"
 

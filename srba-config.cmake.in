@@ -29,7 +29,7 @@ SET(SRBA_VERSION_MINOR @CMAKE_SRBA_VERSION_NUMBER_MINOR@)
 SET(SRBA_VERSION_PATCH @CMAKE_SRBA_VERSION_NUMBER_PATCH@)
 
 # MRPT dependencies:
-SET(SRBA_REQUIRED_MRPT_MODULES base opengl graphs opengl)
+SET(SRBA_REQUIRED_MRPT_MODULES base opengl graphs tfest)
 
 # Extract the directory where *this* file has been installed (determined at cmake run-time)
 get_filename_component(THIS_SRBA_CONFIG_PATH "${CMAKE_CURRENT_LIST_FILE}" PATH)

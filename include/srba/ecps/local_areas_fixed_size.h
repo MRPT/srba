@@ -99,12 +99,9 @@ struct local_areas_fixed_size
 				// Connect to the local area center:
 				TNewEdgeInfo nei;
 				nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( current_center_kf_id, new_kf_id), obs);
-				nei.has_approx_init_val = false; // // By default: Will need to estimate this one
+				nei.has_approx_init_val = false; // By default: Will need to estimate this one
 
-				// Otherwise: estimate
-				MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
-				std::cout << "TODO: init rel pos bootstrap\n";
-
+				// Add to list of newly created kf2kf edges:
 				new_k2k_edge_ids.push_back(nei);
 			}
 		}
@@ -146,55 +143,16 @@ struct local_areas_fixed_size
 
 			if ( found_distance >= min_dist_for_loop_closure - 2 /* the edges OBSERVER_KF ===> CENTER1->CENTER2 ===> BASE_KF*/ )
 			{
-				//// Skip if there is already a topo connection between the two areas:
-				//const std::pair<TKeyFrameID,TKeyFrameID> c2c_pair = make_pair( std::min(remote_center_kf_id,current_center_kf_id), std::max(remote_center_kf_id,current_center_kf_id) );
-				//const bool already_connected = 
-				//	(is_strongest_connected_edge ? false : true) 
-				//	&& 
-				//	central2central_connected_areas.find(c2c_pair)!=central2central_connected_areas.end();
-
-				if (num_obs_this_base>=MINIMUM_OBS_TO_LOOP_CLOSURE) // && !already_connected)
+				if (num_obs_this_base>=MINIMUM_OBS_TO_LOOP_CLOSURE)
 				{
 					// The KF is TOO FAR: We will need to create an additional edge:
 					TNewEdgeInfo nei;
 
 					nei.id = rba_engine.create_kf2kf_edge(from_id, TPairKeyFrameID( to_id, from_id), obs);
-
 					nei.has_approx_init_val = false; // // By default: Will need to estimate this one
-
-					// look at last kf's kf2kf edges for an initial guess to ease optimization:
-					if ( last_timestep_touched_kfs.count(to_id) != 0 )
-					{
-						// Get the relative post from the numeric spanning tree, which should be up-to-date:
-						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_engine.get_rba_state().spanning_tree.num.find(to_id);
-						ASSERT_(it_tree4_central!=rba_engine.get_rba_state().spanning_tree.num.end())
-
-						typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::frameid2pose_map_t::const_iterator it_nei_1 = 
-							it_tree4_central->second.find(new_kf_id-1);
-						if (it_nei_1!=it_tree4_central->second.end())
-						{
-							// Found: reuse this relative pose as a good initial guess for the estimation
-							rba_engine.get_rba_state().k2k_edges[nei.id].inv_pose = -it_nei_1->second.pose; // Note the "-" inverse operator, it is important
-							nei.has_approx_init_val = true;
-						}
-					}
-
-					if (!nei.has_approx_init_val)
-					{
-						// Otherwise: estimate
-						MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
-						std::cout << "TODO: init rel pos bootstrap\n";
-					}
-
 					new_k2k_edge_ids.push_back(nei);
-					//central2central_connected_areas.insert(c2c_pair);
-
-					mrpt::system::setConsoleColor(mrpt::system::CONCOL_BLUE);
-					//VERBOSE_LEVEL(2) << "[edge_creation_policy] Created edge #"<< nei.id << ": "<< remote_center_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base<< endl;
-					mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL);
 				}
-				else
-				{
+				else {
 					//VERBOSE_LEVEL(1) << "[edge_creation_policy] Skipped extra edge " << remote_center_kf_id <<"->"<<new_kf_id << " with #obs: "<< num_obs_this_base << " and already_connected="<< (already_connected?"TRUE":"FALSE") << endl;
 				}
 			}
@@ -202,31 +160,18 @@ struct local_areas_fixed_size
 
 		ASSERTMSG_(new_k2k_edge_ids.size()>=1, mrpt::format("Error for new KF#%u: no suitable linking KF found with a minimum of %u common observation: the node becomes isolated of the graph!", static_cast<unsigned int>(new_kf_id),static_cast<unsigned int>(MINIMUM_OBS_TO_LOOP_CLOSURE) ))
 
-		// save for the next timestep:
-		last_timestep_touched_kfs.clear();
-		for (size_t i=0;i<new_k2k_edge_ids.size();i++) {
-			last_timestep_touched_kfs.insert( rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[i].id].from );
-			last_timestep_touched_kfs.insert( rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[i].id].to );
-		}
-
 		// Debug:
 		if (new_k2k_edge_ids.size()>1) // && m_verbose_level>=1)
 		{
 			mrpt::system::setConsoleColor(mrpt::system::CONCOL_BLUE);
 			cout << "\n[edge_creation_policy] Loop closure detected for KF#"<< new_kf_id << ", edges: ";
 			for (size_t j=0;j<new_k2k_edge_ids.size();j++)
-			{
 				cout << rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[j].id].from <<"->"<<rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[j].id].to<<", ";
-			}
 			cout << endl;
 			mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL);
 		}
-	
-	}
 
-private:
-	//std::set<std::pair<TKeyFrameID,TKeyFrameID> > central2central_connected_areas; // 1st the lowest id, to avoid duplicates
-	std::set<size_t> last_timestep_touched_kfs;
+	} // end eval<>()
 
 };  // end of struct
 

@@ -50,6 +50,7 @@ RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::TSRBAP
 	feedback_user_iteration(NULL),
 	compute_condition_number(false),
 	compute_sparsity_stats  (false),
+	max_rmse_show_red_warning(0.5),
 	cov_recovery         ( crpLandmarksApprox )
 {
 }

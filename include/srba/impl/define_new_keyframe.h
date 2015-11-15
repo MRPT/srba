@@ -28,7 +28,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::define_new_keyfram
 
 	// Apply edge-creation policy to decide how to handle loop closures, etc.
 	// -----------------------------------------------------------------------------
-	// ==== Determine what edges to create:  O(TBD) ====
+	// ==== Determine what edges to create:  O(...) (See papers) ====
 	m_profiler.enter("define_new_keyframe.determine_edges");
 
 	// Keep a list of the new kf2kf edges, whose initial values are indeterminate:
@@ -37,9 +37,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::define_new_keyfram
 
 	m_profiler.leave("define_new_keyframe.determine_edges");
 
-
 	// Expand symbolic Jacobians to accomodate new observations:      O( No * (P+log C) )
-	// -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------------
 	m_profiler.enter("define_new_keyframe.add_observations");
 
 	for (typename new_kf_observations_t::const_iterator it_obs = obs.begin();it_obs != obs.end();++it_obs)
@@ -73,8 +72,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::define_new_keyfram
 
 				for (size_t i=0;i<new_k2k_edge_ids.size();i++)
 				{
-					if (new_k2k_edge_ids[i].has_approx_init_val)
-						continue;  // Already initialized, can skip it.
+					//if (new_k2k_edge_ids[i].has_approx_init_val)
+					//	continue;  // Already initialized, can skip it.
 					k2k_edges_to_opt[0] = new_k2k_edge_ids[i].id ;
 
 					//TOptimizeExtraOutputInfo  init_opt_info;

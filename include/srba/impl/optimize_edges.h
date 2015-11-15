@@ -786,9 +786,11 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	m_profiler.leave("opt");
 	out_info.obs_rmse = RMSE;
 
+	const bool rmse_too_high = (RMSE>parameters.srba.max_rmse_show_red_warning);
+	if (rmse_too_high && m_verbose_level>=1) mrpt::system::setConsoleColor(mrpt::system::CONCOL_RED);
 	VERBOSE_LEVEL(1) << "[OPT] Final RMSE=" <<  RMSE << " #iters=" << iter << "\n";
+	if (rmse_too_high && m_verbose_level>=1) mrpt::system::setConsoleColor(mrpt::system::CONCOL_NORMAL);
 }
-
 
 } // End of namespaces
 

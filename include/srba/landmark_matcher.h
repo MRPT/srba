@@ -8,15 +8,15 @@
    +---------------------------------------------------------------------------+ */
 
 #pragma once
-/** \defgroup mrpt_srba_observations Observation types
-	* \ingroup mrpt_srba_grp */
 
-#include "observations_Cartesian_2D.h"
-#include "observations_Cartesian_3D.h"
-#include "observations_MonocularCamera.h"
-#include "observations_RangeBearing_2D.h"
-#include "observations_RangeBearing_3D.h"
-#include "observations_RelativePoses_2D.h"
-#include "observations_RelativePoses_3D.h"
-#include "observations_StereoCamera.h"
-
+namespace srba {
+namespace observations {
+	/** Landmark matcher overloaded function.
+	 * Used to provide a first initial guess for the relative pose in loop closures.
+	 * \tparam OBS_T can be any of srba::observations
+	 * See specializations in models/observations.h
+	 */
+	template <class OBS_T>
+	struct landmark_matcher;
+}
+}
