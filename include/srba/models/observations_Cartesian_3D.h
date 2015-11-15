@@ -50,31 +50,31 @@ namespace observations {
 			const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & old_kf_obs,
 			const Cartesian_3D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
-			{
-				ASSERT_(new_kf_obs.size()==old_kf_obs.size())
-				const size_t N=new_kf_obs.size();
-				mrpt::utils::TMatchingPairList matches;
-				matches.reserve(N);
-				for (size_t i=0;i<N;i++)
-					matches.push_back( mrpt::utils::TMatchingPair(i,i, old_kf_obs[i].pt.x,old_kf_obs[i].pt.y,old_kf_obs[i].pt.z,  new_kf_obs[i].pt.x,new_kf_obs[i].pt.y,new_kf_obs[i].pt.z  ) );
-				// Least-square optimal transformation:
-				if (POSE::rotation_dimensions==2)
-				{ // SE(2)
-					mrpt::math::TPose2D found_pose;
-					if (!mrpt::tfest::se2_l2(matches,found_pose))
-						return false;
-					pose_new_kf_wrt_old_kf = POSE( mrpt::poses::CPose2D(found_pose));
-				}
-				else
-				{  // SE(3)
-					mrpt::poses::CPose3DQuat found_pose;
-					double found_scale;
-					if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
-						return false;
-					pose_new_kf_wrt_old_kf = POSE(found_pose);
-				}
-				return true;
+		{
+			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+			const size_t N=new_kf_obs.size();
+			mrpt::utils::TMatchingPairList matches;
+			matches.reserve(N);
+			for (size_t i=0;i<N;i++)
+				matches.push_back( mrpt::utils::TMatchingPair(i,i, old_kf_obs[i].pt.x,old_kf_obs[i].pt.y,old_kf_obs[i].pt.z,  new_kf_obs[i].pt.x,new_kf_obs[i].pt.y,new_kf_obs[i].pt.z  ) );
+			// Least-square optimal transformation:
+			if (POSE::rotation_dimensions==2)
+			{ // SE(2)
+				mrpt::math::TPose2D found_pose;
+				if (!mrpt::tfest::se2_l2(matches,found_pose))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE( mrpt::poses::CPose2D(found_pose));
 			}
+			else
+			{  // SE(3)
+				mrpt::poses::CPose3DQuat found_pose;
+				double found_scale;
+				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE(found_pose);
+			}
+			return true;
+		}
 	};
 	/** @} */
 }

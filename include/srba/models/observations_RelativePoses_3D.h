@@ -44,7 +44,6 @@ namespace observations {
 	};
 
 	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
-	/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
 	template <> struct landmark_matcher<RelativePoses_3D>
 	{
 		template <class POSE>
@@ -55,9 +54,19 @@ namespace observations {
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
-			if (new_kf_obs.size()<2) return false;
-			MRPT_TODO("Implement!")
-			return true;
+			// Find the observation related to one of the two KFs connected by this new edge: it should have an exact (0,...,0) in its relative pose:
+			for (size_t i=0;i<new_kf_obs.size();i++)
+			{
+				const RelativePoses_3D::obs_data_t & kf0 = new_kf_obs[i], &kf1 = old_kf_obs[i];
+				if ( (kf0.x!=0 || kf0.y!=0 || kf0.z!=0 || kf0.yaw!=0 || kf0.pitch!=0 || kf0.roll!=0) && 
+				     (kf1.x!=0 || kf1.y!=0 || kf1.z!=0 || kf1.yaw!=0 || kf1.pitch!=0 || kf1.roll!=0) )
+					 continue; // skip.
+				const mrpt::poses::CPose3D new_obs(kf0.x,kf0.y,kf0.z,kf0.yaw,kf0.pitch,kf0.roll);
+				const mrpt::poses::CPose3D old_obs(kf1.x,kf1.y,kf1.z,kf1.yaw,kf1.pitch,kf1.roll);
+				pose_new_kf_wrt_old_kf = POSE(old_obs-new_obs);
+				return true;
+			}
+			return false; // None found (should not happen?)
 		}
 	};
 

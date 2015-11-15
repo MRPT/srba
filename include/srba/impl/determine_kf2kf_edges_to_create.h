@@ -104,9 +104,9 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 			if (found_ok)
 			{
 				// Take into account the sensor pose wrt the KF: Rotate/translate if the sensor is not at the robot origin of coordinates: 
-				pose_t sensor_pose;
-				RBA_OPTIONS::sensor_pose_on_robot_t::template robot2sensor<pose_t>(pose_t(), sensor_pose, this->parameters.sensor_pose);
-				pose_new_kf_wrt_old_kf = (sensor_pose + pose_new_kf_wrt_old_kf)+ (-sensor_pose);
+				mrpt::poses::CPose3D sensor_pose;
+				RBA_OPTIONS::sensor_pose_on_robot_t::template robot2sensor<mrpt::poses::CPose3D>(mrpt::poses::CPose3D(), sensor_pose, this->parameters.sensor_pose);
+				pose_new_kf_wrt_old_kf = pose_t( (sensor_pose + pose_new_kf_wrt_old_kf)+ (-sensor_pose) );
 
 				// Found: reuse this relative pose as a good initial guess for the estimation
 				nei.has_approx_init_val = true;

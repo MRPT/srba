@@ -54,9 +54,29 @@ namespace observations {
 			POSE &pose_new_kf_wrt_old_kf)
 		{
 			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
-			if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
-			if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
-			MRPT_TODO("Implement!")
+			const size_t N=new_kf_obs.size();
+			mrpt::utils::TMatchingPairList matches;
+			matches.reserve(N);
+			for (size_t i=0;i<N;i++)
+				matches.push_back( mrpt::utils::TMatchingPair(i,i, 
+					old_kf_obs[i].range * cos(old_kf_obs[i].yaw) * cos(old_kf_obs[i].pitch), old_kf_obs[i].range * sin(old_kf_obs[i].yaw) * cos(old_kf_obs[i].pitch), -old_kf_obs[i].range * sin(old_kf_obs[i].pitch),
+					new_kf_obs[i].range * cos(new_kf_obs[i].yaw) * cos(new_kf_obs[i].pitch), new_kf_obs[i].range * sin(new_kf_obs[i].yaw) * cos(new_kf_obs[i].pitch), -new_kf_obs[i].range * sin(new_kf_obs[i].pitch) ));
+			// Least-square optimal transformation:
+			if (POSE::rotation_dimensions==2)
+			{ // SE(2)
+				mrpt::math::TPose2D found_pose;
+				if (!mrpt::tfest::se2_l2(matches,found_pose))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE( mrpt::poses::CPose2D(found_pose));
+			}
+			else
+			{  // SE(3)
+				mrpt::poses::CPose3DQuat found_pose;
+				double found_scale;
+				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
+					return false;
+				pose_new_kf_wrt_old_kf = POSE(found_pose);
+			}
 			return true;
 		}
 	};
