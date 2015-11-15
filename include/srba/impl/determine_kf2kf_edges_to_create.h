@@ -53,7 +53,10 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 			if (it_nei_1!=it_tree4_central->second.end())
 			{
 				// Found: reuse this relative pose as a good initial guess for the estimation
-				nei_edge.inv_pose = -it_nei_1->second.pose; // Note the "-" inverse operator, it is important
+				const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
+				if (edge_dir_to_newkf)
+				     nei_edge.inv_pose = - it_nei_1->second.pose; // Note the "-" inverse operator, it is important
+				else nei_edge.inv_pose =   it_nei_1->second.pose;
 				nei.has_approx_init_val = true;
 			}
 		}
