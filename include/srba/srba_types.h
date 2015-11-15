@@ -773,6 +773,17 @@ namespace srba
 	}; // end of TRBA_Problem_state
 
 
+	// Forward declarations:
+
+	namespace observations {
+		/** Landmark matcher overloaded function. Used to provide a first initial guess for the relative pose in loop closures. \tparam POSE can be mrpt::poses::CPose2D or mrpt::poses::CPose3D */
+		template <class OBS_T,class POSE>
+		bool landmark_matcher_find_relative_pose(
+			const typename mrpt::aligned_containers<typename OBS_T::obs_data_t>::vector_t & new_kf_obs,
+			const typename mrpt::aligned_containers<typename OBS_T::obs_data_t>::vector_t & old_kf_obs,
+			POSE &pose_new_kf_wrt_old_kf);
+	}
+
 } // end of namespace "srba"
 
 // Specializations MUST occur at the same namespace:

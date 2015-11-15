@@ -72,7 +72,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 
 			// Make two lists of equal length with corresponding observations 
 			// (i.e. new_kf_obs[i] and old_kf_obs[i] correspond to observations of the same landmark from different poses)
-			mrpt::aligned_containers<typename obs_t::obs_data_t>::vector_t  new_kf_obs, old_kf_obs;
+			typename mrpt::aligned_containers<typename obs_t::obs_data_t>::vector_t  new_kf_obs, old_kf_obs;
 
 			{
 				new_kf_obs.reserve(obs.size());  // maximum potential size: all observed features match against one old KF

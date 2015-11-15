@@ -106,12 +106,7 @@ struct classic_linear_rba
 
 				nei.id = rba_engine.create_kf2kf_edge(new_kf_id, TPairKeyFrameID( to_id, new_kf_id), obs);
 
-				nei.has_approx_init_val = false; // // By default: Will need to estimate this one
-
-				// Initial decent estimate:
-				MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
-				std::cout << "TODO: init rel pos bootstrap\n";
-
+				nei.has_approx_init_val = false; // By default: Will need to estimate this one
 				new_k2k_edge_ids.push_back(nei);
 
 				mrpt::system::setConsoleColor(mrpt::system::CONCOL_BLUE);
