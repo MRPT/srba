@@ -72,8 +72,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::define_new_keyfram
 
 				for (size_t i=0;i<new_k2k_edge_ids.size();i++)
 				{
-					if (new_k2k_edge_ids[i].has_approx_init_val)
-						continue;  // Already initialized, can skip it.
+					//if (new_k2k_edge_ids[i].has_approx_init_val)
+					//	continue;  // Already initialized, can skip it.
 					k2k_edges_to_opt[0] = new_k2k_edge_ids[i].id ;
 
 					//TOptimizeExtraOutputInfo  init_opt_info;

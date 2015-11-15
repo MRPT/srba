@@ -435,6 +435,7 @@ namespace srba
 			void (*feedback_user_iteration)(unsigned int iter, const double total_sq_err, const double mean_sqroot_error);
 			bool   compute_condition_number; //!< Compute and return to the user the Hessian condition number of k2k edges (default=false)
 			bool   compute_sparsity_stats;   //!< Compute stats on the sparsity of the problem matrices (default=false)
+			double max_rmse_show_red_warning; //!< Minimum RSME to show optimization error in red color (default=0.5)
 
 			TCovarianceRecoveryPolicy  cov_recovery; //!< Recover covariance? What method to use? (Default: crpLandmarksApprox)
 			// -------------------------------------
