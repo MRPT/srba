@@ -98,7 +98,9 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 
 			// Run matcher:
 			pose_t pose_new_kf_wrt_old_kf;
+			m_profiler.enter("define_new_keyframe.determine_edges.lm_matcher");
 			const bool found_ok = srba::observations::landmark_matcher_find_relative_pose<obs_t>(new_kf_obs, old_kf_obs,pose_new_kf_wrt_old_kf);
+			m_profiler.leave("define_new_keyframe.determine_edges.lm_matcher");
 			if (found_ok)
 			{
 				// Found: reuse this relative pose as a good initial guess for the estimation
