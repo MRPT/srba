@@ -24,7 +24,9 @@ namespace observations {
 	/** \addtogroup mrpt_srba_observations
 		* @{ */
 
-	/** Observation = one stereo camera feature (the coordinates of two pixels) */
+	/** Observation = one stereo camera feature, the coordinates of two pixels (one in each left/right image). 
+	  * Assumptions: rectified images, without distortion, reference image is left camera, right camera after rectification is exactly along the X axis of the left camera.
+	  */
 	struct StereoCamera
 	{
 		static const size_t  OBS_DIMS = 4; //!< Each observation is a pair of pixels (px_l,py_l,px_r,py_r) 
