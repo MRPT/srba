@@ -63,8 +63,49 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 		{
 			MRPT_TODO("Important: provide a mech to estimate init rel poses on loop closures for each sensor impl");
 			std::cout << "TODO: init rel pos bootstrap\n";
-			if (1)
+
+			// Landmarks in this new KF are in `obs`: const typename traits_t::new_kf_observations_t   & obs
+			// Landmarks in the old reference KF are in: `other_k2f_edges`
+			const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
+			const TKeyFrameID other_kf_id = (nei_edge.to==new_kf_id) ? nei_edge.from : nei_edge.to;
+			const std::deque<k2f_edge_t*>  & other_k2f_edges   = rba_state.keyframes[other_kf_id].adjacent_k2f_edges;
+
+			// Make two lists of equal length with corresponding observations 
+			// (i.e. new_kf_obs[i] and old_kf_obs[i] correspond to observations of the same landmark from different poses)
+			mrpt::aligned_containers<typename obs_t::obs_data_t>::vector_t  new_kf_obs, old_kf_obs;
+
 			{
+				new_kf_obs.reserve(obs.size());  // maximum potential size: all observed features match against one old KF
+				old_kf_obs.reserve(obs.size());
+
+				// Temporary construction: associative container with all observed LMs in this new KF:
+				std::map<TLandmarkID,size_t> newkf_obs_feats;
+				for (size_t i=0;i<obs.size();i++)
+					newkf_obs_feats[ obs[i].obs.feat_id ] = i;
+
+				// Search in `other_k2f_edges`:
+				for (size_t i=0;i<other_k2f_edges.size();i++) 
+				{
+					const TLandmarkID lm_id = other_k2f_edges[i]->obs.obs.feat_id;
+					std::map<TLandmarkID,size_t>::const_iterator it_id = newkf_obs_feats.find(lm_id);
+					if (it_id == newkf_obs_feats.end()) 
+						continue; // No matching feature
+					// Yes, we have a match:
+					old_kf_obs.push_back( other_k2f_edges[i]->obs.obs.obs_data );
+					new_kf_obs.push_back( obs[it_id->second].obs.obs_data );
+				}
+			}
+
+			// Run matcher:
+			pose_t pose_new_kf_wrt_old_kf;
+			const bool found_ok = srba::observations::landmark_matcher_find_relative_pose<obs_t>(new_kf_obs, old_kf_obs,pose_new_kf_wrt_old_kf);
+			if (found_ok)
+			{
+				// Found: reuse this relative pose as a good initial guess for the estimation
+				nei.has_approx_init_val = true;
+				if (edge_dir_to_newkf)
+				     nei_edge.inv_pose = - pose_new_kf_wrt_old_kf;
+				else nei_edge.inv_pose =   pose_new_kf_wrt_old_kf;
 			}
 			else
 			{

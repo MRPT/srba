@@ -47,6 +47,16 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		return false; // We cannot find any absolute relative pose only from 2 sets of monocular features, right?
+	}
+
 	// -------------------------------------------------------------------------------------------------
 
 	/** Observation = one stereo camera feature (the coordinates of two pixels) */
@@ -75,6 +85,20 @@ namespace observations {
 		};
 	};
 
+	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
+		if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
+		MRPT_TODO("Implement!")
+		return true;
+	}
+
 	// -------------------------------------------------------------------------------------------------
 
 	/** Observation = XYZ coordinates of landmarks relative to the sensor */
@@ -101,6 +125,20 @@ namespace observations {
 			// This type of observations has no further parameters.
 		};
 	};
+
+	/** Landmark matcher overloaded function (used to provide a first initial guess for the relative pose in loop closures) (made a template just to avoid link errors due to .h implementation) */
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<Cartesian_3D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
+		if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
+		MRPT_TODO("Implement!")
+		return true;
+	}
 
 	// -------------------------------------------------------------------------------------------------
 
@@ -129,6 +167,17 @@ namespace observations {
 		};
 	};
 
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<Cartesian_2D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<Cartesian_2D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
+		MRPT_TODO("Implement!")
+		return true;
+	}
 	// -------------------------------------------------------------------------------------------------
 
 	/** Observation = Range+Bearing (yaw & pitch) of landmarks relative to the sensor */
@@ -158,6 +207,18 @@ namespace observations {
 		};
 	};
 
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<RangeBearing_3D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<RangeBearing_3D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (POSE::rotation_dimensions==3 && new_kf_obs.size()<3) return false; // Minimum number of points for SE(3): 3
+		if (POSE::rotation_dimensions==2 && new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
+		MRPT_TODO("Implement!")
+		return true;
+	}
 	// -------------------------------------------------------------------------------------------------
 
 	/** Observation = Range+Bearing (yaw) of landmarks relative to the sensor, for planar environments only. */
@@ -186,6 +247,18 @@ namespace observations {
 		};
 	};
 
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (new_kf_obs.size()<2) return false; // Minimum number of points for SE(2): 2
+		MRPT_TODO("Implement!")
+		return true;
+	}
+
 	// -------------------------------------------------------------------------------------------------
 
 	/** Observation = Relative SE(2) poses (x,y,yaw) */
@@ -213,6 +286,18 @@ namespace observations {
 			// This type of observations has no further parameters.
 		};
 	};
+
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<RelativePoses_2D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<RelativePoses_2D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (new_kf_obs.size()<2) return false;
+		MRPT_TODO("Implement!")
+		return true;
+	}
 
 	// -------------------------------------------------------------------------------------------------
 
@@ -243,6 +328,17 @@ namespace observations {
 		};
 	};
 
+	template <class OBS_T,class POSE>
+	bool landmark_matcher_find_relative_pose(
+		const mrpt::aligned_containers<RelativePoses_3D::obs_data_t>::vector_t & new_kf_obs,
+		const mrpt::aligned_containers<RelativePoses_3D::obs_data_t>::vector_t & old_kf_obs,
+		POSE &pose_new_kf_wrt_old_kf)
+	{
+		ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+		if (new_kf_obs.size()<2) return false;
+		MRPT_TODO("Implement!")
+		return true;
+	}
 	// -------------------------------------------------------------------------------------------------
 
 	/** @} */

@@ -507,6 +507,8 @@ namespace srba
 			bool              is_first_obs_of_unknown;  //!< true if this is the first observation of a feature with unknown relative position
 			typename lm_traits_t::TRelativeLandmarkPos *feat_rel_pos; //!< Pointer to the known/unknown rel.pos. (always!=NULL)
 
+			inline const TLandmarkID get_observed_feature_id() const { return obs.obs.feat_id; }
+
 			MRPT_MAKE_ALIGNED_OPERATOR_NEW  // This forces aligned mem allocation
 		};
 
