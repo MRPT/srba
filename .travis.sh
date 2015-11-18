@@ -35,6 +35,7 @@ OUT_DIR=$SRC_DIR/docs/html
 rm -rf $OUT_DIR || exit 0;
 mkdir -p $OUT_DIR;
 
+# ==== (1/2) Doxygen
 cd $SRC_DIR/docs/
 
 # Get MRPT doxygen tags, so MRPT classes link to their docs:
@@ -43,6 +44,12 @@ wget -q -O dox_mrpt.tag http://reference.mrpt.org/devel/dox_mrpt.tag
 # Run doxygen
 doxygen
 
+# ==== (2/2) Build Latex docs:
+cd  $SRC_DIR/docs/srba-guide
+make
+cp srba-guide.pdf $OUT_DIR
+
+# ==== Upload to gh-pages
 cd $OUT_DIR
 git init
 
