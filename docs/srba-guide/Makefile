@@ -16,7 +16,7 @@ all: srba-guide.pdf
 # missing file reference and interactively asking you for an alternative.
 
 srba-guide.pdf: srba-guide.tex
-	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode" -use-make srba-guide.tex
+	latexmk -pdf -pdflatex="pdflatex -interaction nonstopmode -halt-on-error -file-line-error" -use-make srba-guide.tex
 
 srba-guide.ps.gz: srba-guide.pdf
 	pdf2ps srba-guide.pdf
