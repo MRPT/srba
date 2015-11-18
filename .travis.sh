@@ -45,6 +45,10 @@ wget -q -O dox_mrpt.tag http://reference.mrpt.org/devel/dox_mrpt.tag
 doxygen
 
 # ==== (2/2) Build Latex docs:
+cd  $SRC_DIR/
+mkdir build
+cd build
+cmake ..
 cd  $SRC_DIR/docs/srba-guide
 make
 cp srba-guide.pdf $OUT_DIR
