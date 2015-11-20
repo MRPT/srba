@@ -9,8 +9,7 @@
 
 #pragma once
 
-/** \defgroup mrpt_srba_ecps Edge creation policies
-	* \ingroup mrpt_srba_ecps */
+/** \defgroup mrpt_srba_ecps Edge creation policies */
 
 #include "ecps/local_areas_fixed_size.h"
 #include "ecps/classic_linear_rba.h"

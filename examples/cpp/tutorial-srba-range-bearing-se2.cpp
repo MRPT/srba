@@ -7,6 +7,7 @@
    | Released under BSD License. See details in http://www.mrpt.org/License    |
    +---------------------------------------------------------------------------+ */
 
+//! [includes_namespaces]
 #include <srba.h>
 #include <mrpt/gui.h>  // For rendering results as a 3D scene
 #include <mrpt/random.h>
@@ -14,9 +15,10 @@
 using namespace srba;
 using namespace mrpt::random;
 using namespace std;
+//! [includes_namespaces]
 
 
-
+//! [srba_typedef]
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
 //	typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  //!< One of the most important choices: how to construct the relative coordinates graph problem
@@ -31,6 +33,7 @@ typedef RbaEngine<
 	observations::RangeBearing_2D, // Type of observations
 	RBA_OPTIONS
 	>  my_srba_t;
+//! [srba_typedef]
 
 // --------------------------------------------------------------------------------
 // A test dataset. Generated with https://github.com/jlblancoc/recursive-world-toolkit 
@@ -77,6 +80,7 @@ basic_range_bearing_dataset_entry_t  observations_10[] = {
 
 int main(int argc, char**argv)
 {
+//! [srba_setup]
 	my_srba_t rba;     //  Create an empty RBA problem
 
 	// --------------------------------------------------------------------------------
@@ -89,9 +93,10 @@ int main(int argc, char**argv)
 	rba.parameters.obs_noise.std_noise_observations = 0.05; //SENSOR_NOISE_STD;
 
 	// =========== Topology parameters ===========
-	rba.parameters.srba.max_tree_depth       = 3;
+	rba.parameters.srba.max_tree_depth       =
 	rba.parameters.srba.max_optimize_depth   = 3;
 	// ===========================================
+//! [srba_setup]
 
 	// Set sensors parameters:
 	// rba.sensor_params has no parameters for the "Cartesian" sensor.
@@ -106,6 +111,7 @@ int main(int argc, char**argv)
 	//cout << "RBA parameters:\n-----------------\n";
 	//rba.parameters.dumpToConsole();
 
+//! [srba_fill_observation]
 	// --------------------------------------------------------------------------------
 	// Define observations of KF #0:
 	// --------------------------------------------------------------------------------
@@ -122,8 +128,10 @@ int main(int argc, char**argv)
 		obs_field.obs.obs_data.yaw = observations_0[i].yaw + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
+//! [srba_fill_observation]
 
 
+//! [srba_define_kf0]
 	//  Here happens the main stuff: create Key-frames, build structures, run optimization, etc.
 	//  ============================================================================================
 	my_srba_t::TNewKeyFrameInfo new_kf_info;
@@ -137,6 +145,7 @@ int main(int argc, char**argv)
 		<< " | # kf-to-kf edges created:" <<  new_kf_info.created_edge_ids.size()  << endl
 		<< "Optimization error: " << new_kf_info.optimize_results.total_sqr_error_init << " -> " << new_kf_info.optimize_results.total_sqr_error_final << endl
 		<< "-------------------------------------------------------" << endl;
+//! [srba_define_kf0]
 
 
 	// --------------------------------------------------------------------------------
@@ -174,6 +183,7 @@ int main(int argc, char**argv)
 	cout << "Ground truth: relative pose of KF#1 wrt KF#0: \n" << mrpt::poses::CPose3D(GT_pose10-GT_pose0) << endl;
 	
 
+//! [srba_save_dot]
 	// --------------------------------------------------------------------------------
 	// Saving RBA graph as a DOT file:
 	// --------------------------------------------------------------------------------
@@ -181,7 +191,9 @@ int main(int argc, char**argv)
 	cout << "Saving final graph of KFs and LMs to: " << sFil << endl;
 	rba.save_graph_as_dot(sFil, true /* LMs=save */);
 	cout << "Done.\n";
+//! [srba_save_dot]
 
+//! [srba_3dview]
 	// --------------------------------------------------------------------------------
 	// Show 3D view of the resulting map:
 	// --------------------------------------------------------------------------------
@@ -208,6 +220,7 @@ int main(int argc, char**argv)
 	cout << "Press any key or close window to exit.\n";
 	win.waitForKey();
 #endif
+//! [srba_3dview]
 		
 	return 0; // All ok
 }

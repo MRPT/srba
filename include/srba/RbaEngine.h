@@ -56,7 +56,7 @@ namespace srba
 	  *		- Optional sensor parameters (e.g. camera calibration)
 	  *		- Optionally, the relative positions of a subset of landmarks wrt to their base frame (these are the "fixed" or "known" landmarks).
 	  *
-	  *  See http://www.mrpt.org/srba and the `srba-guide.pdf` therein for a list of possible template arguments, code examples, etc.
+	  *  See http://mrpt.github.io/srba/ and <a href="http://mrpt.github.io/srba/srba-guide.pdf" >`srba-guide`</a> therein for a list of possible template arguments, code examples, etc.
 	  *
 	  * \tparam KF2KF_POSE_TYPE The parameterization of keyframe-to-keyframe relative poses (edges, problem unknowns).
 	  * \tparam LM_TYPE The parameterization of relative positions of landmarks relative poses (edges).
@@ -660,35 +660,34 @@ namespace srba
 		};
 
 
-		/** ====================================================================
-		                         j,i                    lm_id,base_id
-		             \partial  h            \partial  h
-		                         l                      obs_frame_id
-		   dh_dp = ------------------ = ---------------------------------
-		                         d+1                    cur_id
-		             \partial  p            \partial  p
-		                         d                      stp.next_node
-
-		    See tech report:
-		     "A tutorial on SE(3) transformation parameterizations and
-		      on-manifold optimization", Jose-Luis Blanco, 2010.
-		   ==================================================================== */
+		/** \verbatim
+		  *                      j,i                    lm_id,base_id
+		  *          \partial  h            \partial  h
+		  *                      l                      obs_frame_id
+		  * dh_dp = ------------------ = ---------------------------------
+		  *                      d+1                    cur_id
+		  *          \partial  p            \partial  p
+		  *                      d                      stp.next_node
+		  * \endverbatim
+		  * See tech report:
+		  *  "A tutorial on SE(3) transformation parameterizations and on-manifold optimization", Jose-Luis Blanco, 2010
+		  */
 		void compute_jacobian_dh_dp(
 			typename TSparseBlocksJacobians_dh_dAp::TEntry  &jacob,
 			const k2f_edge_t & observation,
 			const k2k_edges_deque_t  &k2k_edges,
 			std::vector<const pose_flag_t*>    *out_list_of_required_num_poses) const;
 
-		/** ====================================================================
-		                         j,i                    lm_id,base_id
-		             \partial  h            \partial  h
-		                         l                      obs_frame_id
-		   dh_df = ------------------ = ---------------------------------
-
-		             \partial  f            \partial  f
-
-		     Note: f=relative position of landmark with respect to its base kf
-		   ==================================================================== */
+		/** \verbatim
+		 *                       j,i                    lm_id,base_id
+		 *           \partial  h            \partial  h
+		 *                       l                      obs_frame_id
+		 * dh_df = ------------------ = ---------------------------------
+		 *
+		 *            \partial  f            \partial  f
+		 * \endverbatim
+		 * Note: f=relative position of landmark with respect to its base kf
+		 */
 		void compute_jacobian_dh_df(
 			typename TSparseBlocksJacobians_dh_df::TEntry  &jacob,
 			const k2f_edge_t & observation,

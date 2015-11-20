@@ -5,6 +5,7 @@ TL;DR: **Sparser Relative Bundle Adjustment (SRBA)** is a header-only C++ librar
 Related papers: 
 * Moreno, F.A. and Blanco, J.L. and Gonzalez, J. **A constant-time SLAM back-end in the continuum between global mapping and submapping: application to visual stereo SLAM**, International Journal of Robotics Research, 2016. (In Press)
 * Blanco, J.L. and Gonzalez, J. and Fernandez-Madrigal, J.A. **Sparser Relative Bundle Adjustment (SRBA): constant-time maintenance and local optimization of arbitrarily large maps**, IEEE International Conference of Robotics and Automation (ICRA), 2013. ([PDF](http://ingmec.ual.es/~jlblanco/papers/blanco2013rba.pdf)), ICRA slides ([PDF](http://ingmec.ual.es/~jlblanco/papers/blanco2013rba_ICRA_slides.pdf)), [BibTeX](http://ingmec.ual.es/aigaion2/index.php/export/publication/233/bibtex)
+* Blanco, J.L. **User guide for libsrba: A generic C++ framework for Relative Bundle Adjustment (RBA)** ([PDF](http://mrpt.github.io/srba/srba-guide.pdf))
 
 # 1. Compile
 
@@ -13,7 +14,7 @@ Requisites:
 * gcc or clang (any version supported by Eigen 3) or MS Visual C++ 2008 or newer.
 * CMake >=2.8
 
-In Ubuntu, install requisites with:  
+In Ubuntu, install requisites with:
 ```
 sudo apt-get install build-essential cmake libmrpt-dev
 ```
@@ -41,9 +42,8 @@ The framework of Relative Bundle Adjustment (RBA) was introduced in a series of 
 
 # 3. Programming guide and documentation
 
-* The official [user guide](http://reference.mrpt.org/devel/srba-guide.pdf)
-* Doxygen C++ [API reference](http://mrpt.github.io/srba/)
-* `srba-slam` [command-line reference](http://www.mrpt.org/Application%3Asrba-slam)
+* The official [user guide](http://mrpt.github.io/srba/srba-guide.pdf)
+* Doxygen C++ [API reference](http://mrpt.github.io/srba/), including explained examples.
 
 # 4. Run sample datasets
 
