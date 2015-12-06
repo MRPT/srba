@@ -46,7 +46,14 @@ struct local_areas_fixed_size
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
 		}
 	};
-	
+
+	/** Determines the area/submap of the given KF and returns its center KF (the one defining the submap local origin of coordinates) */
+	TKeyFrameID get_center_kf_for_kf(const TKeyFrameID kf_id, const parameters_t &params) const
+	{
+		const size_t SUBMAP_SIZE = params.submap_size; // In # of KFs
+		return SUBMAP_SIZE*(kf_id/SUBMAP_SIZE);
+	}
+
 	/** Implements the edge-creation policy. 
 	 * \tparam traits_t Use rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>
 	 */
@@ -62,8 +69,7 @@ struct local_areas_fixed_size
 		ASSERT_(new_kf_id>=1) // We can run an ECP only if we have 2 KFs in the map
 
 		const size_t MINIMUM_OBS_TO_LOOP_CLOSURE = params.min_obs_to_loop_closure;
-		const size_t SUBMAP_SIZE = params.submap_size; // In # of KFs
-		const TKeyFrameID current_center_kf_id = SUBMAP_SIZE*(new_kf_id/SUBMAP_SIZE);
+		const TKeyFrameID current_center_kf_id = get_center_kf_for_kf(new_kf_id, params);
 		const topo_dist_t min_dist_for_loop_closure = rba_engine.parameters.srba.max_tree_depth + 1; // By definition of loop closure in the SRBA framework
 
 		// Go thru all observations and for those already-seen LMs, check the distance between their base KFs and (i_id):
@@ -73,14 +79,20 @@ struct local_areas_fixed_size
 
 		// Make vote list for each central KF:
 		map<TKeyFrameID,size_t>  obs_for_each_area;
+		map<TKeyFrameID,bool>    base_is_center_for_all_obs_in_area;  // Detect whether the base KF for observations is the area center or not (needed to determine exact worst-case topological distances)
 		for (base_sorted_lst_t::const_iterator it=obs_for_each_base_sorted.begin();it!=obs_for_each_base_sorted.end();++it)
 		{
 			const size_t      num_obs_this_base = it->first;
 			const TKeyFrameID base_id = it->second;
 
-			const TKeyFrameID this_localmap_center = SUBMAP_SIZE*(base_id/SUBMAP_SIZE);
-
+			const TKeyFrameID this_localmap_center = get_center_kf_for_kf(base_id, params);
 			obs_for_each_area[this_localmap_center] += num_obs_this_base;
+
+			// Fist time this area is observed?
+			if (base_is_center_for_all_obs_in_area.find(this_localmap_center)==base_is_center_for_all_obs_in_area.end())
+				base_is_center_for_all_obs_in_area[this_localmap_center] = true;
+			// Filter:
+			if (base_id!=this_localmap_center)  base_is_center_for_all_obs_in_area[this_localmap_center] = false;
 		}
 
 		// Sort by votes:
@@ -121,7 +133,7 @@ struct local_areas_fixed_size
 			const TKeyFrameID from_id = current_center_kf_id; //new_kf_id;
 			const TKeyFrameID to_id   = remote_center_kf_id;
 			if (from_id==to_id)
-				continue; // Local area, we are ok
+				continue; // We are observing a LM within our local submap; it is fine.
 
 			typename rba_engine_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_from = rba_engine.get_rba_state().spanning_tree.sym.next_edge.find(from_id);
 
@@ -141,7 +153,14 @@ struct local_areas_fixed_size
 				// Since this means that the KF is aisolated from the rest of the world, leave the topological distance to infinity.
 			}
 
-			if ( found_distance >= min_dist_for_loop_closure - 2 /* the edges OBSERVER_KF ===> CENTER1->CENTER2 ===> BASE_KF*/ )
+			// We may have to add the 2 edges:
+			//    OBSERVER_KF ==(1)==> CENTER1->CENTER2 ===(2)==> BASE_KF
+			// to determine the exact topological distance to the base of the currently observed LMs and whether a loop closure actually happened.
+			topo_dist_t dist_extra_edges = 2; 
+			if (current_center_kf_id == new_kf_id)                       dist_extra_edges--;
+			if (base_is_center_for_all_obs_in_area[remote_center_kf_id]) dist_extra_edges--;
+
+			if ( found_distance >= min_dist_for_loop_closure - dist_extra_edges )  // Note: DO NOT sum `dist_extra_edges` to the left side of the equation, since found_distance may be numeric_limits::max<>!!
 			{
 				if (num_obs_this_base>=MINIMUM_OBS_TO_LOOP_CLOSURE)
 				{
