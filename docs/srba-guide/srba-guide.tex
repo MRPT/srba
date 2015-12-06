@@ -31,15 +31,15 @@
 
 
 % Read Library version:
-%\newread\file
-%\openin\file=../version
-%\read\file to\SRBALIBVERSION % Reads a line of the file 
-%\closein\file
+\newread\file
+\openin\file=../version
+\read\file to\SRBALIBVERSION % Reads a line of the file 
+\closein\file
 
 % Title Page
 \title{User guide for \texttt{libsrba}: A generic C++ framework for Relative Bundle Adjustment (RBA)}
 \author{Jose Luis Blanco-Claraco \\ joseluisblancoc@gmail.com \\ \texttt{http://www.mrpt.org/} }
-\date{Library version: \\ Document build: \today }
+\date{Library version: \SRBALIBVERSION \\ Document build: \today }
 
 % C++ listings settings
 \lstset{ %
