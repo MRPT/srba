@@ -6,3 +6,6 @@ install*
 CMakeFiles/
 CMakeLists.txt.user
 docs/version
+docs/srba-guide/srba-guide.toc
+docs/srba-guide/srba-guide.pdf
+docs/srba-guide/srba-guide.bbl

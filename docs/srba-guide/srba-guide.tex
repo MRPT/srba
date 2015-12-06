@@ -31,15 +31,15 @@
 
 
 % Read Library version:
-\newread\file
-\openin\file=../version
-\read\file to\SRBALIBVERSION % Reads a line of the file 
-\closein\file
+%\newread\file
+%\openin\file=../version
+%\read\file to\SRBALIBVERSION % Reads a line of the file 
+%\closein\file
 
 % Title Page
 \title{User guide for \texttt{libsrba}: A generic C++ framework for Relative Bundle Adjustment (RBA)}
 \author{Jose Luis Blanco-Claraco \\ joseluisblancoc@gmail.com \\ \texttt{http://www.mrpt.org/} }
-\date{Library version: \SRBALIBVERSION \\ Document build: \today }
+\date{Library version: \\ Document build: \today }
 
 % C++ listings settings
 \lstset{ %
@@ -82,6 +82,7 @@ This work is licensed under Attribution-ShareAlike 3.0 International (CC BY-SA 3
 
 \textbf{Revision history:}
 \begin{itemize}
+ \item Dec 2015: Update of compile instructions.
  \item May 2013: Second version. Added Fig.~\ref{fig:Nr} and the section on spanning trees.
  \item March 2013: First version. Released along MRPT 1.0.0.
 \end{itemize}
@@ -90,9 +91,16 @@ This work is licensed under Attribution-ShareAlike 3.0 International (CC BY-SA 3
 
 
 \begin{small}
-In case you want to cite SRBA in your academic publications, here is a BibTeX entry: 
+To cite SRBA, consider the most relevant work among the following ones: 
 
 \begin{verbatim}
+@ARTICLE{moreno2016ctslam,
+  author = {Moreno, F.A. and Blanco, J.L. and Gonzalez-Jimenez, J.},
+  title = {A constant-time SLAM back-end in the continuum between global 
+  mapping and submapping: application to visual stereo SLAM},
+  journal = {International Journal of Robotics Research},
+  year = {2016 (in Press)}
+}
 @INPROCEEDINGS{blanco2013srba,
   author = {Blanco, J.L. and Gonzalez-Jimenez, J. and Fernandez-Madrigal, J.A.},
   month = {{may}},
@@ -151,11 +159,13 @@ of the involved matrices \cite{blanco2013srba}.
 \newpage
 \section{Library installation}
 
-\texttt{libsrba} is one of the libraries of the Mobile Robot Programming Toolkit (MRPT). 
-It is header-only and makes \emph{intensive} use of templates and design patterns for the sake of customization, 
-flexibility and extensibility. 
+\subsection{Prerequisites}
 
-Note however that it depends on other non-header-only libraries\footnote{The link-time dependencies are: \texttt{mrpt-base} 
+\texttt{libsrba} started as one of the libraries of the Mobile Robot Programming Toolkit (MRPT), but became an independent project in 2015. 
+It is header-only and makes \emph{intensive} use of templates and design patterns for the sake of customization, 
+flexibility and extensibility. A modern version of \texttt{gcc}, \texttt{clang} or Visual C++ (2012 or above) is required.
+
+Although \texttt{libsrba} is header-only, note that it depends on other non-header-only libraries\footnote{The link-time dependencies are: \texttt{mrpt-base} 
 for geometry, math auxiliary classes, serialization,... and \texttt{mrpt-opengl} for generating 3D representations of 
 the RBA problems. Despite its name, the latter library can be built for platforms without any 
 functional \texttt{OpenGL} implementation, though it is recommended to always visualize the results for getting a better 
@@ -164,37 +174,72 @@ an embedded version is shipped with \texttt{mrpt-base}.},
 so in practice before using \texttt{libsrba} in your program you need
 both (i) access to headers (\texttt{.h} files) and (ii) binary libraries to link against. 
 
-In Ubuntu, installing the package \texttt{libmrpt-dev} (version 1.0.0 or newer) is the easiest way to have 
-everything ready to start coding your own programs. You can also install \texttt{mrpt-apps} for the application \texttt{srba-slam} 
-and a set of sample datasets (see \S\ref{sect:srba_slam_app}).
-
-If your official repository has an older version of the package, use this PPA repository instead:
+In Ubuntu, installing the packages \texttt{cmake} and \texttt{libmrpt-dev} (version 1.3.0 or newer) is the easiest way to have 
+everything ready to start coding your own programs.
+If your official repository has an older version of MRPT, use this PPA repository instead:
 
 \begin{lstlisting}
  sudo add-apt-repository ppa:joseluisblancoc/mrpt
  sudo apt-get update
- sudo apt-get install libmrpt-dev mrpt-apps
+ sudo apt-get install libmrpt-dev
 \end{lstlisting}
 
-Binary packages for Windows are also available \href{http://www.mrpt.org/download}{online}.
+MRPT binary packages for Windows are also available \href{http://www.mrpt.org/download}{online}.
 If you prefer to build MRPT from sources, please visit the official web\footnote{\href{http://www.mrpt.org/}{http://www.mrpt.org/}} 
-for detailed instructions.
+for detailed instructions. 
+If you build MRPT from sources and do not need all the functionality of the rest of libraries, 
+uncheck all the CMake configuration variables \texttt{BUILD\_mrpt-*} for the unneeded modules and applications. 
 
-If you prefer to build MRPT from sources and do not need all the functionality of the rest of libraries, 
-uncheck all the CMake configuration variables \texttt{BUILD\_mrpt-*} for the unneeded modules. 
-To make sure everything is working properly it is recommended to run the set of \emph{unit tests} associated 
-to \texttt{libsrba} with: 
+\subsection{Building SRBA}
 
-\begin{lstlisting}
- make run_tests_mrpt_srba  # To run the unit tests of mrpt-srba only
- make test                 # To run all unit tests in MRPT
-\end{lstlisting}
+The \texttt{libsrba} library itself does not need to be compiled (it is header-only!)
+but it is recommended to start compiling the examples and unit tests to make sure everything works.
 
-The tests include solving a few predefined datasets, verifying the expected results from 
-Sch\"ur-complement functions, etc. At present there are 13 unit tests just for \texttt{libsrba}
-and more than 160 for the entire MRPT. 
+Once the dependencies are installed, you can configure the \texttt{libsrba} project
+with CMake as usual: create a build directory, set the source and build directories, 
+configure and generate. If MRPT is not found, manually set \texttt{MRPT\_DIR} to its compile directory.
+
+To make sure everything works, try compiling all examples and tests. Run the unit tests by "building" the target \texttt{test} in Visual Studio or, in Linux, with \texttt{make test}.
+These tests include solving a few predefined datasets, 
+verifying the expected results from Sch\"ur-complement functions, etc. 
+At present there are 13 unit tests just for \texttt{libsrba}, 
+and more than 160 for the rest of MRPT modules.
 It is almost impossible to guarantee that a library is bug-free with 100\% certainty, 
-but at least those tests assure that no regressions will be introduced along future features of bug fixes.
+but at least those tests ensure that no regressions will be introduced along future features or bug fixes.
+
+\subsection{Building your own SRBA-based programs}
+
+Refer to the source code of examples in the \texttt{SRBA/examples/cpp} directory 
+and to the Doxygen documentation and commented source code \href{http://mrpt.github.io/srba/}{online}.
+
+It is strongly recommended to use CMake to generate compiler project files. 
+This is a template \texttt{CMakeLists.txt} file (refer to the CMake scripts of the above-mentioned examples for up-to-date complete scripts):
+
+
+\begin{lstlisting}[basicstyle=\scriptsize]
+PROJECT(my_first_srba_app)
+
+FIND_PACKAGE(SRBA REQUIRED)
+INCLUDE_DIRECTORIES(${SRBA_INCLUDE_DIRS})
+FIND_PACKAGE(MRPT REQUIRED ${SRBA_REQUIRED_MRPT_MODULES} gui)  
+# Add gui and any other MRPT module to the list above, as needed
+
+if(MSVC)
+ # For MSVC to avoid the C1128 error about too large object files:
+ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj /D_CRT_SECURE_NO_WARNINGS")
+ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /bigobj /D_CRT_SECURE_NO_WARNINGS")
+endif(MSVC)
+
+# Set optimized building in GCC:
+IF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
+ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
+
+ADD_EXECUTABLE(my_first_srba_app 
+ my_first_srba_app.cpp
+ )
+TARGET_LINK_LIBRARIES(my_first_srba_app ${MRPT_LIBS})
+\end{lstlisting}
 
 
 \newpage
@@ -293,17 +338,33 @@ there will be only one k2k edge (an unknown), which will be estimated by the lea
 optimizer along the relative positions of all landmarks.
 
 \begin{lstlisting}
-#include <mrpt/srba.h>
+#include <srba.h>
 
-using namespace mrpt::srba;
+using namespace srba;
 using namespace std;
 
+// Uncomment each line to override default settings:
+struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
+{
+// One of the most important choices: how to construct the relative coordinates graph problem:
+//	typedef ecps::local_areas_fixed_size            edge_creation_policy_t;  
+
+// The sensor pose coincides with the robot pose:
+//	typedef options::sensor_pose_on_robot_none      sensor_pose_on_robot_t;  
+
+// The sensor noise matrix is the same for all observations and equal to some given matrix:
+typedef options::observation_noise_constant_matrix<observations::RangeBearing_3D>   obs_noise_matrix_t;      
+
+// Solver algorithm (Default: Lev-Marq, with Schur, with dense Cholesky):
+//	typedef options::solver_LM_schur_dense_cholesky solver_t;                
+};
+
 typedef RbaEngine<
-	kf2kf_poses::SE3,       // Parameterization  KF-to-KF poses
-	landmarks::Euclidean3D, // Parameterization of landmark positions    
-	observations::RangeBearing_3D // Type of observations
-	>
-	my_srba_t;
+  kf2kf_poses::SE3,  // Parameterization of KF-to-KF poses
+  landmarks::Euclidean3D, // Parameterization of LM positions
+  observations::RangeBearing_3D, // Type of observations
+  RBA_OPTIONS
+  >  my_srba_t;
 
 int main(int argc, char**argv)
 {
@@ -450,7 +511,7 @@ White lines represent KF-to-KF edges (unknowns), blue lines are observations (kn
 In the following, all class names assume the existence of a previous:
 
 \begin{lstlisting}
- using namespace mrpt::srba;
+ using namespace srba;
 \end{lstlisting}
 
 
@@ -498,7 +559,7 @@ Represents the pose of the base KF, which can be observed from another KF.}
 
 The implementation of these models can be seen in:
 
-\texttt{\#include <mrpt/srba/models/landmarks.h>}.
+\texttt{\#include <srba/models/landmarks.h>}.
 
 \vspace{1cm}
 \subsection{\texttt{OBS\_TYPE}: Observation types}
@@ -519,7 +580,7 @@ to the sensor.}
 
 The implementation of these models can be seen in:
 
-\texttt{\#include <mrpt/srba/models/observations.h>}.
+\texttt{\#include <srba/models/observations.h>}.
 
 
 \subsection{Sensor models}
@@ -549,7 +610,7 @@ via range and bearing.}
 
 The implementation of these models can be seen in:
 
-\texttt{\#include <mrpt/srba/models/sensors.h>}.
+\texttt{\#include <srba/models/sensors.h>}.
 
 
 \subsection{\texttt{RBA\_OPTIONS}: Other options}
@@ -584,7 +645,7 @@ Using this option has a small computational overhead in comparison to the one ab
 
 The list of possible types can be found in: 
 
-\texttt{\#include <mrpt/srba/srba\_options\_sensor\_pose.h>}.
+\texttt{\#include <srba/srba\_options\_sensor\_pose.h>}.
 
 
 \subsubsection{Choices for \texttt{obs\_noise\_matrix\_t}}
@@ -613,7 +674,7 @@ matrix will be used for all observations.}
 
 The list of possible types can be found in: 
 
-\texttt{\#include <mrpt/srba/srba\_options\_sensor\_noise.h>}.
+\texttt{\#include <srba/srba\_options\_sensor\_noise.h>}.
 
 
 \subsubsection{Choices for \texttt{solver\_t}}
@@ -637,7 +698,7 @@ the entire system of equations (both poses and landmarks).}
 
 The list of possible types can be found in: 
 
-\texttt{\#include <mrpt/srba/srba\_options\_solver.h>}.
+\texttt{\#include <srba/srba\_options\_solver.h>}.
 
 
 \section{Configuring \texttt{RbaEngine<>}: dynamic parameters}
@@ -1163,7 +1224,7 @@ Thus the headers include both: ``public'' declarations and template implementati
 The user normally includes just one public header,
 
 \begin{lstlisting}
- #include <mrpt/srba.h>
+ #include <srba.h>
 \end{lstlisting}
 
 \noindent which in turn includes all the other required headers. 
@@ -1171,7 +1232,7 @@ However, thinking of those programmers that intend modifying or extending the li
 the directory layout of all headers is explained below. 
 
 \begin{itemize}[label=$\rhd$]
-  \item{\textbf{mrpt}
+  \item{\textbf{include}
     \begin{itemize}[label=$\rhd$]
     \item{\texttt{srba.h}: The main file that users should include.}
     \item{\textbf{srba}
