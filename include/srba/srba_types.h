@@ -185,6 +185,18 @@ namespace srba
 	{
 		size_t  id; //!< The new edge ID
 		bool    has_approx_init_val; //!< Whether the edge was assigned an approximated initial value. If not, it will need an independent optimization step before getting into the complete problem optimization.
+
+		/** For loop closures situations, and only for helping estimating an initial value for the new edge (when \a has_approx_init_val is false), 
+		  * these fields hold the IDs of KFs from which to infer the relative pose using the sensor model.
+		  * Filled in ECP's eval<>() method, used determine_kf2kf_edges_to_create() */
+		TKeyFrameID loopclosure_observer_kf, loopclosure_base_kf;
+
+		TNewEdgeInfo() :
+			id                      (SRBA_INVALID_INDEX),
+			has_approx_init_val     (false),
+			loopclosure_observer_kf (SRBA_INVALID_KEYFRAMEID),
+			loopclosure_base_kf     (SRBA_INVALID_KEYFRAMEID)
+		{}
 	};
 
 	/** Symbolic information of each Jacobian dh_dAp

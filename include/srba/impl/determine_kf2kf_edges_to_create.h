@@ -39,12 +39,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 		if (nei.has_approx_init_val)
 			continue; // This edge already has an initial guess
 		
+		// New edges are: FROM (old KF) ==> TO (new KF)
 		k2k_edge_t & nei_edge = rba_state.k2k_edges[nei.id];
 		
 		// Method #1: look at last kf's kf2kf edges for an initial guess to ease optimization:
 		if ( rba_state.last_timestep_touched_kfs.count(nei_edge.from) != 0 )
 		{
-			// Get the relative post from the numeric spanning tree, which should be up-to-date:
+			// Get the relative pose from the numeric spanning tree, which should be up-to-date:
 			typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_state.spanning_tree.num.find(nei_edge.from);
 			ASSERT_(it_tree4_central!=rba_state.spanning_tree.num.end())
 
@@ -95,6 +96,10 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 					new_kf_obs.push_back( obs[it_id->second].obs.obs_data );
 				}
 			}
+
+			MRPT_TODO("Consider the info in these loop closure helper fields!");
+			//nei.loopclosure_observer_kf = XXX;
+			//nei.loopclosure_base_kf = XXX;
 
 			// Run matcher:
 			pose_t pose_new_kf_wrt_old_kf;

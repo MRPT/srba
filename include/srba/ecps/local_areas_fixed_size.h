@@ -169,6 +169,11 @@ struct local_areas_fixed_size
 
 					nei.id = rba_engine.create_kf2kf_edge(from_id, TPairKeyFrameID( to_id, from_id), obs);
 					nei.has_approx_init_val = false; // // By default: Will need to estimate this one
+					
+					MRPT_TODO("Fill these loop closure helper fields!");
+					//nei.loopclosure_observer_kf = XXX;
+					//nei.loopclosure_base_kf = XXX;
+
 					new_k2k_edge_ids.push_back(nei);
 				}
 				else {
