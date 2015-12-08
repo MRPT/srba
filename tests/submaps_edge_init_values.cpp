@@ -82,10 +82,12 @@ TEST(MiniProblems,SubmapsEdgesInitValues)
 {
 	my_srba_t rba;     //  Create an empty RBA problem
 
+	rba.get_time_profiler().disable();
+
 	// --------------------------------------------------------------------------------
 	// Set parameters
 	// --------------------------------------------------------------------------------
-	rba.setVerbosityLevel( 2 );   // 0: None; 1:Important only; 2:Verbose
+	rba.setVerbosityLevel( 0 );   // 0: None; 1:Important only; 2:Verbose
 
 	// Information matrix for relative pose observations:
 	{
@@ -155,26 +157,17 @@ TEST(MiniProblems,SubmapsEdgesInitValues)
 			true           // Also run local optimization?
 			);
 
-		cout << "Created KF #" << new_kf_info.kf_id
-			<< " | # kf-to-kf edges created:" <<  new_kf_info.created_edge_ids.size()  << endl
-			<< "Optimization error: " << new_kf_info.optimize_results.total_sqr_error_init << " -> " << new_kf_info.optimize_results.total_sqr_error_final << endl
-			<< "-------------------------------------------------------" << endl;
-		
+	
 		// Test condition on loop closure:
 		if ( new_kf_info.created_edge_ids.size()==2 )
 		{
-			const TNewEdgeInfo & nei = (new_kf_info.created_edge_ids[0].loopclosure_base_kf != SRBA_INVALID_KEYFRAMEID) ? new_kf_info.created_edge_ids[0] : new_kf_info.created_edge_ids[1];
+			EXPECT_TRUE( new_kf_info.created_edge_ids[0].loopclosure_base_kf != SRBA_INVALID_KEYFRAMEID || new_kf_info.created_edge_ids[1].loopclosure_base_kf != SRBA_INVALID_KEYFRAMEID );
+			EXPECT_TRUE( new_kf_info.created_edge_ids[0].loopclosure_observer_kf != SRBA_INVALID_KEYFRAMEID || new_kf_info.created_edge_ids[1].loopclosure_observer_kf != SRBA_INVALID_KEYFRAMEID );
 
+			EXPECT_GT(new_kf_info.optimize_results.num_observations,1);
+			EXPECT_LT(new_kf_info.optimize_results.obs_rmse, 1e-6);
 		}
 
 	} // end-for each dataset entry
-
-	// --------------------------------------------------------------------------------
-	// Saving RBA graph as a DOT file:
-	// --------------------------------------------------------------------------------
-	const string sFil = "graph.dot";
-	cout << "Saving final graph of KFs and LMs to: " << sFil << endl;
-	rba.save_graph_as_dot(sFil, true /* LMs=save */);
-	cout << "Done.\n";
 
 }
