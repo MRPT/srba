@@ -202,7 +202,7 @@ struct local_areas_fixed_size
 		// Debug:
 		if (new_k2k_edge_ids.size()>1) // && m_verbose_level>=1)
 		{
-			mrpt::system::setConsoleColor(mrpt::system::CONCOL_BLUE);
+			mrpt::system::setConsoleColor(mrpt::system::CONCOL_GREEN);
 			cout << "\n[edge_creation_policy] Loop closure detected for KF#"<< new_kf_id << ", edges: ";
 			for (size_t j=0;j<new_k2k_edge_ids.size();j++)
 				cout << rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[j].id].from <<"->"<<rba_engine.get_rba_state().k2k_edges[new_k2k_edge_ids[j].id].to<<", ";

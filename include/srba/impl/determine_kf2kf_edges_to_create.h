@@ -47,29 +47,24 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 		// Method #1: look at last kf's kf2kf edges for an initial guess to ease optimization:
 		if ( !nei_edge_does_not_touch_cur_kf && rba_state.last_timestep_touched_kfs.count(nei_edge.from) != 0 )
 		{
-			// Get the relative pose from the numeric spanning tree, which should be up-to-date:
-			typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_state.spanning_tree.num.find(nei_edge.from);
-			ASSERT_(it_tree4_central!=rba_state.spanning_tree.num.end())
-
-			typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::frameid2pose_map_t::const_iterator it_nei_1 = 
-				it_tree4_central->second.find(new_kf_id-1);
-			if (it_nei_1!=it_tree4_central->second.end())
+			const pose_t *rel_pose = get_kf_relative_pose(new_kf_id-1, nei_edge.from);
+			if (rel_pose)
 			{
 				// Found: reuse this relative pose as a good initial guess for the estimation
 				const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
 				if (edge_dir_to_newkf)
-				     nei_edge.inv_pose = - it_nei_1->second.pose; // Note the "-" inverse operator, it is important
-				else nei_edge.inv_pose =   it_nei_1->second.pose;
+				     nei_edge.inv_pose = - (*rel_pose); // Note the "-" inverse operator, it is important
+				else nei_edge.inv_pose =    *rel_pose;
 				nei.has_approx_init_val = true;
 			}
 		}
 
 		// Method #2: use relative pose from sensor model implementation, if provided:
+		// (1st attempt) Direct relative pose between the two KFs at each end of the new edge.
 		if (!nei.has_approx_init_val)
 		{
 			// Landmarks in this new KF are in `obs`: const typename traits_t::new_kf_observations_t   & obs
 			// Landmarks in the old reference KF are in: `other_k2f_edges`
-			const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
 			TKeyFrameID last_kf_id, other_kf_id;  // Required to tell if we have to take observations from "k2f_edges" or from the latest "obs":
 			if (nei_edge_does_not_touch_cur_kf)
 			{  // Arbitrarily pick "last" and "other" as "from" and "to":
@@ -81,6 +76,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 				last_kf_id  = new_kf_id;
 				other_kf_id = (nei_edge.to==new_kf_id) ? nei_edge.from : nei_edge.to;
 			}
+
 			const std::deque<k2f_edge_t*>  & other_k2f_edges   = rba_state.keyframes[other_kf_id].adjacent_k2f_edges;
 
 			// Make two lists of equal length with corresponding observations 
@@ -122,15 +118,68 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 				}
 			}
 
-			MRPT_TODO("Consider the info in these loop closure helper fields!");
-			//nei.loopclosure_observer_kf = XXX;
-			//nei.loopclosure_base_kf = XXX;
 
-			// Run matcher:
+			// (1st attempt) Run matcher:
 			pose_t pose_new_kf_wrt_old_kf;
 			m_profiler.enter("define_new_keyframe.determine_edges.lm_matcher");
-			const bool found_ok = srba::observations::landmark_matcher<obs_t>::find_relative_pose(new_kf_obs, old_kf_obs, parameters.sensor,pose_new_kf_wrt_old_kf);
+			bool found_ok = srba::observations::landmark_matcher<obs_t>::find_relative_pose(new_kf_obs, old_kf_obs, parameters.sensor,pose_new_kf_wrt_old_kf);
 			m_profiler.leave("define_new_keyframe.determine_edges.lm_matcher");
+
+			// (2nd attempt) Run matcher between another set of KFs, only possible in the case of a loop closure:
+			if (!found_ok && nei.loopclosure_observer_kf!=SRBA_INVALID_KEYFRAMEID && nei.loopclosure_base_kf!=SRBA_INVALID_KEYFRAMEID)
+			{
+				// We may have up to 4 KFs involved here: 
+				// - nei.loopclosure_observer_kf
+				// - nei.loopclosure_base_kf
+				// - nei_edge.to
+				// - nei_edge.from
+				// Any of the latter 2 *might* coincide with the former 2 KFs.
+				// We already tried to find a match between "to" and "from" without luck, 
+				// so let's try now with the former pair.
+				last_kf_id  = nei.loopclosure_observer_kf;
+				other_kf_id = nei.loopclosure_base_kf;
+
+				const std::deque<k2f_edge_t*>  & other2_k2f_edges   = rba_state.keyframes[other_kf_id].adjacent_k2f_edges;
+				const bool last_kf_is_new_kf = (last_kf_id==new_kf_id);
+
+				// Temporary construction: associative container with all observed LMs in this new KF:
+				new_kf_obs.clear();
+				old_kf_obs.clear();
+				std::map<TLandmarkID,size_t> newkf_obs_feats;
+				const std::deque<k2f_edge_t*>  * last_k2f_edges   = NULL;
+				if (!last_kf_is_new_kf)
+				{
+					last_k2f_edges   = &rba_state.keyframes[last_kf_id].adjacent_k2f_edges;
+					for (size_t i=0;i<last_k2f_edges->size();i++) {
+						const TLandmarkID lm_id = (*last_k2f_edges)[i]->obs.obs.feat_id;
+						newkf_obs_feats[ lm_id ] = i;
+					}
+				}
+				else {
+					for (size_t i=0;i<obs.size();i++)
+						newkf_obs_feats[ obs[i].obs.feat_id ] = i;
+				}
+
+				// Search in `other2_k2f_edges`:
+				for (size_t i=0;i<other2_k2f_edges.size();i++) 
+				{
+					const TLandmarkID lm_id = other2_k2f_edges[i]->obs.obs.feat_id;
+					std::map<TLandmarkID,size_t>::const_iterator it_id = newkf_obs_feats.find(lm_id);
+					if (it_id == newkf_obs_feats.end()) 
+						continue; // No matching feature
+					// Yes, we have a match:
+					old_kf_obs.push_back( other2_k2f_edges[i]->obs.obs.obs_data );
+					if (!last_kf_is_new_kf)
+					     new_kf_obs.push_back( (*last_k2f_edges)[it_id->second]->obs.obs.obs_data );
+					else new_kf_obs.push_back( obs[it_id->second].obs.obs_data );
+				}
+
+				// Run matcher:
+				m_profiler.enter("define_new_keyframe.determine_edges.lm_matcher");
+				found_ok = srba::observations::landmark_matcher<obs_t>::find_relative_pose(new_kf_obs, old_kf_obs, parameters.sensor,pose_new_kf_wrt_old_kf);
+				m_profiler.leave("define_new_keyframe.determine_edges.lm_matcher");
+			} // end 2nd attempt
+
 			if (found_ok)
 			{
 				// Take into account the sensor pose wrt the KF: Rotate/translate if the sensor is not at the robot origin of coordinates: 
@@ -138,16 +187,69 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 				RBA_OPTIONS::sensor_pose_on_robot_t::template robot2sensor<mrpt::poses::CPose3D>(mrpt::poses::CPose3D(), sensor_pose, this->parameters.sensor_pose);
 				pose_new_kf_wrt_old_kf = pose_t( (sensor_pose + pose_new_kf_wrt_old_kf)+ (-sensor_pose) );
 
-				// Found: reuse this relative pose as a good initial guess for the estimation
+				const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
 				nei.has_approx_init_val = true;
-				if (edge_dir_to_newkf)
-				     nei_edge.inv_pose = - pose_new_kf_wrt_old_kf;
-				else nei_edge.inv_pose =   pose_new_kf_wrt_old_kf;
+
+				// Found: reuse this relative pose as a good initial guess for the estimation
+				if (!nei_edge_does_not_touch_cur_kf)
+				{ // Found relative pose is directly for the two KFs at each end of the new kf2kf edge:
+					if (edge_dir_to_newkf)
+						 nei_edge.inv_pose = - pose_new_kf_wrt_old_kf;
+					else nei_edge.inv_pose =   pose_new_kf_wrt_old_kf;
+				}
+				else
+				{	// Found relative pose is for the "2nd attempt" approach in loop closures, so 
+					// we must now transform "pose_new_kf_wrt_old_kf" into "nei_edge.inv_pose":
+					//
+					// loopclosure_observer_kf  <============   loopclosure_base_kf
+					//       ^              pose_new_kf_wrt_old_kf           ^
+					//       |                                               |
+					//       | pose_observer_wrt_local                       | pose_base_wrt_remote
+					//       |                                               |
+					//       |                 nei_edge.inv_pose             |
+					//       +--- TO or FROM  <======?======>  FROM or TO ---+
+					//           local_kf_id                  remote_kf_id
+					//
+					ASSERT_(nei.loopclosure_observer_kf!=SRBA_INVALID_KEYFRAMEID && nei.loopclosure_base_kf!=SRBA_INVALID_KEYFRAMEID);
+
+					const pose_t default_identity_pose;
+
+					const pose_t *pose_observer_wrt_to   = (nei.loopclosure_observer_kf==nei_edge.to)   ? &default_identity_pose : get_kf_relative_pose(nei.loopclosure_observer_kf, nei_edge.to);
+					const pose_t *pose_base_wrt_to       = (nei.loopclosure_base_kf==nei_edge.to)       ? &default_identity_pose : get_kf_relative_pose(nei.loopclosure_base_kf    , nei_edge.to);
+					const pose_t *pose_observer_wrt_from = (nei.loopclosure_observer_kf==nei_edge.from) ? &default_identity_pose : get_kf_relative_pose(nei.loopclosure_observer_kf, nei_edge.from);
+					const pose_t *pose_base_wrt_from     = (nei.loopclosure_base_kf==nei_edge.from)     ? &default_identity_pose : get_kf_relative_pose(nei.loopclosure_base_kf    , nei_edge.from);
+					
+					const bool observer_is_near_to = (pose_observer_wrt_to || pose_base_wrt_from) || !(pose_observer_wrt_from || pose_base_wrt_to);
+					const TKeyFrameID local_kf_id  =  observer_is_near_to ? nei_edge.to   : nei_edge.from;
+					const TKeyFrameID remote_kf_id =  observer_is_near_to ? nei_edge.from : nei_edge.to;
+
+					const pose_t *pose_observer_wrt_local   = observer_is_near_to ? 
+						(pose_observer_wrt_to ? pose_observer_wrt_to : &default_identity_pose)
+						: 
+						(pose_observer_wrt_from ? pose_observer_wrt_from : &default_identity_pose);
+					const pose_t *pose_base_wrt_remote   = observer_is_near_to ? 
+						(pose_base_wrt_from ? pose_base_wrt_from : &default_identity_pose)
+						: 
+						(pose_base_wrt_to ? pose_base_wrt_to : &default_identity_pose);
+					
+					// Pose transforms (from the graph of poses in the ASCII art above):
+					//
+					// Nwr = inv(BwR) * LwR * OwL
+					// BwR * Nwr = LwR * OwL
+					// BwR * Nwr * inv(OwL) = LwR
+					//
+					const pose_t pose_local_wrt_remote  =  ((*pose_base_wrt_remote)+(pose_new_kf_wrt_old_kf))+(-(*pose_observer_wrt_local));
+
+					if (edge_dir_to_newkf)
+						 nei_edge.inv_pose = - pose_local_wrt_remote;
+					else nei_edge.inv_pose =   pose_local_wrt_remote;
+				}
 			}
-			else
-			{
-				// Otherwise: we cannot provide any reasonable initial value, which may degrade performance...
-				VERBOSE_LEVEL(2) << "Warning: Could not provide an initial value to relative pose between KFs " <<nei_edge.from << "<=>" << nei_edge.to << "\n";
+
+			if (!nei.has_approx_init_val)
+			{ // Otherwise: we cannot provide any reasonable initial value, which may degrade performance...
+				VERBOSE_LEVEL_COLOR(2,mrpt::system::CONCOL_RED) << "[determine_kf2kf_edges_to_create] Could not provide initial value to relative pose " <<nei_edge.from << "<=>" << nei_edge.to << "\n";
+				VERBOSE_LEVEL_COLOR_POST();
 			}
 		}
 	} // end for each nei

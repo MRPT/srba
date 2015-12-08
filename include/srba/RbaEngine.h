@@ -380,6 +380,22 @@ namespace srba
 			return rba_state.find_path_bfs(src_kf,trg_kf,&found_path);
 		}
 
+		/** Returns the up-to-date relative pose of Keyframe `kf_query` with respect to `kf_reference`, 
+		  *  or NULL if the relative pose is not immediately available from any numeric spanning tree. */
+		const pose_t * get_kf_relative_pose(const TKeyFrameID kf_query, const TKeyFrameID kf_reference) const
+		{
+			// Get the relative pose from the numeric spanning tree, which should be up-to-date:
+			typename kf2kf_pose_traits_t::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_state.spanning_tree.num.find(kf_reference);
+			if (it_tree4_central==rba_state.spanning_tree.num.end())
+				return NULL;
+			typename kf2kf_pose_traits_t::frameid2pose_map_t::const_iterator it_nei_1 = 
+				it_tree4_central->second.find(kf_query);
+			if (it_nei_1!=it_tree4_central->second.end())
+				return &it_nei_1->second.pose;
+			else return NULL;
+		}
+
+
 		/** Visits all k2k & k2f edges following a BFS starting at a given starting node and up to a given maximum depth.
 		  * Only k2k edges are considered for BFS paths.
 		  */
