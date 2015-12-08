@@ -80,6 +80,7 @@ struct local_areas_fixed_size
 		// Make vote list for each central KF:
 		map<TKeyFrameID,size_t>  obs_for_each_area;
 		map<TKeyFrameID,bool>    base_is_center_for_all_obs_in_area;  // Detect whether the base KF for observations is the area center or not (needed to determine exact worst-case topological distances)
+		map<TKeyFrameID,map<TKeyFrameID,size_t> >  obs_for_base_KF_grouped_by_area;
 		for (base_sorted_lst_t::const_iterator it=obs_for_each_base_sorted.begin();it!=obs_for_each_base_sorted.end();++it)
 		{
 			const size_t      num_obs_this_base = it->first;
@@ -87,6 +88,7 @@ struct local_areas_fixed_size
 
 			const TKeyFrameID this_localmap_center = get_center_kf_for_kf(base_id, params);
 			obs_for_each_area[this_localmap_center] += num_obs_this_base;
+			obs_for_base_KF_grouped_by_area[this_localmap_center][base_id] += num_obs_this_base;
 
 			// Fist time this area is observed?
 			if (base_is_center_for_all_obs_in_area.find(this_localmap_center)==base_is_center_for_all_obs_in_area.end())
@@ -95,10 +97,19 @@ struct local_areas_fixed_size
 			if (base_id!=this_localmap_center)  base_is_center_for_all_obs_in_area[this_localmap_center] = false;
 		}
 
-		// Sort by votes:
+		// Sort submaps by votes:
 		base_sorted_lst_t   obs_for_each_area_sorted;
 		for (map<TKeyFrameID,size_t>::const_iterator it=obs_for_each_area.begin();it!=obs_for_each_area.end();++it)
 			obs_for_each_area_sorted.insert( make_pair(it->second,it->first) );
+
+		// Within each submap, sort by the most voted base KF, so we can detect the most connected KF in the case of a loop closure:
+		map<TKeyFrameID,base_sorted_lst_t>  obs_for_base_KF_grouped_by_area_sorted;
+		for (map<TKeyFrameID,map<TKeyFrameID,size_t> >::const_iterator it=obs_for_base_KF_grouped_by_area.begin();it!=obs_for_base_KF_grouped_by_area.end();++it)
+		{
+			base_sorted_lst_t &bsl = obs_for_base_KF_grouped_by_area_sorted[it->first];
+			for (map<TKeyFrameID,size_t>::const_iterator it2=it->second.begin();it2!=it->second.end();++it2)
+				bsl.insert( make_pair(it2->second,it2->first) );
+		}
 
 		// First: always create one edge:
 		//  Regular KFs:      new KF                         ==> current_center_kf_id
@@ -168,12 +179,16 @@ struct local_areas_fixed_size
 					TNewEdgeInfo nei;
 
 					nei.id = rba_engine.create_kf2kf_edge(from_id, TPairKeyFrameID( to_id, from_id), obs);
-					nei.has_approx_init_val = false; // // By default: Will need to estimate this one
+					nei.has_approx_init_val = false; // By default: Will need to estimate this one
 					
-					MRPT_TODO("Fill these loop closure helper fields!");
-					//nei.loopclosure_observer_kf = XXX;
-					//nei.loopclosure_base_kf = XXX;
-
+					// Fill these loop closure helper fields:
+					nei.loopclosure_observer_kf = new_kf_id;
+					{
+						// Take the KF id of the strongest connection:
+						const base_sorted_lst_t & bsl = obs_for_base_KF_grouped_by_area_sorted[remote_center_kf_id];
+						ASSERT_(!bsl.empty());
+						nei.loopclosure_base_kf = bsl.begin()->second;
+					}
 					new_k2k_edge_ids.push_back(nei);
 				}
 				else {

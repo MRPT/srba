@@ -159,6 +159,14 @@ TEST(MiniProblems,SubmapsEdgesInitValues)
 			<< " | # kf-to-kf edges created:" <<  new_kf_info.created_edge_ids.size()  << endl
 			<< "Optimization error: " << new_kf_info.optimize_results.total_sqr_error_init << " -> " << new_kf_info.optimize_results.total_sqr_error_final << endl
 			<< "-------------------------------------------------------" << endl;
+		
+		// Test condition on loop closure:
+		if ( new_kf_info.created_edge_ids.size()==2 )
+		{
+			const TNewEdgeInfo & nei = (new_kf_info.created_edge_ids[0].loopclosure_base_kf != SRBA_INVALID_KEYFRAMEID) ? new_kf_info.created_edge_ids[0] : new_kf_info.created_edge_ids[1];
+
+		}
+
 	} // end-for each dataset entry
 
 	// --------------------------------------------------------------------------------

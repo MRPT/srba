@@ -40,10 +40,12 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 			continue; // This edge already has an initial guess
 		
 		// New edges are: FROM (old KF) ==> TO (new KF)
+		// In loop closures, neither "nei.to" nor "nei.from" are the latest KF, both may be existing center KFs:
 		k2k_edge_t & nei_edge = rba_state.k2k_edges[nei.id];
+		const bool nei_edge_does_not_touch_cur_kf = (nei_edge.to!=new_kf_id) && (nei_edge.from!=new_kf_id);
 		
 		// Method #1: look at last kf's kf2kf edges for an initial guess to ease optimization:
-		if ( rba_state.last_timestep_touched_kfs.count(nei_edge.from) != 0 )
+		if ( !nei_edge_does_not_touch_cur_kf && rba_state.last_timestep_touched_kfs.count(nei_edge.from) != 0 )
 		{
 			// Get the relative pose from the numeric spanning tree, which should be up-to-date:
 			typename kf2kf_pose_traits<typename traits_t::original_kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_tree4_central = rba_state.spanning_tree.num.find(nei_edge.from);
@@ -68,7 +70,17 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 			// Landmarks in this new KF are in `obs`: const typename traits_t::new_kf_observations_t   & obs
 			// Landmarks in the old reference KF are in: `other_k2f_edges`
 			const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
-			const TKeyFrameID other_kf_id = (nei_edge.to==new_kf_id) ? nei_edge.from : nei_edge.to;
+			TKeyFrameID last_kf_id, other_kf_id;  // Required to tell if we have to take observations from "k2f_edges" or from the latest "obs":
+			if (nei_edge_does_not_touch_cur_kf)
+			{  // Arbitrarily pick "last" and "other" as "from" and "to":
+				last_kf_id   = nei_edge.from;
+				other_kf_id  = nei_edge.to;
+			}
+			else
+			{  // Pick the latest and the "other" kf
+				last_kf_id  = new_kf_id;
+				other_kf_id = (nei_edge.to==new_kf_id) ? nei_edge.from : nei_edge.to;
+			}
 			const std::deque<k2f_edge_t*>  & other_k2f_edges   = rba_state.keyframes[other_kf_id].adjacent_k2f_edges;
 
 			// Make two lists of equal length with corresponding observations 
@@ -81,8 +93,19 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 
 				// Temporary construction: associative container with all observed LMs in this new KF:
 				std::map<TLandmarkID,size_t> newkf_obs_feats;
-				for (size_t i=0;i<obs.size();i++)
-					newkf_obs_feats[ obs[i].obs.feat_id ] = i;
+				const std::deque<k2f_edge_t*>  * last_k2f_edges   = NULL;
+				if (nei_edge_does_not_touch_cur_kf)
+				{
+					last_k2f_edges   = &rba_state.keyframes[last_kf_id].adjacent_k2f_edges;
+					for (size_t i=0;i<last_k2f_edges->size();i++) {
+						const TLandmarkID lm_id = (*last_k2f_edges)[i]->obs.obs.feat_id;
+						newkf_obs_feats[ lm_id ] = i;
+					}
+				}
+				else {
+					for (size_t i=0;i<obs.size();i++)
+						newkf_obs_feats[ obs[i].obs.feat_id ] = i;
+				}
 
 				// Search in `other_k2f_edges`:
 				for (size_t i=0;i<other_k2f_edges.size();i++) 
@@ -93,7 +116,9 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 						continue; // No matching feature
 					// Yes, we have a match:
 					old_kf_obs.push_back( other_k2f_edges[i]->obs.obs.obs_data );
-					new_kf_obs.push_back( obs[it_id->second].obs.obs_data );
+					if (nei_edge_does_not_touch_cur_kf)
+					     new_kf_obs.push_back( (*last_k2f_edges)[it_id->second]->obs.obs.obs_data );
+					else new_kf_obs.push_back( obs[it_id->second].obs.obs_data );
 				}
 			}
 
