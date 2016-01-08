@@ -3,7 +3,7 @@
 TL;DR: **Sparser Relative Bundle Adjustment (SRBA)** is a header-only C++ library for solving SLAM/BA in relative coordinates with flexibility for different submapping strategies and aimed at constant time local graph update. BSD 3-Clause License.
 
 Related papers: 
-* Moreno, F.A. and Blanco, J.L. and Gonzalez, J. **A constant-time SLAM back-end in the continuum between global mapping and submapping: application to visual stereo SLAM**, International Journal of Robotics Research, 2016. (In Press)
+* Moreno, F.A. and Blanco, J.L. and Gonzalez, J. **A constant-time SLAM back-end in the continuum between global mapping and submapping: application to visual stereo SLAM**, International Journal of Robotics Research, 2016. ([DOI](http://dx.doi.org/10.1177/0278364915619238)), ([Draft PDF](http://ingmec.ual.es/~jlblanco/papers/moreno2016ssrba_DRAFT.pdf))
 * Blanco, J.L. and Gonzalez, J. and Fernandez-Madrigal, J.A. **Sparser Relative Bundle Adjustment (SRBA): constant-time maintenance and local optimization of arbitrarily large maps**, IEEE International Conference of Robotics and Automation (ICRA), 2013. ([PDF](http://ingmec.ual.es/~jlblanco/papers/blanco2013rba.pdf)), ICRA slides ([PDF](http://ingmec.ual.es/~jlblanco/papers/blanco2013rba_ICRA_slides.pdf)), [BibTeX](http://ingmec.ual.es/aigaion2/index.php/export/publication/233/bibtex)
 * Blanco, J.L. **User guide for libsrba: A generic C++ framework for Relative Bundle Adjustment (RBA)** ([PDF](http://mrpt.github.io/srba/srba-guide.pdf))
 
