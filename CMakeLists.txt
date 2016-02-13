@@ -91,13 +91,20 @@ set_target_properties(srba PROPERTIES FOLDER "SRBA lib")
 # Install!
 
 # Apps
-add_subdirectory(apps)
+SET(BUILD_SRBA_APPS ON CACHE BOOL "Build SRBA apps?")
+if (BUILD_SRBA_APPS)
+	add_subdirectory(apps)
+endif()
+
 # Examples
-SET(BUILD_EXAMPLES ON CACHE BOOL "Build tutorial and example C++ programs")
-if (BUILD_EXAMPLES)
+SET(BUILD_SRBA_EXAMPLES ON CACHE BOOL "Build SRBA tutorial and example C++ programs?")
+if (BUILD_SRBA_EXAMPLES)
 	add_subdirectory(examples)
 endif()
-# tests
-add_subdirectory(tests)
 
+# tests
+SET(BUILD_SRBA_TESTS ON CACHE BOOL "Build SRBA unit tests?")
+if (BUILD_SRBA_TESTS)
+	add_subdirectory(tests)
+endif()
 
