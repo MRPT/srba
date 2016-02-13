@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['radiusresultset',['RadiusResultSet',['http://reference.mrpt.org/devel/classnanoflann_1_1_radius_result_set.html',1,'nanoflann']]],
+  ['rangebearing_5f2d',['RangeBearing_2D',['../structsrba_1_1observations_1_1RangeBearing__2D.html',1,'srba::observations']]],
+  ['rangebearing_5f3d',['RangeBearing_3D',['../structsrba_1_1observations_1_1RangeBearing__3D.html',1,'srba::observations']]],
+  ['ransac_5ftemplate',['RANSAC_Template',['http://reference.mrpt.org/devel/classmrpt_1_1math_1_1_r_a_n_s_a_c___template.html',1,'mrpt::math']]],
+  ['raw_5fblock_5ft',['raw_block_t',['http://reference.mrpt.org/devel/structmrpt_1_1obs_1_1_c_observation_velodyne_scan_1_1raw__block__t.html',1,'mrpt::obs::CObservationVelodyneScan']]],
+  ['rba_5fjoint_5fparameterization_5ftraits_5ft',['rba_joint_parameterization_traits_t',['../structsrba_1_1rba__joint__parameterization__traits__t.html',1,'srba']]],
+  ['rba_5foptions',['RBA_OPTIONS',['../structRBA__OPTIONS.html',1,'']]],
+  ['rba_5foptions_5fdefault',['RBA_OPTIONS_DEFAULT',['../structsrba_1_1RBA__OPTIONS__DEFAULT.html',1,'srba']]],
+  ['rbaengine',['RbaEngine',['../classsrba_1_1RbaEngine.html',1,'srba']]],
+  ['rd',['rd',['http://reference.mrpt.org/devel/unionmrpt_1_1opengl_1_1_c_angular_observation_mesh_1_1_t_double_range_1_1rd.html',1,'mrpt::opengl::CAngularObservationMesh::TDoubleRange']]],
+  ['recompute_5fall_5fjacobians_5fdh_5fdf_3c_20jacob_5fpoint_5flandmark_20_3e',['recompute_all_Jacobians_dh_df< jacob_point_landmark >',['../structsrba_1_1internal_1_1recompute__all__Jacobians__dh__df_3_01jacob__point__landmark_01_4.html',1,'srba::internal']]],
+  ['recompute_5fall_5fjacobians_5fdh_5fdf_3c_20jacob_5frelpose_5flandmark_20_3e',['recompute_all_Jacobians_dh_df< jacob_relpose_landmark >',['../structsrba_1_1internal_1_1recompute__all__Jacobians__dh__df_3_01jacob__relpose__landmark_01_4.html',1,'srba::internal']]],
+  ['relativeposes2d',['RelativePoses2D',['../structsrba_1_1landmarks_1_1RelativePoses2D.html',1,'srba::landmarks']]],
+  ['relativeposes3d',['RelativePoses3D',['../structsrba_1_1landmarks_1_1RelativePoses3D.html',1,'srba::landmarks']]],
+  ['relativeposes_5f2d',['RelativePoses_2D',['../structsrba_1_1observations_1_1RelativePoses__2D.html',1,'srba::observations']]],
+  ['relativeposes_5f3d',['RelativePoses_3D',['../structsrba_1_1observations_1_1RelativePoses__3D.html',1,'srba::observations']]],
+  ['resulting_5fpose_5ft_3c_20sensor_5fpose_5fon_5frobot_5fnone_2c_203_20_3e',['resulting_pose_t< sensor_pose_on_robot_none, 3 >',['../structsrba_1_1options_1_1internal_1_1resulting__pose__t_3_01sensor__pose__on__robot__none_00_013_01_4.html',1,'srba::options::internal']]],
+  ['resulting_5fpose_5ft_3c_20sensor_5fpose_5fon_5frobot_5fnone_2c_206_20_3e',['resulting_pose_t< sensor_pose_on_robot_none, 6 >',['../structsrba_1_1options_1_1internal_1_1resulting__pose__t_3_01sensor__pose__on__robot__none_00_016_01_4.html',1,'srba::options::internal']]],
+  ['resulting_5fpose_5ft_3c_20sensor_5fpose_5fon_5frobot_5fse3_2c_203_20_3e',['resulting_pose_t< sensor_pose_on_robot_se3, 3 >',['../structsrba_1_1options_1_1internal_1_1resulting__pose__t_3_01sensor__pose__on__robot__se3_00_013_01_4.html',1,'srba::options::internal']]],
+  ['resulting_5fpose_5ft_3c_20sensor_5fpose_5fon_5frobot_5fse3_2c_206_20_3e',['resulting_pose_t< sensor_pose_on_robot_se3, 6 >',['../structsrba_1_1options_1_1internal_1_1resulting__pose__t_3_01sensor__pose__on__robot__se3_00_016_01_4.html',1,'srba::options::internal']]],
+  ['reverseaccessoriterator',['ReverseAccessorIterator',['http://reference.mrpt.org/devel/classmrpt_1_1math_1_1detail_1_1_reverse_accessor_iterator.html',1,'mrpt::math::detail']]],
+  ['robustkernel',['RobustKernel',['http://reference.mrpt.org/devel/structmrpt_1_1math_1_1_robust_kernel.html',1,'mrpt::math']]],
+  ['robustkernel_3c_20rkleastsquares_2c_20t_20_3e',['RobustKernel< rkLeastSquares, T >',['http://reference.mrpt.org/devel/structmrpt_1_1math_1_1_robust_kernel_3_01rk_least_squares_00_01_t_01_4.html',1,'mrpt::math']]],
+  ['robustkernel_3c_20rkpseudohuber_2c_20t_20_3e',['RobustKernel< rkPseudoHuber, T >',['http://reference.mrpt.org/devel/structmrpt_1_1math_1_1_robust_kernel_3_01rk_pseudo_huber_00_01_t_01_4.html',1,'mrpt::math']]]
+];
