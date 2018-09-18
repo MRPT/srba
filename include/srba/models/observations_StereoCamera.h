@@ -15,8 +15,8 @@
 #include "observations_MonocularCamera.h"
 
 
-#include <mrpt/utils/TCamera.h>
-#include <mrpt/utils/TStereoCamera.h>
+#include <mrpt/img/TCamera.h>
+#include <mrpt/img/TStereoCamera.h>
 #include <mrpt/tfest.h>  // for use in landmark_matcher<>
 
 namespace srba {
@@ -34,7 +34,7 @@ namespace observations {
 		/** The observation-specific data structure */
 		struct obs_data_t
 		{
-			mrpt::utils::TPixelCoordf  left_px, right_px;
+			mrpt::img::TPixelCoordf  left_px, right_px;
 
 			/** Converts this observation into a plain array of its parameters */
 			template <class ARRAY>
@@ -48,7 +48,7 @@ namespace observations {
 		  *  hold sensor-specific parameters, etc. needed in the sensor model. */
 		struct TObservationParams
 		{
-			mrpt::utils::TStereoCamera camera_calib;
+			mrpt::img::TStereoCamera camera_calib;
 		};
 	};
 
@@ -57,17 +57,17 @@ namespace observations {
 	{
 		template <class POSE>
 		static bool find_relative_pose(
-			const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & new_kf_obs,
-			const mrpt::aligned_containers<StereoCamera::obs_data_t>::vector_t & old_kf_obs,
+			const mrpt::aligned_std_vector<StereoCamera::obs_data_t> & new_kf_obs,
+			const mrpt::aligned_std_vector<StereoCamera::obs_data_t> & old_kf_obs,
 			const StereoCamera::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf
 			)
 		{
-			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+			ASSERT_(new_kf_obs.size()==old_kf_obs.size());
 			const size_t N=new_kf_obs.size();
 			// project stereo points to 3D and use them to find out the relative pose:
-			const double cx = params.camera_calib.leftCamera.cx(), cy = params.camera_calib.leftCamera.cy(), baseline = params.camera_calib.rightCameraPose.x(), f = params.camera_calib.leftCamera.fx();
-			mrpt::utils::TMatchingPairList matches;
+			const double cx = params.camera_calib.leftCamera.cx(), cy = params.camera_calib.leftCamera.cy(), baseline = params.camera_calib.rightCameraPose.x, f = params.camera_calib.leftCamera.fx();
+			mrpt::tfest::TMatchingPairList matches;
 			matches.reserve(N);
 			for (size_t i=0;i<N;i++)
 			{
@@ -86,7 +86,7 @@ namespace observations {
 					( new_kf_obs[i].left_px.y - cy )*baseline/disparity_new,
 					f*baseline/disparity_new );
 
-				matches.push_back( mrpt::utils::TMatchingPair(i,i, pt_old.x,pt_old.y,pt_old.z, pt_new.x,pt_new.y,pt_new.z ) );
+				matches.emplace_back(i,i, pt_old.x,pt_old.y,pt_old.z, pt_new.x,pt_new.y,pt_new.z );
 			}
 			// Least-square optimal transformation:
 			if (POSE::rotation_dimensions==2)
@@ -102,7 +102,9 @@ namespace observations {
 				double found_scale;
 				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
 					return false;
-				pose_new_kf_wrt_old_kf = POSE(found_pose);
+				ASSERT_(false);
+				MRPT_TODO("Fix this");
+				//pose_new_kf_wrt_old_kf = POSE(found_pose);
 			}
 			return true;
 		}

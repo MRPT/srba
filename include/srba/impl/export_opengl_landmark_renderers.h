@@ -35,19 +35,19 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 		mrpt::opengl::CSetOfObjects& scene)
 	{
 		using namespace mrpt::math;
-		using mrpt::utils::DEG2RAD;
+		using mrpt::DEG2RAD;
 		using mrpt::poses::CPose3D;
 
 		// For each fixed known LM, add a point to a point cloud
 		//  and a text label with the landmark ID:
-		mrpt::opengl::CPointCloudPtr  gl_lms = mrpt::opengl::CPointCloud::Create();
+		mrpt::opengl::CPointCloud::Ptr  gl_lms = mrpt::opengl::CPointCloud::Create();
 		gl_lms->setPointSize(5);
 		gl_lms->setColor(0,0,1);
 
 		scene.insert(gl_lms);
 
-		vector<typename RBA::TRelativeLandmarkPosMap::const_iterator> lms_to_draw;
-		vector<const typename RBA::hessian_traits_t::TSparseBlocksHessian_f::matrix_t *> lms_to_draw_inf_covs;
+		std::vector<typename RBA::TRelativeLandmarkPosMap::const_iterator> lms_to_draw;
+		std::vector<const typename RBA::hessian_traits_t::TSparseBlocksHessian_f::matrix_t *> lms_to_draw_inf_covs;
 
 		for (typename RBA::TRelativeLandmarkPosMap::const_iterator itLM = rba.get_rba_state().known_lms.begin();itLM != rba.get_rba_state().known_lms.end();++itLM)
 		{
@@ -71,8 +71,8 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 			}
 		}
 
-		const mrpt::utils::TColorf col_known_lms(1.f,1.f,0.f);
-		const mrpt::utils::TColorf col_unknown_lms(1.f,0.f,0.f);
+		const mrpt::img::TColorf col_known_lms(1.f,1.f,0.f);
+		const mrpt::img::TColorf col_unknown_lms(1.f,0.f,0.f);
 
 		for (size_t i=0;i<lms_to_draw.size();i++)
 		{
@@ -88,7 +88,7 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 				typename RBA::frameid2pose_map_t::const_iterator itBaseNode = spantree.find(itLM->second.id_frame_base);
 				if(itBaseNode==spantree.end())
 					continue;
-				base_pose = itBaseNode->second.pose; // Inverse!
+				base_pose = mrpt::poses::CPose3D(itBaseNode->second.pose); // Inverse!
 			}
 			else
 			{
@@ -107,7 +107,7 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 			if( options.show_unknown_feats_ids )
 			{
 				// Add text label:
-				mrpt::opengl::CText3DPtr  gl_txt = mrpt::opengl::CText3D::Create(
+				mrpt::opengl::CText3D::Ptr  gl_txt = mrpt::opengl::CText3D::Create(
 					mrpt::format("%u",static_cast<unsigned int>( itLM->first)),
 					"mono", 0.15,
 					mrpt::opengl::NICE );
@@ -122,13 +122,13 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_point>
 			{
 				double min_inf_diag=std::numeric_limits<double>::max();
 				for (size_t k=0;k<RBA::LM_DIMS;k++)
-					mrpt::utils::keep_min(min_inf_diag, (*lms_to_draw_inf_covs[i])(k,k));
+					mrpt::keep_min(min_inf_diag, (*lms_to_draw_inf_covs[i])(k,k));
 				if (min_inf_diag<1e-5) continue; // Too large covariance!
 
 				mrpt::math::CMatrixFixedNumeric<double,RBA::LM_DIMS,RBA::LM_DIMS> cov(mrpt::math::UNINITIALIZED_MATRIX);
 				lms_to_draw_inf_covs[i]->inv(cov);
 
-				mrpt::opengl::CEllipsoidPtr gl_ellip = mrpt::opengl::CEllipsoid::Create();
+				mrpt::opengl::CEllipsoid::Ptr gl_ellip = mrpt::opengl::CEllipsoid::Create();
 				gl_ellip->setQuantiles( options.draw_unknown_feats_ellipses_quantiles );
 				gl_ellip->enableDrawSolid3D(false);
 
@@ -160,7 +160,7 @@ template <> struct LandmarkRendererBase<landmark_rendering_as_pose_constraints>
 		MRPT_UNUSED_PARAM(root_keyframe);
 		using namespace mrpt::math;
 
-		mrpt::opengl::CSetOfLinesPtr gl_edges = mrpt::opengl::CSetOfLines::Create();
+		mrpt::opengl::CSetOfLines::Ptr gl_edges = mrpt::opengl::CSetOfLines::Create();
 		gl_edges->setLineWidth(1);
 		gl_edges->setColor(0,0,1);
 

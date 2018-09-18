@@ -11,9 +11,11 @@
 #include <mrpt/graphs.h>
 #include <mrpt/random.h>
 #include <mrpt/gui.h>  // For rendering results as a 3D scene
+#include <mrpt/graphs/TNodeID.h>
+
+#include <set>
 
 using namespace srba;
-using namespace mrpt::utils;
 using namespace mrpt::poses;
 using namespace std;
 
@@ -39,7 +41,7 @@ typedef RbaEngine<
 const bool SRBA_SHOW_GLOBAL_MAP = getenv("SRBA_SHOW_GLOBAL_MAP")!=NULL;
 
 const double STD_NOISE_XY = 0.001;
-const double STD_NOISE_YAW = DEG2RAD(0.05);
+const double STD_NOISE_YAW = mrpt::DEG2RAD(0.05);
 
 int main(int argc, char**argv)
 {
@@ -63,7 +65,7 @@ int main(int argc, char**argv)
 	cout << "Remanining edges: " << graph_dataset.edgeCount() << endl;
 
 	// Get neighbors so we can easily iterate over nodes:
-	mrpt::utils::map_as_vector<TNodeID,std::set<TNodeID> > nodeNeighbors;
+	mrpt::containers::map_as_vector<mrpt::graphs::TNodeID,std::set<mrpt::graphs::TNodeID> > nodeNeighbors;
 	graph_dataset.getAdjacencyMatrix(nodeNeighbors);
 
 
@@ -83,9 +85,9 @@ int main(int argc, char**argv)
 	{
 		Eigen::Matrix3d ObsL;
 		ObsL.setZero();
-		ObsL(0,0) = 1/square(STD_NOISE_XY); // x
-		ObsL(1,1) = 1/square(STD_NOISE_XY); // y
-		ObsL(2,2) = 1/square(STD_NOISE_YAW); // phi
+		ObsL(0,0) = 1/mrpt::square(STD_NOISE_XY); // x
+		ObsL(1,1) = 1/mrpt::square(STD_NOISE_XY); // y
+		ObsL(2,2) = 1/mrpt::square(STD_NOISE_YAW); // phi
 
 		// Set:
 		rba.parameters.obs_noise.lambda = ObsL;
@@ -140,11 +142,11 @@ int main(int argc, char**argv)
 
 		// The rest "observations" are real observations of relative poses:
 		// -----------------------------------------------------------------
-		const std::set<TNodeID> &nn = nodeNeighbors[cur_kf];
+		const std::set<mrpt::graphs::TNodeID> &nn = nodeNeighbors[cur_kf];
 
-		for (std::set<TNodeID>::const_iterator it_nn = nn.begin();it_nn!=nn.end();++it_nn)
+		for (std::set<mrpt::graphs::TNodeID>::const_iterator it_nn = nn.begin();it_nn!=nn.end();++it_nn)
 		{
-			const TNodeID other_id = *it_nn;
+			const mrpt::graphs::TNodeID other_id = *it_nn;
 
 			// Online SLAM: we cannot add an edge to a FUTURE node: 
 			if (other_id>cur_kf) 
@@ -162,14 +164,14 @@ int main(int argc, char**argv)
 			obs_field.is_unknown_with_init_val = false; // Ignored, since all observed "fake landmarks" already have an initialized value.
 
 			obs_field.obs.feat_id      = other_id;  // The observed KF ID
-			obs_field.obs.obs_data.x   = observed_pose.x() ; // mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XY);
-			obs_field.obs.obs_data.y   = observed_pose.y() ; // mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XY);
-			obs_field.obs.obs_data.yaw = observed_pose.phi() ; // mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_YAW);
+			obs_field.obs.obs_data.x   = observed_pose.x() ; // mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XY);
+			obs_field.obs.obs_data.y   = observed_pose.y() ; // mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XY);
+			obs_field.obs.obs_data.yaw = observed_pose.phi() ; // mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_YAW);
 
 			list_obs.push_back( obs_field );
 		}
 
-		ASSERT_(cur_kf==0 || list_obs.size()>1)
+		ASSERT_(cur_kf==0 || list_obs.size()>1);
 
 		//  Here happens the main stuff: create Key-frames, build structures, run optimization, etc.
 		//  ============================================================================================
@@ -196,7 +198,7 @@ int main(int argc, char**argv)
 			if (!SRBA_SHOW_GLOBAL_MAP) 
 				opengl_options.span_tree_max_depth = rba.parameters.srba.max_tree_depth;
 
-			mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+			mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 			rba.build_opengl_representation(
 				new_kf_info.kf_id ,  // Root KF: the current (latest) KF
@@ -205,7 +207,7 @@ int main(int argc, char**argv)
 				);
 
 			{
-				mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+				mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 				scene->clear();
 				scene->insert(rba_3d);
 				win.unlockAccess3DScene();
@@ -231,7 +233,7 @@ int main(int argc, char**argv)
 	{
 		my_srba_t::TOpenGLRepresentationOptions  opengl_options;
 		opengl_options.draw_kf_hierarchical = true;
-		mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+		mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 		rba.build_opengl_representation(
 			0,  // Root KF
@@ -248,7 +250,7 @@ int main(int argc, char**argv)
 	#if MRPT_HAS_WXWIDGETS
 		mrpt::gui::CDisplayWindow3D win2("RBA final map",640,480);
 		{
-			mrpt::opengl::COpenGLScenePtr &scene = win2.get3DSceneAndLock();
+			mrpt::opengl::COpenGLScene::Ptr &scene = win2.get3DSceneAndLock();
 			scene->clear();
 			scene->insert(rba_3d);
 			win2.unlockAccess3DScene();

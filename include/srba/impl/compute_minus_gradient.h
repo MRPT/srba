@@ -53,7 +53,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 			//const size_t resid_idx = sequential_obs_indices[running_idx_obs++];
 			const size_t obs_idx = itJ->first;
 			std::map<size_t,size_t>::const_iterator it_obs = obs_global_idx2residual_idx.find(obs_idx);
-			ASSERT_(it_obs!=obs_global_idx2residual_idx.end())
+			ASSERT_(it_obs!=obs_global_idx2residual_idx.end());
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 
@@ -77,7 +77,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_minus_grad
 			//const size_t resid_idx = sequential_obs_indices[running_idx_obs++];
 			const size_t obs_idx = itJ->first;
 			std::map<size_t,size_t>::const_iterator it_obs = obs_global_idx2residual_idx.find(obs_idx);
-			ASSERT_(it_obs!=obs_global_idx2residual_idx.end())
+			ASSERT_(it_obs!=obs_global_idx2residual_idx.end());
 			const size_t resid_idx = it_obs->second;
 
 			// Accumulate sub-gradient: // g += J^t * \Lambda * residual 

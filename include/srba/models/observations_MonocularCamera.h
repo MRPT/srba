@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <mrpt/utils/TCamera.h>
+#include <mrpt/img/TCamera.h>
 #include <mrpt/tfest.h>  // for use in landmark_matcher<>
 
 namespace srba {
@@ -25,7 +25,7 @@ namespace observations {
 		/** The observation-specific data structure */
 		struct obs_data_t
 		{
-			mrpt::utils::TPixelCoordf  px;
+			mrpt::img::TPixelCoordf  px;
 
 			/** Converts this observation into a plain array of its parameters */
 			template <class ARRAY>
@@ -39,7 +39,7 @@ namespace observations {
 		  *  hold sensor-specific parameters, etc. needed in the sensor model. */
 		struct TObservationParams
 		{
-			mrpt::utils::TCamera  camera_calib;
+			mrpt::img::TCamera  camera_calib;
 		};
 	};
 
@@ -48,8 +48,8 @@ namespace observations {
 	{
 		template <class POSE>
 		static bool find_relative_pose(
-			const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & new_kf_obs,
-			const mrpt::aligned_containers<MonocularCamera::obs_data_t>::vector_t & old_kf_obs,
+			const mrpt::aligned_std_vector<MonocularCamera::obs_data_t> & new_kf_obs,
+			const mrpt::aligned_std_vector<MonocularCamera::obs_data_t> & old_kf_obs,
 			const MonocularCamera::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{

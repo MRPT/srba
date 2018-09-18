@@ -25,7 +25,7 @@ struct InitializerSensorParams<srba::observations::MonocularCamera>
 			throw std::runtime_error("Error: --sensor-params-cfg-file is mandatory for this type of observations.");
 
 		const std::string sCfgFile = config.arg_sensor_params.getValue();
-		rba.parameters.sensor.camera_calib.loadFromConfigFile("CAMERA",mrpt::utils::CConfigFile(sCfgFile) );
+		rba.parameters.sensor.camera_calib.loadFromConfigFile("CAMERA",mrpt::config::CConfigFile(sCfgFile) );
 	}
 };
 

@@ -29,7 +29,7 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::reprojection_res
 		const TKeyFrameID  obs_frame_id = observations[i].k2f->obs.kf_id; // Observed from here.
 		const TRelativeLandmarkPos *feat_rel_pos = observations[i].k2f->feat_rel_pos;
 
-		ASSERTDEB_(feat_rel_pos!=NULL)
+		ASSERTDEB_(feat_rel_pos!=NULL);
 
 		const TKeyFrameID  base_id  = feat_rel_pos->id_frame_base;
 
@@ -44,10 +44,10 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::reprojection_res
 		{
 			// num[SOURCE] |--> map[TARGET] = CPose3D of TARGET as seen from SOURCE
 			const typename TRelativePosesForEachTarget::const_iterator itPoseMap_for_base_id = rba_state.spanning_tree.num.find(obs_frame_id);
-			ASSERT_( itPoseMap_for_base_id != rba_state.spanning_tree.num.end() )
+			ASSERT_( itPoseMap_for_base_id != rba_state.spanning_tree.num.end() );
 
 			const typename frameid2pose_map_t::const_iterator itRelPose = itPoseMap_for_base_id->second.find(base_id);
-			ASSERT_( itRelPose != itPoseMap_for_base_id->second.end() )
+			ASSERT_( itRelPose != itPoseMap_for_base_id->second.end() );
 
 			base_pose_wrt_observer = &itRelPose->second.pose;
 		}

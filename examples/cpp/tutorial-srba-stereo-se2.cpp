@@ -12,7 +12,7 @@
 
 using namespace srba;
 using namespace std;
-using mrpt::utils::DEG2RAD;
+using mrpt::DEG2RAD;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -125,14 +125,14 @@ int main(int argc, char**argv)
 	// ===========================================
 
 	// Set camera calib:
-	mrpt::utils::TCamera & lc = rba.parameters.sensor.camera_calib.leftCamera;
+	mrpt::img::TCamera & lc = rba.parameters.sensor.camera_calib.leftCamera;
 	lc.ncols = 1024;
 	lc.nrows = 768;
 	lc.cx(512);
 	lc.cy(384);
 	lc.fx(200);
 	lc.fy(150);
-	lc.dist.setZero();
+	lc.dist.fill(0);
 	rba.parameters.sensor.camera_calib.rightCamera = lc;
 	rba.parameters.sensor.camera_calib.rightCameraPose.fromString("[0.2 0 0  1 0 0 0]");  // [X Y Z qr qx qy qz]
 
@@ -235,7 +235,7 @@ int main(int argc, char**argv)
 	// Show 3D view of the resulting map:
 	// --------------------------------------------------------------------------------
 	my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-	mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+	mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 	rba.build_opengl_representation(
 		0,  // Root KF,
@@ -247,7 +247,7 @@ int main(int argc, char**argv)
 #if MRPT_HAS_WXWIDGETS
 	mrpt::gui::CDisplayWindow3D win("RBA results",640,480);
 	{
-		mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+		mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 		scene->insert(rba_3d);
 		win.unlockAccess3DScene();
 	}

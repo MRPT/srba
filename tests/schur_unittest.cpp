@@ -80,7 +80,7 @@ protected:
 
 		if (init_random)
 		{
-			randomGenerator.randomize(init_random->random_seed);
+			getRandomGenerator().randomize(init_random->random_seed);
 			nUnknowns_k2k=init_random->nUnknowns_k2k;
 			nUnknowns_k2f=init_random->nUnknowns_k2f;
 		}
@@ -115,7 +115,7 @@ protected:
 					bool add_this;
 
 					if (init_random)
-							add_this = (randomGenerator.drawUniform(0.0,1.0)<=init_random->PROB_OBS);
+							add_this = (getRandomGenerator().drawUniform(0.0,1.0)<=init_random->PROB_OBS);
 					else	add_this = init_manual->visible[nKF*nUnknowns_k2f + nLM];
 
 					if (add_this)
@@ -126,10 +126,10 @@ protected:
 						// Random is ok for this test:
 						if (dh_dAp_i)
 						{
-							randomGenerator.drawGaussian1DMatrix( (*dh_dAp_i)[idx_obs].num  );
+							getRandomGenerator().drawGaussian1DMatrix( (*dh_dAp_i)[idx_obs].num  );
 							(*dh_dAp_i)[idx_obs].sym.is_valid = &valid_true;
 						}
-						randomGenerator.drawGaussian1DMatrix( dh_df_j[idx_obs].num.setRandom() );
+						getRandomGenerator().drawGaussian1DMatrix( dh_df_j[idx_obs].num.setRandom() );
 						dh_df_j[idx_obs].sym.is_valid = &valid_true;
 
 						idx_obs++;
@@ -187,10 +187,10 @@ protected:
 		vector<my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_dAp::col_t*> dh_dAp;
 		vector<my_srba_t::jacobian_traits_t::TSparseBlocksJacobians_dh_df::col_t*>  dh_df;
 
-		for (size_t i=0;i<lin_system.dh_dAp.getColCount();i++)
+		for (size_t i=0;i<lin_system.dh_dAp.cols();i++)
 			dh_dAp.push_back( & lin_system.dh_dAp.getCol(i) );
 
-		for (size_t i=0;i<lin_system.dh_df.getColCount();i++)
+		for (size_t i=0;i<lin_system.dh_df.cols();i++)
 			dh_df.push_back( & lin_system.dh_df.getCol(i) );
 
 #if 0

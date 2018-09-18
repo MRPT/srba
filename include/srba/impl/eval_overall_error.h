@@ -15,7 +15,6 @@ template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squared_error() const
 {
 	using namespace std;
-	using namespace mrpt::utils;
 
 	m_profiler.enter("eval_overall_squared_error");
 
@@ -103,10 +102,10 @@ double RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::eval_overall_squ
 		{
 			// num[SOURCE] |--> map[TARGET] = CPose3D of TARGET as seen from SOURCE
 			const typename TRelativePosesForEachTarget::const_iterator itPoseMap_for_base_id = all_rel_poses.find(obs_frame_id);
-			ASSERT_( itPoseMap_for_base_id != all_rel_poses.end() )
+			ASSERT_( itPoseMap_for_base_id != all_rel_poses.end() );
 
 			const typename frameid2pose_map_t::const_iterator itRelPose = itPoseMap_for_base_id->second.find(base_id);
-			ASSERT_( itRelPose != itPoseMap_for_base_id->second.end() )
+			ASSERT_( itRelPose != itPoseMap_for_base_id->second.end() );
 
 			base_pose_wrt_observer = &itRelPose->second.pose;
 		}

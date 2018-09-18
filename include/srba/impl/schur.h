@@ -27,8 +27,8 @@ namespace srba {
 		  minus_grad_Ap(_minus_grad_Ap),
 		  minus_grad_f(_minus_grad_f),
 		  // Problem dims:
-		  nUnknowns_Ap( HAp.getColCount() ),
-		  nUnknowns_f( Hf.getColCount() ),
+		  nUnknowns_Ap( HAp.cols() ),
+		  nUnknowns_f( Hf.cols() ),
 		  nHf_invertible_blocks(0)
 		{
 			if (!nUnknowns_f || !nUnknowns_Ap) return;
@@ -43,7 +43,7 @@ namespace srba {
 			for (size_t i=0;i<nUnknowns_f;i++)
 			{
 				const typename HESS_f::col_t & col_i = Hf.getCol(i);
-				ASSERT_(!col_i.empty() && col_i.rbegin()->first==i)
+				ASSERT_(!col_i.empty() && col_i.rbegin()->first==i);
 
 				m_Hf_blocks_info[i].sym_Hf_diag_blocks = &col_i.rbegin()->second.num;
 			}
@@ -98,7 +98,7 @@ namespace srba {
 							//  * const typename HESS_Apf::matrix_t * Hpj_lk;
 
 							const size_t idx_feat = it_j->first;
-							ASSERT_(idx_feat<nUnknowns_f)
+							ASSERT_(idx_feat<nUnknowns_f);
 
 							// Gradient (only if we're at i==j)
 							typename HESS_Apf::matrix_t *out_temporary_result = NULL;
@@ -141,7 +141,7 @@ namespace srba {
 						}
 						else
 						{
-							ASSERT_(i!=j)  // We should only reach here for off-diagonal blocks!
+							ASSERT_(i!=j);  // We should only reach here for off-diagonal blocks!
 							// Create & add reference to target matrix for numeric Schur:
 							sym_ij.HAp_ij = & HAp_col_i[j].num;
 							// Clear initial contents of the Hessian to all zeros:
@@ -341,7 +341,7 @@ namespace srba {
 			MRPT_MAKE_ALIGNED_OPERATOR_NEW
 		};
 
-		typedef typename mrpt::aligned_containers<TInfoPerHfBlock>::vector_t TInfoPerHfBlock_vector_t;
+		typedef typename mrpt::aligned_std_vector<TInfoPerHfBlock> TInfoPerHfBlock_vector_t;
 
 		TInfoPerHfBlock_vector_t  m_Hf_blocks_info;
 
@@ -394,16 +394,10 @@ namespace srba {
 				MRPT_MAKE_ALIGNED_OPERATOR_NEW
 			};
 
-// BUG ALERT in Eigen/Deque/MSVC 2008 32bit: http://eigen.tuxfamily.org/bz/show_bug.cgi?id=83
-// This workaround will lose performance but at least allow compiling. Remove this if someday a solution
-// to the bug above is found:
-#if defined(_MSC_VER) && (_MSC_VER < 1600)  // if we use MSVC older than 2010:
-			typedef typename mrpt::aligned_containers<TEntry>::list_t lst_terms_t;  // slower than deque, but works...
-#else
 			// (Warning: Don't replace the STL container with "vector" or any other that invalidate
 			// pointers, which is assumed in the implementation. That's why I use "std::deque")
-			typedef typename mrpt::aligned_containers<TEntry>::deque_t lst_terms_t;
-#endif
+			typedef typename mrpt::aligned_std_deque<TEntry> lst_terms_t;
+
 			// The list itself:
 			lst_terms_t  lst_terms_to_subtract;
 		};

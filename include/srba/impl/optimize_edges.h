@@ -92,18 +92,18 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		}
 	}
 
-	const mrpt::utils::map_as_vector<size_t,size_t> & dh_df_remap = rba_state.lin_system.dh_df.getColInverseRemappedIndices();
+	const mrpt::containers::map_as_vector<size_t,size_t> & dh_df_remap = rba_state.lin_system.dh_df.getColInverseRemappedIndices();
 	for (size_t i=0;i<run_feat_ids_in.size();i++)
 	{
 		const TLandmarkID feat_id = run_feat_ids_in[i];
-		ASSERT_(feat_id<rba_state.all_lms.size())
+		ASSERT_(feat_id<rba_state.all_lms.size());
 
 		const typename rba_problem_state_t::TLandmarkEntry &lm_e = rba_state.all_lms[feat_id];
-		ASSERTMSG_(lm_e.rfp!=NULL, "Trying to optimize an unknown feature ID")
-		ASSERTMSG_(!lm_e.has_known_pos,"Trying to optimize a feature with fixed (known) value")
+		ASSERTMSG_(lm_e.rfp!=NULL, "Trying to optimize an unknown feature ID");
+		ASSERTMSG_(!lm_e.has_known_pos,"Trying to optimize a feature with fixed (known) value");
 
-		mrpt::utils::map_as_vector<size_t,size_t>::const_iterator it_remap = dh_df_remap.find(feat_id);   // O(1) with map_as_vector
-		ASSERT_(it_remap != dh_df_remap.end())
+		mrpt::containers::map_as_vector<size_t,size_t>::const_iterator it_remap = dh_df_remap.find(feat_id);   // O(1) with map_as_vector
+		ASSERT_(it_remap != dh_df_remap.end());
 
 		const typename TSparseBlocksJacobians_dh_df::col_t & col_i = rba_state.lin_system.dh_df.getCol( it_remap->second );
 
@@ -118,7 +118,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		}
 	}
 
-	DETAILED_PROFILING_LEAVE("opt.filter_unknowns")
+	DETAILED_PROFILING_LEAVE("opt.filter_unknowns");
 
 	// Build list of unknowns, and their corresponding columns in the Sparse Jacobian:
 	// -------------------------------------------------------------------------------
@@ -155,8 +155,8 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 		const TLandmarkID feat_id = run_feat_ids[i];
 		const typename rba_problem_state_t::TLandmarkEntry &lm_e = rba_state.all_lms[feat_id];
 
-		mrpt::utils::map_as_vector<size_t,size_t>::const_iterator it_remap = dh_df_remap.find(feat_id);  // O(1) with map_as_vector
-		ASSERT_(it_remap != dh_df_remap.end())
+		mrpt::containers::map_as_vector<size_t,size_t>::const_iterator it_remap = dh_df_remap.find(feat_id);  // O(1) with map_as_vector
+		ASSERT_(it_remap != dh_df_remap.end());
 
 		dh_df[i] = &rba_state.lin_system.dh_df.getCol( it_remap->second );
 		k2f_edge_unknowns[i] = lm_e.rfp;
@@ -344,7 +344,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	if (m_verbose_level>=2 && !run_k2k_edges.empty())
 	{
 		std::cout << "[OPT] k2k_edges to optimize, initial value(s):\n";
-		ASSERT_(k2k_edge_unknowns.size()==run_k2k_edges.size())
+		ASSERT_(k2k_edge_unknowns.size()==run_k2k_edges.size());
 		for (size_t i=0;i<run_k2k_edges.size();i++)
 			std::cout << " k2k_edge: " <<k2k_edge_unknowns[i]->from << "=>" << k2k_edge_unknowns[i]->to << ",inv_pose=" << k2k_edge_unknowns[i]->inv_pose << std::endl;
 	}
@@ -352,7 +352,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	// VERY IMPORTANT: For J^t*J to be invertible, we need a full rank Hessian:
 	//    nObs*OBS_DIMS >= nUnknowns_k2k*POSE_DIMS+nUnknowns_k2f*LM_DIMS
 	//
-	ASSERT_ABOVEEQ_(OBS_DIMS*nObs,POSE_DIMS*nUnknowns_k2k+LM_DIMS*nUnknowns_k2f)
+	ASSERT_ABOVEEQ_(OBS_DIMS*nObs,POSE_DIMS*nUnknowns_k2k+LM_DIMS*nUnknowns_k2f);
 
 	// ----------------------------------------------------------------
 	//         Iterative Levenberg Marquardt (LM) algorithm
@@ -365,22 +365,22 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	// Automatic guess of "lambda" = tau * max(diag(Hessian))   (Hessian=H here)
 	if (lambda<0)
 	{
-		DETAILED_PROFILING_ENTER("opt.guess lambda")
+		DETAILED_PROFILING_ENTER("opt.guess lambda");
 
 		double Hess_diag_max = 0;
 		for (size_t i=0;i<nUnknowns_k2k;i++)
 		{
-			ASSERTDEB_(HAp.getCol(i).find(i)!=HAp.getCol(i).end())
+			ASSERTDEB_(HAp.getCol(i).find(i)!=HAp.getCol(i).end());
 
 			const double Hii_max = HAp.getCol(i)[i].num.diagonal().maxCoeff();
-			mrpt::utils::keep_max(Hess_diag_max, Hii_max);
+			mrpt::keep_max(Hess_diag_max, Hii_max);
 		}
 		for (size_t i=0;i<nUnknowns_k2f;i++)
 		{
-			ASSERTDEB_(Hf.getCol(i).find(i)!=Hf.getCol(i).end())
+			ASSERTDEB_(Hf.getCol(i).find(i)!=Hf.getCol(i).end());
 
 			const double Hii_max = Hf.getCol(i)[i].num.diagonal().maxCoeff();
-			mrpt::utils::keep_max(Hess_diag_max, Hii_max);
+			mrpt::keep_max(Hess_diag_max, Hii_max);
 		}
 
 		const double tau = 1e-3;
@@ -737,7 +737,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 					continue;
 
 				const typename hessian_traits_t::TSparseBlocksHessian_f::col_t & col_i = Hf.getCol(i);
-				ASSERT_(col_i.rbegin()->first==i)  // Make sure the last block matrix is the diagonal term of the upper-triangular matrix.
+				ASSERT_(col_i.rbegin()->first==i);  // Make sure the last block matrix is the diagonal term of the upper-triangular matrix.
 
 				const typename hessian_traits_t::TSparseBlocksHessian_f::matrix_t & inf_mat_src = col_i.rbegin()->second.num;
 				typename hessian_traits_t::TSparseBlocksHessian_f::matrix_t & inf_mat_dst = rba_state.unknown_lms_inf_matrices[ run_feat_ids[i] ];
@@ -773,7 +773,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::optimize_edges(
 	if (m_verbose_level>=2 && !run_k2k_edges.empty())
 	{
 		std::cout << "[OPT] k2k_edges to optimize, final value(s):\n";
-		ASSERT_(k2k_edge_unknowns.size()==run_k2k_edges.size())
+		ASSERT_(k2k_edge_unknowns.size()==run_k2k_edges.size());
 		for (size_t i=0;i<run_k2k_edges.size();i++)
 			std::cout << " k2k_edge: " <<k2k_edge_unknowns[i]->from << "=>" << k2k_edge_unknowns[i]->to << ",inv_pose=" << k2k_edge_unknowns[i]->inv_pose << std::endl;
 	}

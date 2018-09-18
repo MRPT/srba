@@ -265,9 +265,9 @@ void run_test()
 	for (size_t i=0;i<N0;i++)
 	{
 		obs_field.obs.feat_id = d0[i].landmark_id;
-		obs_field.obs.obs_data.pt.x = d0[i].x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.y = d0[i].y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.z = d0[i].z + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.x = d0[i].x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.y = d0[i].y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.z = d0[i].z + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 
@@ -288,9 +288,9 @@ void run_test()
 	for (size_t i=0;i<N1;i++)
 	{
 		obs_field.obs.feat_id = d1[i].landmark_id;
-		obs_field.obs.obs_data.pt.x = d1[i].x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.y = d1[i].y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.z = d1[i].z + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.x = d1[i].x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.y = d1[i].y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.z = d1[i].z + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 

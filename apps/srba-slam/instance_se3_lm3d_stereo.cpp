@@ -25,9 +25,9 @@ struct InitializerSensorParams<srba::observations::StereoCamera>
 			throw std::runtime_error("Error: --sensor-params-cfg-file is mandatory for this type of observations.");
 
 		const std::string sCfgFile = config.arg_sensor_params.getValue();
-		rba.parameters.sensor.camera_calib.loadFromConfigFile("CAMERA",mrpt::utils::CConfigFile(sCfgFile) );
-		const double baseline = rba.parameters.sensor.camera_calib.rightCameraPose.x();
-		ASSERT_(baseline!=0)
+		rba.parameters.sensor.camera_calib.loadFromConfigFile("CAMERA",mrpt::config::CConfigFile(sCfgFile) );
+		const double baseline = rba.parameters.sensor.camera_calib.rightCameraPose.x;
+		ASSERT_(baseline!=0);
 
 	}
 };

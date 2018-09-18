@@ -9,10 +9,13 @@
 
 #pragma once
 
+#include <mrpt/core/aligned_std_deque.h>
+#include <mrpt/containers/bimap.h>
+#include <mrpt/containers/map_as_vector.h>
 #include <mrpt/math/lightweight_geom_data.h>
 #include <mrpt/math/MatrixBlockSparseCols.h>
 #include <mrpt/math/CArrayNumeric.h>
-#include <mrpt/utils/TEnumType.h>
+#include <mrpt/typemeta/TEnumType.h>
 #include <mrpt/system/memory.h> // for MRPT_MAKE_ALIGNED_OPERATOR_NEW
 #include <set>
 
@@ -68,11 +71,11 @@ namespace srba
 		};
 
 		/**  "numeric" values of spanning tree poses: */
-		typedef typename mrpt::aligned_containers<TKeyFrameID, pose_flag_t>::map_t  frameid2pose_map_t;
+		typedef typename mrpt::aligned_std_map<TKeyFrameID, pose_flag_t>  frameid2pose_map_t;
 
 		// Use special map-like container with an underlying planar deque container, which avoid reallocations
 		// and still provides map-like [] access at O(1).
-		typedef mrpt::utils::map_as_vector<
+		typedef mrpt::containers::map_as_vector<
 			TKeyFrameID,
 			frameid2pose_map_t,
 			typename std::deque<std::pair<TKeyFrameID,frameid2pose_map_t> >
@@ -142,7 +145,7 @@ namespace srba
 		typedef typename mrpt::math::CArrayDouble<OBS_TRAITS::OBS_DIMS>  array_obs_t;  //!< A fixed-length array of the size of one residual (=the size of one observation).
 		typedef typename mrpt::math::CArrayDouble<OBS_TRAITS::OBS_DIMS>  residual_t;   //!< A fixed-length array of the size of one residual (=the size of one observation).
 
-		typedef typename mrpt::aligned_containers<residual_t>::vector_t  vector_residuals_t;
+		typedef typename mrpt::aligned_std_vector<residual_t>  vector_residuals_t;
 
 		/** Elemental observation data */
 		struct observation_t
@@ -314,7 +317,7 @@ namespace srba
 		int NCOLS,
 		typename INFO,
 		bool HAS_REMAP,
-		typename INDEX_REMAP_MAP_IMPL = mrpt::utils::map_as_vector<size_t,size_t>
+		typename INDEX_REMAP_MAP_IMPL = mrpt::containers::map_as_vector<size_t,size_t>
 	>
 	struct SparseBlockMatrix : public mrpt::math::MatrixBlockSparseCols<Scalar,NROWS,NCOLS,INFO,HAS_REMAP,INDEX_REMAP_MAP_IMPL>
 	{
@@ -325,11 +328,11 @@ namespace srba
 		{
 			size_t row_min=std::numeric_limits<size_t>::max();
 			size_t row_max=0;
-			const size_t nCols = base_t::getColCount();
+			const size_t nCols = base_t::cols();
 			for (size_t j=0;j<nCols;j++)
 				for (typename base_t::col_t::const_iterator itRow=base_t::getCol(j).begin();itRow!=base_t::getCol(j).end();++itRow) {
-					mrpt::utils::keep_max(row_max, itRow->first);
-					mrpt::utils::keep_min(row_min, itRow->first);
+					mrpt::keep_max(row_max, itRow->first);
+					mrpt::keep_min(row_min, itRow->first);
 				}
 			if (row_min==std::numeric_limits<size_t>::max())
 				row_min=0;
@@ -345,8 +348,8 @@ namespace srba
 			size_t row_max=0;
 			for (size_t i=0;i<lstColumns.size();++i)
 				for (typename base_t::col_t::const_iterator itRow=lstColumns[i]->begin();itRow!=lstColumns[i]->end();++itRow) {
-					mrpt::utils::keep_max(row_max, itRow->first);
-					mrpt::utils::keep_min(row_min, itRow->first);
+					mrpt::keep_max(row_max, itRow->first);
+					mrpt::keep_min(row_min, itRow->first);
 				}
 			if (row_min==std::numeric_limits<size_t>::max())
 				row_min=0;
@@ -360,7 +363,7 @@ namespace srba
 			* \param[out] nNonZeroBlocks The number of non-zero blocks
 			*/
 		void getSparsityStats(size_t &nMaxBlocks, size_t &nNonZeroBlocks  ) const {
-			const size_t nCols = base_t::getColCount();
+			const size_t nCols = base_t::cols();
 			const size_t nRows = findRowSpan();
 			nMaxBlocks = nCols * nRows;
 			nNonZeroBlocks = 0;
@@ -425,10 +428,10 @@ namespace srba
 		typedef SparseBlockMatrix<double,REL_POSE_DIMS , LM_DIMS       , hessian_Apf_info_t, false> TSparseBlocksHessian_Apf;
 
 		/** The list with all the information matrices (estimation uncertainty) for each unknown landmark. */
-		typedef mrpt::utils::map_as_vector<
+		typedef mrpt::containers::map_as_vector<
 			TLandmarkID,
 			typename TSparseBlocksHessian_f::matrix_t,
-			typename mrpt::aligned_containers<std::pair<TLandmarkID,typename TSparseBlocksHessian_f::matrix_t > >::deque_t> landmarks2infmatrix_t;
+			typename mrpt::aligned_std_deque<std::pair<TLandmarkID,typename TSparseBlocksHessian_f::matrix_t >>> landmarks2infmatrix_t;
 	};
 
 
@@ -561,22 +564,22 @@ namespace srba
 		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::new_kf_observations_t  new_kf_observations_t;
 		typedef typename rba_joint_parameterization_traits_t<kf2kf_pose_t,landmark_t,obs_t>::new_kf_observation_t   new_kf_observation_t;
 
-		typedef typename mrpt::aligned_containers<k2k_edge_t>::deque_t  k2k_edges_deque_t;  // Note: A std::deque() does not invalidate pointers/references, as we always insert elements at the end; we'll exploit this...
-		typedef typename mrpt::aligned_containers<k2f_edge_t>::deque_t  all_observations_deque_t;
+		typedef typename mrpt::aligned_std_deque<k2k_edge_t>  k2k_edges_deque_t;  // Note: A std::deque() does not invalidate pointers/references, as we always insert elements at the end; we'll exploit this...
+		typedef typename mrpt::aligned_std_deque<k2f_edge_t>  all_observations_deque_t;
 
 		typedef std::deque<keyframe_info>  keyframe_vector_t;  //!< Index are "TKeyFrameID" IDs. There's no NEED to make this a deque<> for preservation of references, but is an efficiency improvement
 
 		struct TSpanningTree
 		{
 			/** The definition seems complex but behaves just like: std::map< TKeyFrameID, std::map<TKeyFrameID,TSpanTreeEntry> > */
-			typedef mrpt::utils::map_as_vector<
+			typedef mrpt::containers::map_as_vector<
 				TKeyFrameID,
 				std::map<TKeyFrameID,TSpanTreeEntry>,
 				std::deque<std::pair<TKeyFrameID,std::map<TKeyFrameID,TSpanTreeEntry> > >
 				> next_edge_maps_t;
 
 			/** The definition seems complex but behaves just like: std::map< TKeyFrameID, std::map<TKeyFrameID, k2k_edge_vector_t> > */
-			typedef mrpt::utils::map_as_vector<
+			typedef mrpt::containers::map_as_vector<
 				TKeyFrameID,
 				std::map<TKeyFrameID, k2k_edge_vector_t>,
 				std::deque<std::pair<TKeyFrameID,std::map<TKeyFrameID, k2k_edge_vector_t > > >
@@ -708,7 +711,7 @@ namespace srba
 
 		/** Index (by feat ID) of ALL landmarks stored in \a unknown_lms and \a known_lms.
 		  * Note that if gaps occur in the observed feature IDs, some pointers here will be NULL and some mem will be wasted, but in turn we have a O(1) search mechanism for all LMs. */
-		typename mrpt::aligned_containers<TLandmarkEntry>::deque_t   all_lms;
+		typename mrpt::aligned_std_deque<TLandmarkEntry>   all_lms;
 
 		TSpanningTree            spanning_tree;
 		all_observations_deque_t all_observations;  //!< All raw observation data (k2f edges)
@@ -787,16 +790,16 @@ namespace srba
 } // end of namespace "srba"
 
 // Specializations MUST occur at the same namespace:
-namespace mrpt { namespace utils
+namespace mrpt::typemeta
 {
 	template <>
 	struct TEnumTypeFiller<srba::TCovarianceRecoveryPolicy>
 	{
 		typedef srba::TCovarianceRecoveryPolicy enum_t;
-		static void fill(bimap<enum_t,std::string>  &m_map)
+		static void fill(mrpt::typemeta::internal::bimap<enum_t,std::string>  &m_map)
 		{
 			m_map.insert(srba::crpNone,      "crpNone");
 			m_map.insert(srba::crpLandmarksApprox,   "crpLandmarksApprox");
 		}
 	};
-} } // End of namespace
+} // End of namespace

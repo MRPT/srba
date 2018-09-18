@@ -8,7 +8,7 @@
    +---------------------------------------------------------------------------+ */
 
 #pragma once
-#include <mrpt/utils/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
+#include <mrpt/config/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
 
 namespace srba {
 namespace ecps {
@@ -31,13 +31,13 @@ struct classic_linear_rba
 		{ }
 
 		/** See docs of mrpt::utils::CLoadableOptions */
-		void loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
+		void loadFromConfigFile(const mrpt::config::CConfigFileBase & source,const std::string & section)
 		{
 			MRPT_LOAD_CONFIG_VAR(min_obs_to_loop_closure,uint64_t,source,section)
 		}
 
 		/** See docs of mrpt::utils::CLoadableOptions */
-		void saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
+		void saveToConfigFile(mrpt::config::CConfigFileBase & out,const std::string & section) const
 		{
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
 		}
@@ -55,7 +55,7 @@ struct classic_linear_rba
 		const parameters_t &params)
 	{
 		using namespace std;
-		ASSERT_(new_kf_id>=1)
+		ASSERT_(new_kf_id>=1);
 
 		// (1/2) Always add an edge (n-1) => (n)
 		// -------------------------------------------

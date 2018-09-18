@@ -109,7 +109,7 @@ namespace options
 			template <class KF_POSE>
 			static inline void pose_robot2sensor(const KF_POSE & pose_wrt_robot,
 				mrpt::poses::CPose3D & pose_wrt_sensor, const parameters_t &p) {
-				pose_wrt_sensor.inverseComposeFrom(pose_wrt_robot, p.relative_pose);
+				pose_wrt_sensor.inverseComposeFrom(mrpt::poses::CPose3D(pose_wrt_robot), p.relative_pose);
 			}
 
 			/** Converts a point relative to the robot coordinate frame (P) into a point relative

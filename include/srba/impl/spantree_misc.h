@@ -109,7 +109,7 @@ namespace internal
 				if (!visited.count(it->first))
 				{
 					typename TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanningTree::next_edge_maps_t::const_iterator it_ce = all.find(child);
-					ASSERT_(it_ce != all.end())
+					ASSERT_(it_ce != all.end());
 					internal::recursive_print_st_dot(all_edges,prefix,root,child,it_ce->second,all,visited,top_root_entries);
 				}
 			}
@@ -208,11 +208,11 @@ bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanning
 			// Get all edges in the shortest path between them:
 			// (we only store <max,min> since this table is symmetric)
 			typename all_edges_maps_t::const_iterator it_eds_id1 = sym.all_edges.find(id1);
-			ASSERT_(it_eds_id1 != sym.all_edges.end())
+			ASSERT_(it_eds_id1 != sym.all_edges.end());
 
 			const std::map<TKeyFrameID, k2k_edge_vector_t> &eds_id1 = it_eds_id1->second;
 			typename std::map<TKeyFrameID, k2k_edge_vector_t>::const_iterator eds_it = eds_id1.find(id2);
-			ASSERT_(eds_it!=eds_id1.end())
+			ASSERT_(eds_it!=eds_id1.end());
 
 			const k2k_edge_vector_t &eds = eds_it->second;
 

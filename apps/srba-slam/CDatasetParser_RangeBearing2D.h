@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <mrpt/random/RandomGenerators.h>
 #include "CDatasetParserBase.h"
 
 template <>
@@ -32,7 +33,7 @@ struct CDatasetParserTempl<srba::observations::RangeBearing_2D> : public CDatase
 	virtual void checkObsProperSize() const
 	{
 		// Columns: KeyframeIndex  LandmarkID | Range Yaw
-		ASSERT_(m_OBS.getColCount()==(2+2))
+		ASSERT_(m_OBS.cols()==(2+2));
 	}
 
 	void getObs(
@@ -41,8 +42,8 @@ struct CDatasetParserTempl<srba::observations::RangeBearing_2D> : public CDatase
 		) const
 	{
 		o.feat_id        = m_OBS(idx,1);
-		o.obs_data.range = m_OBS(idx,2) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_range));
-		o.obs_data.yaw   = m_OBS(idx,3) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_yaw));
+		o.obs_data.range = m_OBS(idx,2) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_range));
+		o.obs_data.yaw   = m_OBS(idx,3) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_yaw));
 	}
 
 	void loadNoiseParamsInto( srba::options::observation_noise_identity::parameters_t & p )

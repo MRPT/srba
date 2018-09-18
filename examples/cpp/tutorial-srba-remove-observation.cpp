@@ -15,8 +15,8 @@
 
 using namespace srba;
 using namespace std;
-using mrpt::utils::DEG2RAD;
-using mrpt::utils::square;
+using mrpt::DEG2RAD;
+using mrpt::square;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -157,9 +157,9 @@ int main(int argc, char**argv)
 			obs_field.is_unknown_with_init_val = false; // Ignored, since all observed "fake landmarks" already have an initialized value.
 
 			obs_field.obs.feat_id      = dataset[obsIdx].observed_kf;
-			obs_field.obs.obs_data.x   = dataset[obsIdx].x + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XY);
-			obs_field.obs.obs_data.y   = dataset[obsIdx].y + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XY);
-			obs_field.obs.obs_data.yaw = dataset[obsIdx].yaw  + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_YAW);
+			obs_field.obs.obs_data.x   = dataset[obsIdx].x + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XY);
+			obs_field.obs.obs_data.y   = dataset[obsIdx].y + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XY);
+			obs_field.obs.obs_data.yaw = dataset[obsIdx].yaw  + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_YAW);
 
 			list_obs.push_back( obs_field );
 			obsIdx++; // Next dataset entry
@@ -193,7 +193,7 @@ int main(int argc, char**argv)
 		// Show 3D view of the resulting map:
 		// --------------------------------------------------------------------------------
 		my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-		mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+		mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 		rba.build_opengl_representation(
 			new_kf_info.kf_id ,  // Root KF: the current (latest) KF

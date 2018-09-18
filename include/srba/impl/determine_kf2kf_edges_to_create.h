@@ -81,7 +81,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 
 			// Make two lists of equal length with corresponding observations 
 			// (i.e. new_kf_obs[i] and old_kf_obs[i] correspond to observations of the same landmark from different poses)
-			typename mrpt::aligned_containers<typename obs_t::obs_data_t>::vector_t  new_kf_obs, old_kf_obs;
+			typename mrpt::aligned_std_vector<typename obs_t::obs_data_t> new_kf_obs, old_kf_obs;
 
 			{
 				new_kf_obs.reserve(obs.size());  // maximum potential size: all observed features match against one old KF
@@ -185,7 +185,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::determine_kf2kf_ed
 				// Take into account the sensor pose wrt the KF: Rotate/translate if the sensor is not at the robot origin of coordinates: 
 				mrpt::poses::CPose3D sensor_pose;
 				RBA_OPTIONS::sensor_pose_on_robot_t::template robot2sensor<mrpt::poses::CPose3D>(mrpt::poses::CPose3D(), sensor_pose, this->parameters.sensor_pose);
-				pose_new_kf_wrt_old_kf = pose_t( (sensor_pose + pose_new_kf_wrt_old_kf)+ (-sensor_pose) );
+				pose_new_kf_wrt_old_kf = pose_t( (sensor_pose + mrpt::poses::CPose3D(pose_new_kf_wrt_old_kf))+ (-sensor_pose) );
 
 				const bool edge_dir_to_newkf  = (nei_edge.to==new_kf_id);
 				nei.has_approx_init_val = true;

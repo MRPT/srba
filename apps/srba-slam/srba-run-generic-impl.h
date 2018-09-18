@@ -12,22 +12,20 @@
 #include "srba-slam_common.h"
 
 #include <mrpt/system/filesystem.h>  // for ASSERT_FILE_EXISTS_
-#include <mrpt/system/threads.h>  // for sleep()
-#include <mrpt/random.h>
-#include <mrpt/utils/CFileOutputStream.h>  // For mrpt::math::CMatrixDouble
+#include <mrpt/io/CFileOutputStream.h>  // For mrpt::math::CMatrixDouble
 #include <mrpt/vision/CVideoFileWriter.h>
 #include <mrpt/opengl/CGridPlaneXY.h>
 #include <mrpt/opengl/CSetOfLines.h>
 #include <mrpt/opengl/CSetOfObjects.h>
 #include <mrpt/opengl/CPointCloud.h>
 #include <mrpt/opengl/stock_objects.h>
+#include <mrpt/random/RandomGenerators.h>
 #include <mrpt/gui/CDisplayWindow3D.h>
 
 // We can use "using namespace" in this header since it's designed to be only included in this app, not in user code.
 using namespace std;
 using namespace mrpt;
 using namespace srba;
-using namespace mrpt::utils;
 
 
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE>
@@ -117,8 +115,9 @@ struct RBA_Run : public RBA_Run_Base
 		// Process cmd-line flags:
 		// ------------------------------------------
 		if (cfg.arg_random_seed.getValue()<0)
-				mrpt::random::randomGenerator.randomize();
-		else 	mrpt::random::randomGenerator.randomize( cfg.arg_random_seed.getValue() );
+			mrpt::random::getRandomGenerator().randomize();
+		else    mrpt::random::getRandomGenerator().randomize( cfg.arg_random_seed.getValue() );
+
 
 		const bool DEBUG_DUMP_ALL_SPANNING_TREES =cfg.arg_debug_dump_cur_spantree.getValue();
 
@@ -202,18 +201,18 @@ struct RBA_Run : public RBA_Run_Base
 		const size_t SAVE_TIMING_SEGMENT_LENGTH =cfg.arg_profile_stats_length.getValue();
 
 		// Load dataset:
-		const size_t nTotalObs = dataset.obs().getRowCount();
+		const size_t nTotalObs = dataset.obs().rows();
 
 		// ------------------------------------------------------------------------
 		// Process the dataset sequentially, add observations to the RBA problem
 		// and solve it:
 		// ------------------------------------------------------------------------
 
-		mrpt::gui::CDisplayWindow3DPtr win;
-		mrpt::opengl::COpenGLViewportPtr gl_view_cur_tree, gl_view_GT;
-		mrpt::opengl::CSetOfObjectsPtr gl_rba_scene, gl_cur_kf_tree, gl_gt_pose;
-		mrpt::opengl::CPointCloudPtr  gl_gt_map;
-		mrpt::opengl::CSetOfLinesPtr  gl_gt_path_track;
+		mrpt::gui::CDisplayWindow3D::Ptr win;
+		mrpt::opengl::COpenGLViewport::Ptr gl_view_cur_tree, gl_view_GT;
+		mrpt::opengl::CSetOfObjects::Ptr gl_rba_scene, gl_cur_kf_tree, gl_gt_pose;
+		mrpt::opengl::CPointCloud::Ptr  gl_gt_map;
+		mrpt::opengl::CSetOfLines::Ptr  gl_gt_path_track;
 
 		// Arbitrary unique IDs for text labels in the 3D gui.
 		const size_t TXTID_KF   = 1000;
@@ -227,7 +226,7 @@ struct RBA_Run : public RBA_Run_Base
 			win->setCameraPointingToPoint(8,8,0);
 
 			{
-				mrpt::opengl::COpenGLScenePtr scene = win->get3DSceneAndLock();
+				mrpt::opengl::COpenGLScene::Ptr scene = win->get3DSceneAndLock();
 
 				gl_rba_scene   = mrpt::opengl::CSetOfObjects::Create();
 				scene->insert(gl_rba_scene);
@@ -246,7 +245,7 @@ struct RBA_Run : public RBA_Run_Base
 
 				win->addTextMessage(
 					-478,302, "LOCAL SPANNING TREE:",
-					mrpt::utils::TColorf(0.8,0.8,0), "mono",11, mrpt::opengl::NICE, TXTID_LABEL_ST,1.5,0.1,
+					mrpt::img::TColorf(0.8,0.8,0), "mono",11, mrpt::opengl::NICE, TXTID_LABEL_ST,1.5,0.1,
 					true /* draw shadow */ );
 
 
@@ -258,7 +257,7 @@ struct RBA_Run : public RBA_Run_Base
 				{
 					win->addTextMessage(
 						20,302, "GROUND TRUTH:",
-						mrpt::utils::TColorf(0.8,0.8,0), "mono",11, mrpt::opengl::NICE, TXTID_LABEL_GT,1.5,0.1,
+						mrpt::img::TColorf(0.8,0.8,0), "mono",11, mrpt::opengl::NICE, TXTID_LABEL_GT,1.5,0.1,
 						true /* draw shadow */ );
 
 					gl_view_GT = scene->createViewport("view_GT");
@@ -275,7 +274,7 @@ struct RBA_Run : public RBA_Run_Base
 					// GT Map:
 					const mrpt::math::CMatrixD &M = dataset.gt_map();
 					const size_t nLMs = M.rows();
-					ASSERTMSG_(M.cols()==3, "Ground truth map file: expected exactly 3 columns (X,Y,Z)!")
+					ASSERTMSG_(M.cols()==3, "Ground truth map file: expected exactly 3 columns (X,Y,Z)!");
 
 					gl_gt_map = mrpt::opengl::CPointCloud::Create();
 					gl_gt_map->resize(nLMs);
@@ -329,7 +328,7 @@ struct RBA_Run : public RBA_Run_Base
 		size_t last_obs_idx_reported = 0;
 		const size_t REPORT_PROGRESS_OBS_COUNT = 200;
 
-		mrpt::utils::CTicTac  mytimer, mytimer2;
+		mrpt::system::CTicTac  mytimer, mytimer2;
 		double new_kf_time=0;
 		mytimer.Tic();
 
@@ -412,15 +411,15 @@ struct RBA_Run : public RBA_Run_Base
 						// Add random noise to "measured" relative positions:
 						if (this_feat_has_known_rel_pos)
 						{
-							relPos.x += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
-							relPos.y += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
-							relPos.z += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
+							relPos.x += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
+							relPos.y += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
+							relPos.z += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_KNOWN);
 						}
 						else
 						{
-							relPos.x += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
-							relPos.y += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
-							relPos.z += mrpt::random::randomGenerator.drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
+							relPos.x += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
+							relPos.y += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
+							relPos.z += mrpt::random::getRandomGenerator().drawGaussian1D(0, REL_POS_NOISE_STD_UNKNOWN);
 						}
 
 						const my_srba_t::TRelativeLandmarkPos rfp= my_srba_t::TRelativeLandmarkPos( curFrameIdx, relPos );
@@ -450,7 +449,7 @@ struct RBA_Run : public RBA_Run_Base
 					++obsIdx; // next observation
 				} // end while
 
-				ASSERT_(!new_obs_in_this_frame.empty())
+				ASSERT_(!new_obs_in_this_frame.empty());
 
 				// Append new key_frame to the RBA state:
 
@@ -468,7 +467,7 @@ struct RBA_Run : public RBA_Run_Base
 
 				// Append optimization stat as new entries in the time logger:
 				{
-					mrpt::utils::CTimeLogger &tl = rba.get_time_profiler();
+					mrpt::system::CTimeLogger &tl = rba.get_time_profiler();
 					tl.registerUserMeasure("num_jacobians", new_kf_info.optimize_results.num_jacobians );
 					tl.registerUserMeasure("num_kf2kf_edges_optimized", new_kf_info.optimize_results.num_kf2kf_edges_optimized );
 					tl.registerUserMeasure("num_kf2lm_edges_optimized", new_kf_info.optimize_results.num_kf2lm_edges_optimized );
@@ -503,7 +502,7 @@ struct RBA_Run : public RBA_Run_Base
 
 				if (obsIdx<nTotalObs)
 				{
-					ASSERT_EQUAL_(next_rba_keyframe_ID, curFrameIdx)  // This should occur if key_frames in simulation are ordered
+					ASSERT_EQUAL_(next_rba_keyframe_ID, curFrameIdx);  // This should occur if key_frames in simulation are ordered
 				}
 
 			} // end while (for each KF to process at once)
@@ -518,13 +517,13 @@ struct RBA_Run : public RBA_Run_Base
 				win->addTextMessage(
 					5,-15,
 					mrpt::format("Current KF=%u",static_cast<unsigned int>(new_kf_info.kf_id)),
-					mrpt::utils::TColorf(0.9,0.9,0.9), "mono",10, mrpt::opengl::NICE, TXTID_KF,1.5,0.1,
+					mrpt::img::TColorf(0.9,0.9,0.9), "mono",10, mrpt::opengl::NICE, TXTID_KF,1.5,0.1,
 					true /* draw shadow */ );
 
 				win->addTextMessage(
 					5,-30,
 					mrpt::format("After opt RMSE=%.06f | Total step time=%.03fms",RMSE, 1e3*new_kf_time ),
-					mrpt::utils::TColorf(0.9,0.9,0.9), "mono",10, mrpt::opengl::NICE, TXTID_RMSE,1.5,0.1,
+					mrpt::img::TColorf(0.9,0.9,0.9), "mono",10, mrpt::opengl::NICE, TXTID_RMSE,1.5,0.1,
 					true /* draw shadow */ );
 
 				// Update 3D objects:
@@ -533,8 +532,8 @@ struct RBA_Run : public RBA_Run_Base
 				opengl_params.span_tree_max_depth = rba.parameters.srba.max_tree_depth; // Render these past keyframes at most.
 				opengl_params.draw_unknown_feats_ellipses_quantiles = 3;
 
-				mrpt::opengl::CSetOfObjectsPtr gl_obj = mrpt::opengl::CSetOfObjects::Create();
-				mrpt::opengl::CSetOfObjectsPtr gl_obj_tree = mrpt::opengl::CSetOfObjects::Create();
+				mrpt::opengl::CSetOfObjects::Ptr gl_obj = mrpt::opengl::CSetOfObjects::Create();
+				mrpt::opengl::CSetOfObjects::Ptr gl_obj_tree = mrpt::opengl::CSetOfObjects::Create();
 
 				rba.build_opengl_representation(
 					root_kf,
@@ -573,14 +572,14 @@ struct RBA_Run : public RBA_Run_Base
 
 				win->unlockAccess3DScene();
 				win->repaint();
-				if (GUI_DELAY_MS) mrpt::system::sleep(GUI_DELAY_MS);
+				if (GUI_DELAY_MS) std::this_thread::sleep_for(std::chrono::milliseconds(GUI_DELAY_MS));
 			}
 
 			// Write images to video?
 			if (cfg.arg_video.isSet() && win && win->isOpen())
 			{
 				// Screenshot:
-				const mrpt::utils::CImagePtr pImg = win->getLastWindowImagePtr();
+				const mrpt::img::CImage::Ptr pImg = win->getLastWindowImagePtr();
 				if (pImg)
 				{
 					// Create video upon first pass:
@@ -628,10 +627,10 @@ struct RBA_Run : public RBA_Run_Base
 					timming_section_ts.push_back( curFrameIdx );
 
 					// Append times:
-					map<string,mrpt::utils::CTimeLogger::TCallStats> cur_stats;
+					map<string,mrpt::system::CTimeLogger::TCallStats> cur_stats;
 					rba.get_time_profiler().getStats(cur_stats);
 
-					for (map<string,mrpt::utils::CTimeLogger::TCallStats>::const_iterator it=cur_stats.begin();it!=cur_stats.end();++it)
+					for (map<string,mrpt::system::CTimeLogger::TCallStats>::const_iterator it=cur_stats.begin();it!=cur_stats.end();++it)
 					{
 						timming_section_mean_times[ it->first ].push_back( it->second.mean_t );
 						timming_section_call_count[ it->first ].push_back( it->second.n_calls );
@@ -666,7 +665,8 @@ struct RBA_Run : public RBA_Run_Base
 						const string sFil = mrpt::format("rba-simul-%05i.3Dscene",++cnt);
 						cout << "** SAVING 3D SCENE TO: " << sFil << " **\n";
 						// This file can be visualized with "SceneViewer3D"
-						mrpt::utils::CFileGZOutputStream(sFil) << scene;
+						mrpt::io::CFileGZOutputStream f(sFil);
+						mrpt::serialization::archiveFrom(f) << scene;
 					}
 					break;
 				case 'd': // save DOT graph
@@ -777,7 +777,7 @@ struct RBA_Run : public RBA_Run_Base
 		// Save profile stats to disk
 		if (SAVE_TIMING_STATS)
 		{
-			const string sStatsPrefix = mrpt::format("%s_%s", mrpt::system::fileNameStripInvalidChars(cfg.arg_profile_stats.getValue()).c_str(), mrpt::system::fileNameStripInvalidChars( mrpt::system::dateTimeToString( mrpt::system::getCurrentLocalTime() ) ).c_str() );
+			const string sStatsPrefix = mrpt::format("%s_%s", mrpt::system::fileNameStripInvalidChars(cfg.arg_profile_stats.getValue()).c_str(), mrpt::system::fileNameStripInvalidChars( mrpt::system::dateTimeToString( mrpt::Clock::now() ) ).c_str() );
 
 			const string sStatsMean = sStatsPrefix + string("_means.csv");
 			const string sStatsCalls = sStatsPrefix + string("_calls.csv");
@@ -821,7 +821,7 @@ struct RBA_Run : public RBA_Run_Base
 				s_calls << endl;
 			}
 
-			mrpt::utils::CFileOutputStream f_means(sStatsMean), f_calls(sStatsCalls);
+			mrpt::io::CFileOutputStream f_means(sStatsMean), f_calls(sStatsCalls);
 			f_means.printf("%s", s_means.str().c_str() );
 			f_calls.printf("%s", s_calls.str().c_str() );
 

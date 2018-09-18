@@ -41,7 +41,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 	for (size_t i=0;i<nUnknowns_k2k;i++)
 	{
 		const JACOB_COLUMN_dh_dAp & col_i = *dh_dAp[i];
-		ASSERT_(!col_i.empty()) // I guess this shouldn't happen...
+		ASSERT_(!col_i.empty()); // I guess this shouldn't happen...
 
 		// j=i
 		// -----
@@ -66,7 +66,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 		for (size_t j=i+1;j<nUnknowns_k2k;j++)
 		{
 			const JACOB_COLUMN_dh_dAp & col_j = *dh_dAp[j];
-			ASSERTMSG_(!col_j.empty(),mrpt::format("col_j,i=%u,j=%u empty (nUnknowns_k2k=%u)!",static_cast<unsigned int>(i),static_cast<unsigned int>(j),static_cast<unsigned int>(nUnknowns_k2k))) // I guess this shouldn't happen...
+			ASSERTMSG_(!col_j.empty(),mrpt::format("col_j,i=%u,j=%u empty (nUnknowns_k2k=%u)!",static_cast<unsigned int>(i),static_cast<unsigned int>(j),static_cast<unsigned int>(nUnknowns_k2k))); // I guess this shouldn't happen...
 
 			// code below based on "std::set_intersection"
 			typename JACOB_COLUMN_dh_dAp::const_iterator it_i = col_i.begin();
@@ -113,7 +113,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 	for (size_t i=0;i<nUnknowns_k2f;i++)
 	{
 		const JACOB_COLUMN_dh_df & col_i = *dh_df[i];
-		ASSERT_(!col_i.empty()) // I guess this shouldn't happen...
+		ASSERT_(!col_i.empty()); // I guess this shouldn't happen...
 
 		// j=i
 		// -----
@@ -138,7 +138,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 		for (size_t j=i+1;j<nUnknowns_k2f;j++)
 		{
 			const JACOB_COLUMN_dh_df & col_j = *dh_df[j];
-			ASSERT_(!col_j.empty()) // I guess this shouldn't happen...
+			ASSERT_(!col_j.empty()); // I guess this shouldn't happen...
 
 			// code below based on "std::set_intersection"
 			typename JACOB_COLUMN_dh_df::const_iterator it_i = col_i.begin();
@@ -189,13 +189,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_bui
 	for (size_t i=0;i<nUnknowns_k2k;i++)  // i:row = [0,nUnknowns_k2k-1]
 	{
 		const JACOB_COLUMN_dh_dAp & col_i = *dh_dAp[i];
-		ASSERT_(!col_i.empty()) // I guess this shouldn't happen...
+		ASSERT_(!col_i.empty()); // I guess this shouldn't happen...
 
 		// j:col = [0,nUnknowns_k2f-1]
 		for (size_t j=0;j<nUnknowns_k2f;j++)
 		{
 			const JACOB_COLUMN_dh_df & col_j = *dh_df[j];
-			ASSERT_(!col_j.empty()) // I guess this shouldn't happen...
+			ASSERT_(!col_j.empty()); // I guess this shouldn't happen...
 
 			// code below based on "std::set_intersection"
 			typename JACOB_COLUMN_dh_dAp::const_iterator it_i = col_i.begin();

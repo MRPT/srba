@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <set>
+
 namespace srba {
 
 
@@ -23,7 +25,7 @@ void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanning
 	)
 {
 	using namespace std;
-	ASSERT_(max_depth>=1)
+	ASSERT_(max_depth>=1);
 
 	// Maintain a list of those nodes whose list of shortest spanning trees ("next_edge") has been modified, so we
 	// can rebuild their "all_edges" lists.
@@ -66,7 +68,7 @@ void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanning
 			if (r!=new_node_id)
 			{
 				map<TKeyFrameID,TSpanTreeEntry>::iterator it = st_r.find(new_node_id);
-				ASSERT_(it!=st_r.end())
+				ASSERT_(it!=st_r.end());
 				ste_r2n = &it->second;
 			}
 
@@ -83,7 +85,7 @@ void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSpanning
 				if (s!=ik)
 				{
 					map<TKeyFrameID,TSpanTreeEntry>::iterator it_ik_inSTs = st_s.find(ik);
-					ASSERTDEB_(it_ik_inSTs != st_s.end())
+					ASSERTDEB_(it_ik_inSTs != st_s.end());
 					ste_s2ik = &it_ik_inSTs->second;
 				}
 
@@ -105,13 +107,13 @@ cout << "ST: Shorter path ST["<<s<<"]["<<r<<"].N was "<<st_s[r].next << " => "<<
 						//  ST[r][s]
 						it_s_inSTr->second.distance = new_dist;
 						it_s_inSTr->second.next     = ste_r2n ? ste_r2n->next : ik;  // Next node in the direction towards "new_node_id"
-						ASSERT_NOT_EQUAL_(r,it_s_inSTr->second.next) // no self-loops!
+						ASSERT_NOT_EQUAL_(r,it_s_inSTr->second.next); // no self-loops!
 
 						//  ST[s][r]
 						TSpanTreeEntry &ste_r_inSTs = st_s[r];
 						ste_r_inSTs.distance = new_dist;
 						ste_r_inSTs.next     = ste_s2ik ? ste_s2ik->next : new_node_id; // Next node in the direction towards "ik" or to "n" if this is "ik"
-						ASSERT_NOT_EQUAL_(s,ste_r_inSTs.next) // no self-loops!
+						ASSERT_NOT_EQUAL_(s,ste_r_inSTs.next); // no self-loops!
 
 						// Mark nodes with their "next_node" modified:
 						kfs_with_modified_next_edge.insert( make_pair(s,r) );
@@ -134,13 +136,13 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 
 						ste_s_inSTr.distance = new_dist;
 						ste_s_inSTr.next     = ste_r2n ? ste_r2n->next : ik;  // Next node in the direction towards "new_node_id"
-						ASSERT_NOT_EQUAL_(r,ste_s_inSTr.next) // no self-loops!
+						ASSERT_NOT_EQUAL_(r,ste_s_inSTr.next); // no self-loops!
 
 						//  ST[s][r]
 						TSpanTreeEntry &ste_r_inSTs = st_s[r]; // O(log N)
 						ste_r_inSTs.distance = new_dist;
 						ste_r_inSTs.next     = ste_s2ik ? ste_s2ik->next : new_node_id; // Next node in the direction towards "ik"
-						ASSERT_NOT_EQUAL_(s, ste_r_inSTs.next) // no self-loops!
+						ASSERT_NOT_EQUAL_(s, ste_r_inSTs.next); // no self-loops!
 
 						// Mark nodes with their "next_node" modified:
 						kfs_with_modified_next_edge.insert(make_pair(r,s));
@@ -174,7 +176,7 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 		const std::map<TKeyFrameID,TSpanTreeEntry> & Ds = sym.next_edge[ kf_id ];  // O(1) in map_as_vector
 
 		std::map<TKeyFrameID,TSpanTreeEntry>::const_iterator it2=Ds.find(it->second);
-		ASSERT_(it2!=Ds.end())
+		ASSERT_(it2!=Ds.end());
 		
 
 		const TKeyFrameID dst_kf_id = it2->first;
@@ -186,7 +188,7 @@ cout << "ST: New path ST["<<s<<"]["<<r<<"].N ="<<(ste_s2ik ? ste_s2ik->next : ne
 		typename kf2kf_pose_traits<KF2KF_POSE_TYPE>::k2k_edge_vector_t & path = sym.all_edges[from][to];  // O(1) in map_as_vector
 		path.clear();
 		bool path_found = m_parent->find_path_bfs(from,to, NULL, &path);
-		ASSERT_(path_found)
+		ASSERT_(path_found);
 	} // end for each "kfs_with_modified_next_edge"
 
 
@@ -260,11 +262,11 @@ bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::find_path
 			TKeyFrameID path_node = trg_node;
 			while (path_node != cur_node)
 			{
-				ASSERT_(dist>0)
+				ASSERT_(dist>0);
 				if (out_path_IDs) (*out_path_IDs)[--dist] = path_node;
 
 				typename std::map<TKeyFrameID,TBFSEntry<k2k_edge_t> >::const_iterator it_prec = preceding.find(path_node);
-				ASSERT_(it_prec != preceding.end())
+				ASSERT_(it_prec != preceding.end());
 				path_node = it_prec->second.prev;
 
 				if (out_path_edges) (*out_path_edges)[--dist] = it_prec->second.prev_edge;
@@ -273,7 +275,7 @@ bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::find_path
 		}
 
 		// Get all connections of this node:
-		ASSERTDEB_(next_kf < keyframes.size())
+		ASSERTDEB_(next_kf < keyframes.size());
 		const keyframe_info & kfi = keyframes[next_kf];
 
 		for (size_t i=0;i<kfi.adjacent_k2k_edges.size();i++)

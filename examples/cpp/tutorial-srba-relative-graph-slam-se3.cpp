@@ -15,7 +15,7 @@
 
 using namespace srba;
 using namespace std;
-using mrpt::utils::square;
+using mrpt::square;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -36,7 +36,7 @@ typedef RbaEngine<
 // A test dataset (generated with https://github.com/jlblancoc/recursive-world-toolkit )
 // --------------------------------------------------------------------------------
 const double STD_NOISE_XYZ = 0.01;
-const double STD_NOISE_ANGLES = mrpt::utils::DEG2RAD(0.5);
+const double STD_NOISE_ANGLES = mrpt::DEG2RAD(0.5);
 
 struct basic_graph_slam_dataset_entry_t
 {
@@ -151,12 +151,12 @@ int main(int argc, char**argv)
 			obs_field.is_unknown_with_init_val = false; // Ignored, since all observed "fake landmarks" already have an initialized value.
 
 			obs_field.obs.feat_id      = dataset[obsIdx].observed_kf;
-			obs_field.obs.obs_data.x   = dataset[obsIdx].x + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XYZ);
-			obs_field.obs.obs_data.y   = dataset[obsIdx].y + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XYZ);
-			obs_field.obs.obs_data.z   = dataset[obsIdx].z + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_XYZ);
-			obs_field.obs.obs_data.yaw   = dataset[obsIdx].yaw  + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_ANGLES);
-			obs_field.obs.obs_data.pitch = dataset[obsIdx].pitch  + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_ANGLES);
-			obs_field.obs.obs_data.roll  = dataset[obsIdx].roll  + mrpt::random::randomGenerator.drawGaussian1D(0,STD_NOISE_ANGLES);
+			obs_field.obs.obs_data.x   = dataset[obsIdx].x + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XYZ);
+			obs_field.obs.obs_data.y   = dataset[obsIdx].y + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XYZ);
+			obs_field.obs.obs_data.z   = dataset[obsIdx].z + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_XYZ);
+			obs_field.obs.obs_data.yaw   = dataset[obsIdx].yaw  + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_ANGLES);
+			obs_field.obs.obs_data.pitch = dataset[obsIdx].pitch  + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_ANGLES);
+			obs_field.obs.obs_data.roll  = dataset[obsIdx].roll  + mrpt::random::getRandomGenerator().drawGaussian1D(0,STD_NOISE_ANGLES);
 
 			list_obs.push_back( obs_field );
 			obsIdx++; // Next dataset entry
@@ -182,7 +182,7 @@ int main(int argc, char**argv)
 		// Show 3D view of the resulting map:
 		// --------------------------------------------------------------------------------
 		my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-		mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+		mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 		rba.build_opengl_representation(
 			new_kf_info.kf_id ,  // Root KF: the current (latest) KF
@@ -191,7 +191,7 @@ int main(int argc, char**argv)
 			);
 
 		{
-			mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+			mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 			scene->clear();
 			scene->insert(rba_3d);
 			win.unlockAccess3DScene();

@@ -8,7 +8,7 @@
    +---------------------------------------------------------------------------+ */
 
 #pragma once
-#include <mrpt/utils/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
+#include <mrpt/config/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
 
 namespace srba {
 namespace ecps {
@@ -33,14 +33,14 @@ struct local_areas_fixed_size
 		{ }
 
 		/** See docs of mrpt::utils::CLoadableOptions */
-		void loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
+		void loadFromConfigFile(const mrpt::config::CConfigFileBase & source,const std::string & section)
 		{
 			MRPT_LOAD_CONFIG_VAR(submap_size,uint64_t,source,section)
 			MRPT_LOAD_CONFIG_VAR(min_obs_to_loop_closure,uint64_t,source,section)
 		}
 
 		/** See docs of mrpt::utils::CLoadableOptions */
-		void saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
+		void saveToConfigFile(mrpt::config::CConfigFileBase & out,const std::string & section) const
 		{
 			out.write(section,"submap_size",static_cast<uint64_t>(submap_size), /* text width */ 30, 30, "Max. local optimization distance");
 			out.write(section,"min_obs_to_loop_closure",static_cast<uint64_t>(min_obs_to_loop_closure), /* text width */ 30, 30, "Min. num. of covisible observations to add a loop closure edge");
@@ -66,7 +66,7 @@ struct local_areas_fixed_size
 		const parameters_t &params)
 	{
 		using namespace std;
-		ASSERT_(new_kf_id>=1) // We can run an ECP only if we have 2 KFs in the map
+		ASSERT_(new_kf_id>=1); // We can run an ECP only if we have 2 KFs in the map
 
 		const size_t MINIMUM_OBS_TO_LOOP_CLOSURE = params.min_obs_to_loop_closure;
 		const TKeyFrameID current_center_kf_id = get_center_kf_for_kf(new_kf_id, params);
@@ -197,7 +197,7 @@ struct local_areas_fixed_size
 			}
 		}
 
-		ASSERTMSG_(new_k2k_edge_ids.size()>=1, mrpt::format("Error for new KF#%u: no suitable linking KF found with a minimum of %u common observation: the node becomes isolated of the graph!", static_cast<unsigned int>(new_kf_id),static_cast<unsigned int>(MINIMUM_OBS_TO_LOOP_CLOSURE) ))
+		ASSERTMSG_(new_k2k_edge_ids.size()>=1, mrpt::format("Error for new KF#%u: no suitable linking KF found with a minimum of %u common observation: the node becomes isolated of the graph!", static_cast<unsigned int>(new_kf_id),static_cast<unsigned int>(MINIMUM_OBS_TO_LOOP_CLOSURE) ));
 
 		// Debug:
 		if (new_k2k_edge_ids.size()>1) // && m_verbose_level>=1)

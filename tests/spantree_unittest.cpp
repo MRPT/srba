@@ -41,7 +41,7 @@ void test_spantree_topology(
 	const size_t max_depth,
 	const uint32_t rnd_seed)
 {
-	randomGenerator.randomize(rnd_seed);
+	getRandomGenerator().randomize(rnd_seed);
 	my_srba_t::traits_t::new_kf_observations_t  dummy_obs; // Not used
 
 	// The test object:
@@ -52,18 +52,18 @@ void test_spantree_topology(
 	const double PROB_LOOP_CLOSURE = 0.05;
 
 	const double SPACE_MAX_XYZ = 10;
-	mrpt::aligned_containers<mrpt::poses::CPose3D>::vector_t  GT_KF_poses(nKFs); // Ground truth poses
+	mrpt::aligned_std_vector<mrpt::poses::CPose3D>  GT_KF_poses(nKFs); // Ground truth poses
 
 	// Create random global coordinates GT pose:
 	for (size_t kf=0;kf<nKFs;kf++)
 	{
 		GT_KF_poses[kf] = mrpt::poses::CPose3D(
-			randomGenerator.drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
-			randomGenerator.drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
-			randomGenerator.drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
-			randomGenerator.drawUniform(-M_PI,M_PI),
-			randomGenerator.drawUniform(-0.5*M_PI,0.5*M_PI),
-			randomGenerator.drawUniform(-M_PI,M_PI) );
+			getRandomGenerator().drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
+			getRandomGenerator().drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
+			getRandomGenerator().drawUniform(-SPACE_MAX_XYZ,SPACE_MAX_XYZ),
+			getRandomGenerator().drawUniform(-M_PI,M_PI),
+			getRandomGenerator().drawUniform(-0.5*M_PI,0.5*M_PI),
+			getRandomGenerator().drawUniform(-M_PI,M_PI) );
 	}
 
 	// Create the graph and the incremental STs:
@@ -94,10 +94,10 @@ void test_spantree_topology(
 				new_edges.push_back( TPairKeyFrameID(new_kf-1, new_kf) );
 				if (new_kf>2)
 				{
-					while ( randomGenerator.drawUniform(0,1)<PROB_LOOP_CLOSURE )
+					while ( getRandomGenerator().drawUniform(0,1)<PROB_LOOP_CLOSURE )
 					{
 						TKeyFrameID id;
-						randomGenerator.drawUniformUnsignedIntRange(id,0,new_kf-2);
+						getRandomGenerator().drawUniformUnsignedIntRange(id,0,new_kf-2);
 
 						if ( !rba.get_rba_state().are_keyframes_connected(id,new_kf) )
 							new_edges.push_back( is_inv ? TPairKeyFrameID(new_kf,id) : TPairKeyFrameID(id,new_kf)  );

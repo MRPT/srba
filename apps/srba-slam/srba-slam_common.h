@@ -15,7 +15,7 @@
 #include <mrpt/otherlibs/tclap/CmdLine.h>
 
 #include <sstream>  // For stringstream
-#include <memory>  // For auto_ptr, unique_ptr
+#include <memory>
 
 // ---------------- All the parameters of this app: --------------
 struct RBASLAM_Params
@@ -74,11 +74,7 @@ struct RBA_Run_Base
 	virtual ~RBA_Run_Base() {}
 };
 
-#if MRPT_HAS_CXX11
-	typedef std::unique_ptr<RBA_Run_Base> RBA_Run_BasePtr;
-#else
-	typedef std::auto_ptr< RBA_Run_Base > RBA_Run_BasePtr;
-#endif
+typedef std::unique_ptr<RBA_Run_Base> RBA_Run_BasePtr;
 
 // Forward decl:
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE, class RBA_OPTIONS>

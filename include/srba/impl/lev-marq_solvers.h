@@ -10,17 +10,13 @@
 #pragma once
 
 #include <mrpt/math/CSparseMatrix.h>
-#include <memory> // for auto_ptr, unique_ptr
+#include <memory>
 
 namespace srba {
 
 namespace internal
 {
-#if MRPT_HAS_CXX11
 	typedef std::unique_ptr<mrpt::math::CSparseMatrix::CholeskyDecomp>  SparseCholeskyDecompPtr;
-#else
-	typedef std::auto_ptr<mrpt::math::CSparseMatrix::CholeskyDecomp>    SparseCholeskyDecompPtr;
-#endif
 
 	// ------------------------------------------------------------------------------------------
 	/** SOLVER: Lev-Marq without Schur, with Sparse Cholesky (CSparse library)  */
@@ -33,7 +29,7 @@ namespace internal
 		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
-		mrpt::utils::CTimeLogger &m_profiler;
+		mrpt::system::CTimeLogger &m_profiler;
 		Eigen::VectorXd  delta_eps; //!< The result of solving Ax=b will be stored here
 		typename hessian_traits_t::TSparseBlocksHessian_Ap  &HAp;
 		typename hessian_traits_t::TSparseBlocksHessian_f   &Hf;
@@ -49,7 +45,7 @@ namespace internal
 		/** Constructor */
 		solver_engine(
 			const int verbose_level,
-			mrpt::utils::CTimeLogger & profiler,
+			mrpt::system::CTimeLogger & profiler,
 			typename hessian_traits_t::TSparseBlocksHessian_Ap  &HAp_,
 			typename hessian_traits_t::TSparseBlocksHessian_f   &Hf_,
 			typename hessian_traits_t::TSparseBlocksHessian_Apf &HApf_,
@@ -219,7 +215,7 @@ namespace internal
 		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
-		mrpt::utils::CTimeLogger &m_profiler;
+		mrpt::system::CTimeLogger &m_profiler;
 
 		const size_t   nUnknowns_k2k, nUnknowns_k2f;
 		Eigen::VectorXd  delta_eps;
@@ -243,7 +239,7 @@ namespace internal
 		/** Constructor */
 		solver_engine(
 			const int verbose_level,
-			mrpt::utils::CTimeLogger & profiler,
+			mrpt::system::CTimeLogger & profiler,
 			typename hessian_traits_t::TSparseBlocksHessian_Ap  &HAp_,
 			typename hessian_traits_t::TSparseBlocksHessian_f   &Hf_,
 			typename hessian_traits_t::TSparseBlocksHessian_Apf &HApf_,
@@ -415,7 +411,7 @@ namespace internal
 		static const size_t LM_DIMS   = RBA_ENGINE::landmark_t::LM_DIMS;
 
 		const int m_verbose_level;
-		mrpt::utils::CTimeLogger &m_profiler;
+		mrpt::system::CTimeLogger &m_profiler;
 		const size_t nUnknowns_k2k, nUnknowns_k2f;
 
 		Eigen::VectorXd  delta_eps; //!< The result of solving Ax=b will be stored here
@@ -442,7 +438,7 @@ namespace internal
 		/** Constructor */
 		solver_engine(
 			const int verbose_level,
-			mrpt::utils::CTimeLogger & profiler,
+			mrpt::system::CTimeLogger & profiler,
 			typename hessian_traits_t::TSparseBlocksHessian_Ap  &HAp_,
 			typename hessian_traits_t::TSparseBlocksHessian_f   &Hf_,
 			typename hessian_traits_t::TSparseBlocksHessian_Apf &HApf_,

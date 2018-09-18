@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <mrpt/utils/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
+#include <mrpt/config/CConfigFileBase.h> // MRPT_LOAD_CONFIG_VAR
 #include <mrpt/math/ops_containers.h> // meanAndStd()
 
 namespace srba {
@@ -57,7 +57,7 @@ RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::TSRBAP
 
 /** See docs of mrpt::utils::CLoadableOptions */
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section)
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::loadFromConfigFile(const mrpt::config::CConfigFileBase & source,const std::string & section)
 {
 	MRPT_LOAD_CONFIG_VAR(max_tree_depth,uint64_t,source,section)
 	MRPT_LOAD_CONFIG_VAR(max_optimize_depth,uint64_t,source,section)
@@ -76,7 +76,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::l
 
 /** See docs of mrpt::utils::CLoadableOptions */
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
-void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::saveToConfigFile(mrpt::utils::CConfigFileBase & out,const std::string & section) const
+void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::saveToConfigFile(mrpt::config::CConfigFileBase & out,const std::string & section) const
 {
 	out.write(section,"max_tree_depth",max_tree_depth,  /* text width */ 30, 30, "Maximum depth of all spanning trees");
 	out.write(section,"max_optimize_depth",max_optimize_depth, /* text width */ 30, 30, "Max. local optimization distance");
@@ -89,7 +89,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::TSRBAParameters::s
 	out.write(section,"max_lambda",max_lambda,  /* text width */ 30, 30, "Lev-Marq optimization: maximum lambda to stop");
 	out.write(section,"max_iters",static_cast<uint64_t>(max_iters),  /* text width */ 30, 30, "Max. iterations for optimization");
 	out.write(section,"max_error_per_obs_to_stop",max_error_per_obs_to_stop,  /* text width */ 30, 30, "Another criterion for stopping optimization");
-	out.write(section,"cov_recovery", mrpt::utils::TEnumType<TCovarianceRecoveryPolicy>::value2name(cov_recovery) ,  /* text width */ 30, 30, "Covariance recovery policy");
+	out.write(section,"cov_recovery", mrpt::typemeta::TEnumType<TCovarianceRecoveryPolicy>::value2name(cov_recovery) ,  /* text width */ 30, 30, "Covariance recovery policy");
 }
 
 
@@ -122,8 +122,8 @@ void TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_a
 template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 bool TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::are_keyframes_connected(const TKeyFrameID id1, const TKeyFrameID id2) const
 {
-	ASSERT_BELOW_(id1, keyframes.size())
-	ASSERT_BELOW_(id2, keyframes.size())
+	ASSERT_BELOW_(id1, keyframes.size());
+	ASSERT_BELOW_(id2, keyframes.size());
 
 	const std::deque<k2k_edge_t*> & id1_adj = keyframes[id1].adjacent_k2k_edges;
 

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <mrpt/utils/TColor.h>
+#include <mrpt/img/TColor.h>
 
 namespace srba {
 

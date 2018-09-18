@@ -24,12 +24,11 @@ template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_representation(
 	const srba::TKeyFrameID root_keyframe,
 	const TOpenGLRepresentationOptions &options,
-	mrpt::opengl::CSetOfObjectsPtr out_scene,
-	mrpt::opengl::CSetOfObjectsPtr out_root_tree
+	mrpt::opengl::CSetOfObjects::Ptr out_scene,
+	mrpt::opengl::CSetOfObjects::Ptr out_root_tree
 	) const
 {
 	using namespace std;
-	using namespace mrpt::utils;
 	using mrpt::poses::CPose3D;
 
 	// Generate 3D scene:
@@ -51,11 +50,11 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 			{
 				if (root_keyframe==itP->first) continue;
 
-				const CPose3D p = itP->second.pose;
+				const CPose3D p = CPose3D(itP->second.pose);
 
 				const bool is_elevated_hiearchical_kf = (options.draw_kf_hierarchical && rba_state.keyframes[itP->first].adjacent_k2k_edges.size()>=2);
 
-				mrpt::opengl::CSetOfObjectsPtr o = mrpt::opengl::stock_objects::CornerXYZSimple(is_elevated_hiearchical_kf ? 3.0 : 0.75, is_elevated_hiearchical_kf ? 4.0 : 2.0);
+				mrpt::opengl::CSetOfObjects::Ptr o = mrpt::opengl::stock_objects::CornerXYZSimple(is_elevated_hiearchical_kf ? 3.0 : 0.75, is_elevated_hiearchical_kf ? 4.0 : 2.0);
 				if (options.draw_kf_hierarchical) {
 					// Hierarchical map:
 					CPose3D p_mod = p;
@@ -72,13 +71,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 			}
 			// And a bigger one for the root:
 			{
-				mrpt::opengl::CSetOfObjectsPtr o = mrpt::opengl::stock_objects::CornerXYZSimple(1.0,4.0);
+				mrpt::opengl::CSetOfObjects::Ptr o = mrpt::opengl::stock_objects::CornerXYZSimple(1.0,4.0);
 				//o->setPose(...);  // At the origin
 				out_scene->insert(o);
 			}
 
 			// Draw all edges between frames:
-			mrpt::opengl::CSetOfLinesPtr gl_edges = mrpt::opengl::CSetOfLines::Create();
+			mrpt::opengl::CSetOfLines::Ptr gl_edges = mrpt::opengl::CSetOfLines::Create();
 			gl_edges->setColor(1,0,1); // Magenta, in order to not confuse them with the standard lines of a grid plane
 			for (typename rba_problem_state_t::k2k_edges_deque_t::const_iterator itEdge = rba_state.k2k_edges.begin();itEdge!=rba_state.k2k_edges.end();++itEdge)
 			{
@@ -88,7 +87,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 					typename frameid2pose_map_t::const_iterator itN1 = spantree.find(itEdge->from);
 					if(itN1==spantree.end())
 						continue;
-					p1 = itN1->second.pose;
+					p1 = CPose3D(itN1->second.pose);
 					if (options.draw_kf_hierarchical && rba_state.keyframes[itEdge->from].adjacent_k2k_edges.size()>=2)
 						p1.z_incr( options.draw_kf_hierarchical_height );
 				}
@@ -98,7 +97,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 					typename frameid2pose_map_t::const_iterator itN2 = spantree.find(itEdge->to);
 					if(itN2==spantree.end())
 						continue;
-					p2 = itN2->second.pose;
+					p2 = CPose3D(itN2->second.pose);
 					if (options.draw_kf_hierarchical && rba_state.keyframes[itEdge->to].adjacent_k2k_edges.size()>=2)
 						p2.z_incr( options.draw_kf_hierarchical_height );
 				}
@@ -125,7 +124,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 		const float COL_WIDTH   = 3*NODE_RADIUS;
 
 		typename rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_st_root = rba_state.spanning_tree.sym.next_edge.find(root_keyframe);
-		ASSERT_(it_st_root != rba_state.spanning_tree.sym.next_edge.end())
+		ASSERT_(it_st_root != rba_state.spanning_tree.sym.next_edge.end());
 
 		const std::map<TKeyFrameID,TSpanTreeEntry> & st_root = it_st_root->second;
 
@@ -143,7 +142,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 		{
 			const topo_dist_t depth = it->second.distance;
 			children_depths[it->first] = depth;
-			mrpt::utils::keep_max(max_depth, depth);
+			mrpt::keep_max(max_depth, depth);
 
 			std::vector<TKeyFrameID> & v = children_by_depth[depth];
 			v.push_back(it->first);
@@ -168,13 +167,13 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::build_opengl_repre
 		}
 
 		// Draw edges in tree:
-		mrpt::opengl::CSetOfLinesPtr gl_edges = mrpt::opengl::CSetOfLines::Create();
+		mrpt::opengl::CSetOfLines::Ptr gl_edges = mrpt::opengl::CSetOfLines::Create();
 		gl_edges->setLineWidth(1.5);
-		gl_edges->setColor_u8(mrpt::utils::TColor(0xff,0xff,0x00));
+		gl_edges->setColor_u8(mrpt::img::TColor(0xff,0xff,0x00));
 		out_root_tree->insert(gl_edges);
 
 		typename rba_problem_state_t::TSpanningTree::all_edges_maps_t::const_iterator it_edges_from_root = rba_state.spanning_tree.sym.all_edges.find(root_keyframe);
-		ASSERT_(it_edges_from_root != rba_state.spanning_tree.sym.all_edges.end())
+		ASSERT_(it_edges_from_root != rba_state.spanning_tree.sym.all_edges.end());
 
 		const std::map<TKeyFrameID, typename rba_problem_state_t::k2k_edge_vector_t> edges_from_root = it_edges_from_root->second;
 
@@ -203,17 +202,17 @@ template <class KF2KF_POSE_TYPE,class LM_TYPE,class OBS_TYPE,class RBA_OPTIONS>
 void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::gl_aux_draw_node(mrpt::opengl::CSetOfObjects &soo, const std::string &label, const float x, const float y) const
 {
 	{
-		mrpt::opengl::CDiskPtr obj = mrpt::opengl::CDisk::Create();
+		mrpt::opengl::CDisk::Ptr obj = mrpt::opengl::CDisk::Create();
 		obj->setDiskRadius(1,0);
-		obj->setColor_u8(mrpt::utils::TColor(0x00,0x00,0x00, 0xa0));
+		obj->setColor_u8(mrpt::img::TColor(0x00,0x00,0x00, 0xa0));
 		obj->setLocation(x,y,0);
 		soo.insert(obj);
 	}
 
 	{
-		mrpt::opengl::CText3DPtr obj = mrpt::opengl::CText3D::Create(label);
+		mrpt::opengl::CText3D::Ptr obj = mrpt::opengl::CText3D::Create(label);
 		obj->setFont("sans");
-		obj->setColor_u8(mrpt::utils::TColor(0xff,0xff,0xff));
+		obj->setColor_u8(mrpt::img::TColor(0xff,0xff,0xff));
 		obj->setScale(0.9);
 		obj->setLocation(x-0.5,y-0.5,0);
 		soo.insert(obj);

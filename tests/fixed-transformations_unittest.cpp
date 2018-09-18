@@ -14,7 +14,6 @@
 
 using namespace srba;
 using namespace mrpt::random;
-using namespace mrpt::utils;
 using namespace std;
 
 // --------------------------------------------------------------------------------

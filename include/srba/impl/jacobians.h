@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <mrpt/math/jacobians.h>
+#include <mrpt/math/num_jacobian.h>
 #include <mrpt/poses/SE_traits.h>
 #include <srba/landmark_jacob_families.h>
 
@@ -104,7 +104,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::numeric_dh_dAp(con
 	{
 		// Changes due to the inverse pose:
 		// D becomes D' = p_d^{d+1} (+) D
-		ASSERT_(params.k2k_edge_id<params.k2k_edges.size())
+		ASSERT_(params.k2k_edge_id<params.k2k_edges.size());
 		const pose_t & p_d_d1 = params.k2k_edges[params.k2k_edge_id].inv_pose;
 
 		pose_t pose_base_wrt_d_prime(mrpt::poses::UNINITIALIZED_POSE);  // D' in papers
@@ -161,7 +161,7 @@ TNumSTData check_num_st_entry_exists(
 			}
 		}
 	}
-	ASSERT_(false)
+	ASSERT_(false);
 }
 
 #endif
@@ -210,7 +210,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_d
 	const k2k_edges_deque_t  &k2k_edges,
 	std::vector<const pose_flag_t*>    *out_list_of_required_num_poses) const
 {
-	ASSERT_(observation.obs.kf_id!=jacob.sym.kf_base)
+	ASSERT_(observation.obs.kf_id!=jacob.sym.kf_base);
 
 	if (! *jacob.sym.is_valid )
 		return; // Another block of the same Jacobian row said this observation was invalid for some reason.
@@ -238,7 +238,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_d
 	{
 		std::cerr << " kf_d+1: " << jacob.sym.kf_d << ", base_id: "<< jacob.sym.kf_base << std::endl;
 		rba_state.spanning_tree.save_as_dot_file("_debug_jacob_error_all_STs.dot");
-		ASSERT_(pose_base_wrt_d1.updated)
+		ASSERT_(pose_base_wrt_d1.updated);
 	}
 
 	if (pose_d1_wrt_obs)
@@ -251,7 +251,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_d
 			std::cerr << " kf_d+1: " << jacob.sym.kf_d << ", obs_frame_id: "<< observation.obs.kf_id << std::endl;
 			rba_state.spanning_tree.save_as_dot_file("_debug_jacob_error_all_STs.dot");
 		}
-		ASSERT_(pose_d1_wrt_obs->updated)
+		ASSERT_(pose_d1_wrt_obs->updated);
 	}
 
 
@@ -432,7 +432,7 @@ struct compute_jacobian_dAepsDx_deps<jacob_point_landmark /* Jacobian family: th
 			// Changes due to the inverse pose:
 			// D becomes D' = p_d^{d+1} (+) D
 
-			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size())
+			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size());
 			const typename RBA_ENGINE_T::pose_t & p_d_d1 = k2k_edges[jacob_sym.k2k_edge_id].inv_pose;
 
 			typename RBA_ENGINE_T::pose_t pose_base_wrt_d1_prime(mrpt::poses::UNINITIALIZED_POSE);
@@ -514,7 +514,7 @@ struct compute_jacobian_dAepsDx_deps_SE2
 		)
 	{
 		MRPT_UNUSED_PARAM(all_obs);
-		MRPT_COMPILE_TIME_ASSERT(POINT_DIMS==2 || POINT_DIMS==3)
+		MRPT_COMPILE_TIME_ASSERT(POINT_DIMS==2 || POINT_DIMS==3);
 
 		if (!is_inverse_edge_jacobian)
 		{	// Normal formulation: unknown is pose "d+1 -> d"
@@ -569,7 +569,7 @@ struct compute_jacobian_dAepsDx_deps_SE2
 			// D becomes D' = p_d^{d+1} (+) D
 			// and A (which is "pose_d1_wrt_obs") becomes A' = A (+) (p_d_d1)^-1
 
-			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size())
+			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size());
 			const typename RBA_ENGINE_T::pose_t & p_d_d1 = k2k_edges[jacob_sym.k2k_edge_id].inv_pose;
 
 			typename RBA_ENGINE_T::pose_t pose_base_wrt_d1_prime(mrpt::poses::UNINITIALIZED_POSE);
@@ -688,7 +688,7 @@ struct compute_jacobian_dAepsDx_deps<jacob_relpose_landmark /* Jacobian family: 
 			// D becomes D' = p_d^{d+1} (+) D
 			// and A (which is "pose_d1_wrt_obs") becomes A' = A (+) (p_d_d1)^-1
 
-			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size())
+			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size());
 			const typename RBA_ENGINE_T::pose_t & p_d_d1 = k2k_edges[jacob_sym.k2k_edge_id].inv_pose;
 
 			typename RBA_ENGINE_T::pose_t pose_base_wrt_d1_prime(mrpt::poses::UNINITIALIZED_POSE);
@@ -798,7 +798,7 @@ struct compute_jacobian_dAepsDx_deps<jacob_relpose_landmark /* Jacobian family: 
 			// D becomes D' = p_d^{d+1} (+) D
 			// and A (which is "pose_d1_wrt_obs") becomes A' = A (+) (p_d_d1)^-1
 
-			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size())
+			ASSERT_(jacob_sym.k2k_edge_id<k2k_edges.size());
 			const typename RBA_ENGINE_T::pose_t & p_d_d1 = k2k_edges[jacob_sym.k2k_edge_id].inv_pose;
 
 			typename RBA_ENGINE_T::pose_t pose_base_wrt_d1_prime(mrpt::poses::UNINITIALIZED_POSE);
@@ -819,7 +819,10 @@ struct compute_jacobian_dAepsDx_deps<jacob_relpose_landmark /* Jacobian family: 
 			base_wrt_obs.composeFrom(A_prime, pose_base_wrt_d1_prime);  // A (+) D
 		}
 
-		const mrpt::math::CMatrixDouble44 & HM_D = D.getHomogeneousMatrixVal(); // [ROT(D) | Trans(D) ]
+		ASSERT_(false);
+		MRPT_TODO("Fix this");
+		//const mrpt::math::CMatrixDouble44 HM_D = D.getHomogeneousMatrixVal(); // [ROT(D) | Trans(D) ]
+		const mrpt::math::CMatrixDouble44 HM_D;
 
 
 		// (1): Common part: d_Ln(R)_dR:
@@ -912,7 +915,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::compute_jacobian_d
 			cout << "not updated ST entry for: from=" << d1.from << ", to=" << d1.to << endl;
 #endif
 			rba_state.spanning_tree.save_as_dot_file("_debug_jacob_error_all_STs.dot");
-			ASSERT_(rel_pose_base_from_obs->updated)
+			ASSERT_(rel_pose_base_from_obs->updated);
 		}
 	}
 
@@ -1065,7 +1068,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::prepare_Jacobians_
 			const k2f_edge_t &k2f =
 			rba_state.all_observations[obs_idx];
 
-			ASSERT_(k2f.feat_rel_pos)
+			ASSERT_(k2f.feat_rel_pos);
 
 			const TKeyFrameID obs_id  = k2f.obs.kf_id;
 			const TKeyFrameID base_id = k2f.feat_rel_pos->id_frame_base;

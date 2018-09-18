@@ -12,7 +12,7 @@
 
 using namespace srba;
 using namespace std;
-using mrpt::utils::DEG2RAD;
+using mrpt:::DEG2RAD;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -132,7 +132,7 @@ int main(int argc, char**argv)
 	// ===========================================
 
 	// Set camera calib:
-	mrpt::utils::TCamera & lc = rba.parameters.sensor.camera_calib.leftCamera;
+	mrpt::img::TCamera & lc = rba.parameters.sensor.camera_calib.leftCamera;
 	lc.ncols = 1024;
 	lc.nrows = 768;
 	lc.cx(512);
@@ -245,7 +245,7 @@ int main(int argc, char**argv)
 	// Show 3D view of the resulting map:
 	// --------------------------------------------------------------------------------
 	my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-	mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+	mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 	rba.build_opengl_representation(
 		0,  // Root KF,

@@ -49,7 +49,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::create_complete_sp
 			continue;
 
 		// Get all connections of this node:
-		ASSERTDEB_(next_kf < rba_state.keyframes.size())
+		ASSERTDEB_(next_kf < rba_state.keyframes.size());
 		const keyframe_info & kfi = rba_state.keyframes[next_kf];
 
 		for (size_t i=0;i<kfi.adjacent_k2k_edges.size();i++)
@@ -100,7 +100,7 @@ void RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::create_complete_sp
 		else
 		{
 			// All leaves:
-			ASSERT_(bfs_data.edge!=NULL)
+			ASSERT_(bfs_data.edge!=NULL);
 
 			// The pose of my parent KF:
 			const pose_t & parent_pose = span_tree[ bfs_data.prev ].pose;

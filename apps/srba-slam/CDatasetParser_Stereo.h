@@ -8,7 +8,7 @@
    +---------------------------------------------------------------------------+ */
 
 #pragma once
-
+#include <mrpt/random/RandomGenerators.h>
 #include "CDatasetParserBase.h"
 
 template <>
@@ -27,7 +27,7 @@ struct CDatasetParserTempl<srba::observations::StereoCamera> : public CDatasetPa
 	virtual void checkObsProperSize() const
 	{
 		// Columns: KeyframeIndex  LandmarkID | px_l.x px_l.y px_r.x px_r.y
-		ASSERT_(m_OBS.getColCount()==(2+4))
+		ASSERT_(m_OBS.cols()==(2+4));
 	}
 
 	void getObs(
@@ -36,10 +36,10 @@ struct CDatasetParserTempl<srba::observations::StereoCamera> : public CDatasetPa
 		) const
 	{
 		o.feat_id = m_OBS(idx,1);
-		o.obs_data.left_px.x  = m_OBS(idx,2) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_px));
-		o.obs_data.left_px.y  = m_OBS(idx,3) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_px));
-		o.obs_data.right_px.x = m_OBS(idx,4) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_px));
-		o.obs_data.right_px.y = m_OBS(idx,5) + (!m_add_noise ? .0 : mrpt::random::randomGenerator.drawGaussian1D(0, m_noise_std_px));
+		o.obs_data.left_px.x  = m_OBS(idx,2) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_px));
+		o.obs_data.left_px.y  = m_OBS(idx,3) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_px));
+		o.obs_data.right_px.x = m_OBS(idx,4) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_px));
+		o.obs_data.right_px.y = m_OBS(idx,5) + (!m_add_noise ? .0 : mrpt::random::getRandomGenerator().drawGaussian1D(0, m_noise_std_px));
 	}
 
 	void loadNoiseParamsInto( srba::options::observation_noise_identity::parameters_t & p )

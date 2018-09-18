@@ -10,13 +10,12 @@
 #pragma once
 
 #include <mrpt/math/CMatrixD.h>
-#include <mrpt/utils/CTextFileLinesParser.h>
-#include <mrpt/utils/CFileGZInputStream.h>
-#include <mrpt/utils/CFileGZOutputStream.h>
-#include <mrpt/utils/CConfigFile.h>
-#include <mrpt/utils/stl_serialization.h>
+#include <mrpt/io/CTextFileLinesParser.h>
+#include <mrpt/io/CFileGZInputStream.h>
+#include <mrpt/io/CFileGZOutputStream.h>
+#include <mrpt/config/CConfigFile.h>
+#include <mrpt/serialization/stl_serialization.h>
 #include <mrpt/system/filesystem.h>
-#include <mrpt/system.h>
 
 // Specializations of this class will also inherit from
 // CDatasetParserBase to build a working dataset parser.
@@ -66,10 +65,10 @@ struct CDatasetParserBase
 		{
 			try
 			{
-				mrpt::utils::CFileGZInputStream f( sFil_OBSbin ); // will throw if file not found
+				mrpt::io::CFileGZInputStream f( sFil_OBSbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of dataset...\n"; cout.flush(); }
-				f >> m_OBS;
+				mrpt::serialization::archiveFrom(f) >> m_OBS;
 
 				obs_cache_found=true;
 			}
@@ -83,14 +82,14 @@ struct CDatasetParserBase
 		if (!obs_cache_found)
 		{
 			// Cache not found: load from text:
-			ASSERT_FILE_EXISTS_(sFil_OBS)
+			ASSERT_FILE_EXISTS_(sFil_OBS);
 
 			if (m_verbose_level>=1) { cout << "Loading dataset file: \n -> "<<sFil_OBS<<" ...\n"; cout.flush();}
 			m_OBS.loadFromTextFile(sFil_OBS);
 
-			ASSERT_ABOVE_(m_OBS.getRowCount(),2)
+			ASSERT_ABOVE_(m_OBS.rows(),2);
 		}
-		const size_t nTotalObs = m_OBS.getRowCount();
+		const size_t nTotalObs = m_OBS.rows();
 		if (m_verbose_level>=1) { cout << "Loaded " << nTotalObs << " observations.\n";}
 
 
@@ -99,9 +98,9 @@ struct CDatasetParserBase
 			// Save cache:
 			try
 			{
-				mrpt::utils::CFileGZOutputStream f( sFil_OBSbin );
+				mrpt::io::CFileGZOutputStream f( sFil_OBSbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of dataset...\n"; cout.flush();}
-				f << m_OBS;
+				mrpt::serialization::archiveFrom(f) << m_OBS;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -131,10 +130,10 @@ struct CDatasetParserBase
 		{
 			try
 			{
-				mrpt::utils::CFileGZInputStream f( sFil_MAPbin ); // will throw if file not found
+				mrpt::io::CFileGZInputStream f( sFil_MAPbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of map...\n"; cout.flush();}
-				f >> m_GT_MAP;
+				mrpt::serialization::archiveFrom(f) >> m_GT_MAP;
 
 				map_cache_found=true;
 			}
@@ -146,13 +145,13 @@ struct CDatasetParserBase
 
 		if (!map_cache_found)
 		{
-			ASSERT_FILE_EXISTS_(sFil_MAP)
+			ASSERT_FILE_EXISTS_(sFil_MAP);
 
 			if (m_verbose_level>=1) { cout << "Loading dataset file: \n -> "<<sFil_MAP<<" ...\n"; cout.flush();}
 			m_GT_MAP.loadFromTextFile(sFil_MAP);
 
-			ASSERT_ABOVE_(m_GT_MAP.getRowCount(),0)
-			ASSERT_(m_GT_MAP.getColCount()==2 || m_GT_MAP.getColCount()==3)
+			ASSERT_ABOVE_(m_GT_MAP.rows(),0);
+			ASSERT_(m_GT_MAP.cols()==2 || m_GT_MAP.cols()==3);
 		}
 		const size_t nTotalLMs = m_GT_MAP.size();
 		if (m_verbose_level>=1) { cout << "Loaded " << nTotalLMs << " landmarks (ground truth map).\n";}
@@ -162,9 +161,9 @@ struct CDatasetParserBase
 			// Save cache:
 			try
 			{
-				mrpt::utils::CFileGZOutputStream f( sFil_MAPbin );
+				mrpt::io::CFileGZOutputStream f( sFil_MAPbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of map...\n"; cout.flush();}
-				f << m_GT_MAP;
+				mrpt::serialization::archiveFrom(f) << m_GT_MAP;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -193,10 +192,13 @@ struct CDatasetParserBase
 		{
 			try
 			{
-				mrpt::utils::CFileGZInputStream f( sFil_PATHbin ); // will throw if file not found
+				mrpt::io::CFileGZInputStream f( sFil_PATHbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of path...\n"; cout.flush();}
-				f >> m_GT_path;
+				ASSERT_(false);
+				// This is broken in MRPT 2.0
+				MRPT_TODO("Fix this");
+				//mrpt::serialization::archiveFrom(f) >> m_GT_path;
 
 				map_cache_found=true;
 			}
@@ -208,9 +210,9 @@ struct CDatasetParserBase
 
 		if (!map_cache_found)
 		{
-			ASSERT_FILE_EXISTS_(sFil_PATH)
+			ASSERT_FILE_EXISTS_(sFil_PATH);
 
-			mrpt::utils::CTextFileLinesParser flp(sFil_PATH);
+			mrpt::io::CTextFileLinesParser flp(sFil_PATH);
 			std::istringstream ss;
 			while (flp.getNextLine(ss))
 			{
@@ -234,9 +236,12 @@ struct CDatasetParserBase
 			// Save cache:
 			try
 			{
-				mrpt::utils::CFileGZOutputStream f( sFil_PATHbin );
+				mrpt::io::CFileGZOutputStream f( sFil_PATHbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of path...\n"; cout.flush();}
-				f << m_GT_path;
+				ASSERT_(false);
+				//This is broken in mrpt 2.0
+				MRPT_TODO("Fix this");
+				//mrpt::serialization::archiveFrom(f) << m_GT_path;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -251,7 +256,7 @@ struct CDatasetParserBase
 	inline bool has_GT_path() const { return m_has_GT_path; }
 
 	inline const mrpt::math::CMatrixD & gt_map() const  { return m_GT_MAP; }
-	inline const mrpt::poses::CPose3DQuat & gt_path(size_t timestep) const {  ASSERT_BELOW_(timestep,m_GT_path.size()) return m_GT_path[timestep]; }
+	inline const mrpt::poses::CPose3DQuat & gt_path(size_t timestep) const {  ASSERT_BELOW_(timestep,m_GT_path.size()); return m_GT_path[timestep]; }
 
 protected:
 	RBASLAM_Params &m_cfg;
@@ -264,7 +269,7 @@ protected:
 
 	mrpt::math::CMatrixD   m_OBS;
 	mrpt::math::CMatrixD   m_GT_MAP;
-	mrpt::aligned_containers<mrpt::poses::CPose3DQuat>::vector_t  m_GT_path;
+	mrpt::aligned_std_vector<mrpt::poses::CPose3DQuat> m_GT_path;
 
 
 };

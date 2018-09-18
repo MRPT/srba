@@ -13,8 +13,8 @@
   * \brief This file exposes the public API and data types of lib-srba (it requires also including srba/models/{*.h} to have a complete SLAM/RBA system)
   */
 
-#include <mrpt/utils/CTimeLogger.h>
-#include <mrpt/utils/CLoadableOptions.h>
+#include <mrpt/system/CTimeLogger.h>
+#include <mrpt/config/CLoadableOptions.h>
 #include <mrpt/opengl/CSetOfObjects.h>
 #include <mrpt/poses/CPose3DQuat.h> // Needed by "CNetworkOfPoses.h" in older mrpt versions
 #include <mrpt/graphs/CNetworkOfPoses.h>
@@ -271,8 +271,8 @@ namespace srba
 		void build_opengl_representation(
 			const srba::TKeyFrameID root_keyframe,
 			const TOpenGLRepresentationOptions &options,
-			mrpt::opengl::CSetOfObjectsPtr out_scene,
-			mrpt::opengl::CSetOfObjectsPtr out_root_tree = mrpt::opengl::CSetOfObjectsPtr()
+			mrpt::opengl::CSetOfObjects::Ptr out_scene,
+			mrpt::opengl::CSetOfObjects::Ptr out_root_tree = mrpt::opengl::CSetOfObjects::Ptr()
 			) const;
 
 		/** Exports all the keyframes (and optionally all landmarks) as a directed graph in DOT (graphviz) format.
@@ -421,14 +421,14 @@ namespace srba
 			@{ */
 
 		/** Different parameters for the SRBA methods */
-		struct TSRBAParameters : public mrpt::utils::CLoadableOptions
+		struct TSRBAParameters : public mrpt::config::CLoadableOptions
 		{
 			TSRBAParameters();
 
 			/** See docs of mrpt::utils::CLoadableOptions */
-			virtual void  loadFromConfigFile(const mrpt::utils::CConfigFileBase & source,const std::string & section);
+			virtual void  loadFromConfigFile(const mrpt::config::CConfigFileBase & source,const std::string & section);
 			/** See docs of mrpt::utils::CLoadableOptions */
-			virtual void  saveToConfigFile(mrpt::utils::CConfigFileBase &out,const std::string & section) const;
+			virtual void  saveToConfigFile(mrpt::config::CConfigFileBase &out,const std::string & section) const;
 
 			/** Maximum depth for maintained spanning trees. */
 			topo_dist_t          max_tree_depth;
@@ -489,7 +489,7 @@ namespace srba
 		rba_problem_state_t       & get_rba_state()       { return rba_state; }
 
 		/** Access to the time profiler */
-		inline mrpt::utils::CTimeLogger & get_time_profiler() { return m_profiler; }
+		inline mrpt::system::CTimeLogger & get_time_profiler() { return m_profiler; }
 
 		/** Changes the verbosity level: 0=None (only critical msgs), 1=verbose, 2=so verbose you'll have to say "Stop!" */
 		inline void setVerbosityLevel(int level) { m_verbose_level = level; }
@@ -625,7 +625,7 @@ namespace srba
 		/** Profiler for all SRBA operations
 		  *  Enabled by default, can be disabled with \a enable_time_profiler(false)
 		  */
-		mutable mrpt::utils::CTimeLogger  m_profiler;
+		mutable mrpt::system::CTimeLogger  m_profiler;
 
 		/** Creates a new known/unknown position landmark (upon first LM observation ), and expands Jacobians with new observation
 		  * \param[in] new_obs The basic data on the observed landmark: landmark ID, keyframe from which it's observed and parameters ("z" vector) of the observation itself (e.g. pixel coordinates).
@@ -809,7 +809,7 @@ namespace srba
 		/** pseudo-huber cost function */
 		static inline double huber_kernel(double delta, const double kernel_param)
 		{
-			return std::abs(2*mrpt::utils::square(kernel_param)*(std::sqrt(1+mrpt::utils::square(delta/kernel_param))-1));
+			return std::abs(2*mrpt::square(kernel_param)*(std::sqrt(1+mrpt::square(delta/kernel_param))-1));
 		}
 
 		MRPT_MAKE_ALIGNED_OPERATOR_NEW  // Required by Eigen containers

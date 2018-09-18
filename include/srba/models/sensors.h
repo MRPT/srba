@@ -56,7 +56,7 @@ namespace srba {
 		{
 			double x,y,z; // wrt cam (local coords)
 			base_pose_wrt_observer.composePoint(lm_pos[0],lm_pos[1],lm_pos[2], x,y,z);
-			ASSERT_(z!=0)
+			ASSERT_(z!=0);
 
 			// Pinhole model:
 			observation_traits<OBS_T>::array_obs_t  pred_obs;  // prediction
@@ -181,16 +181,16 @@ namespace srba {
 		{
 			double lx,ly,lz; // wrt cam (local coords)
 			base_pose_wrt_observer.composePoint(lm_pos[0],lm_pos[1],lm_pos[2], lx,ly,lz);
-			ASSERT_(lz!=0)
+			ASSERT_(lz!=0);
 
 			observation_traits<OBS_T>::array_obs_t  pred_obs;  // prediction
 			// Pinhole model: Left camera.
-			const mrpt::utils::TCamera &lc = params.camera_calib.leftCamera;
+			const mrpt::img::TCamera &lc = params.camera_calib.leftCamera;
 			pred_obs[0] = lc.cx() + lc.fx() * lx/lz;
 			pred_obs[1] = lc.cy() + lc.fy() * ly/lz;
 
 			// Project point relative to right-camera:
-			const mrpt::poses::CPose3DQuat R2L = -params.camera_calib.rightCameraPose; // R2L = (-) Left-to-right_camera_pose
+			const mrpt::poses::CPose3DQuat R2L = -mrpt::poses::CPose3DQuat(params.camera_calib.rightCameraPose); // R2L = (-) Left-to-right_camera_pose
 			
 			// base_wrt_right_cam = ( (-)L2R ) (+) L2Base
 			//mrpt::poses::CPose3DQuat base_wrt_right_cam(mrpt::poses::UNINITIALIZED_POSE);
@@ -201,10 +201,10 @@ namespace srba {
 
 			// xji_l_right = R2L (+) Xji_l
 			R2L.composePoint(lx,ly,lz, rx,ry,rz);
-			ASSERT_(rz!=0)
+			ASSERT_(rz!=0);
 
 			// Pinhole model: Right camera.
-			const mrpt::utils::TCamera &rc = params.camera_calib.rightCamera;
+			const mrpt::img::TCamera &rc = params.camera_calib.rightCamera;
 			pred_obs[2] = rc.cx() + rc.fx() * rx/rz;
 			pred_obs[3] = rc.cy() + rc.fy() * ry/rz;
 			out_obs_err = z_obs - pred_obs;
@@ -256,7 +256,7 @@ namespace srba {
 
 			// Right camera:
 			array_landmark_t   xji_l_right; // xji_l_right = R2L (+) Xji_l
-			const mrpt::poses::CPose3DQuat R2L = -sensor_params.camera_calib.rightCameraPose; // R2L = (-) Left-to-right_camera_pose
+			const mrpt::poses::CPose3DQuat R2L = -mrpt::poses::CPose3DQuat(sensor_params.camera_calib.rightCameraPose); // R2L = (-) Left-to-right_camera_pose
 			R2L.composePoint(
 				xji_l[0],xji_l[1],xji_l[2],
 				xji_l_right[0],xji_l_right[1],xji_l_right[2]);
@@ -306,8 +306,8 @@ namespace srba {
 			const double cxl = params.camera_calib.leftCamera.cx();
 			const double cyl = params.camera_calib.leftCamera.cy();
 			const double disparity = std::max(0.001f, obs.left_px.x - obs.right_px.x);
-			const double baseline  = params.camera_calib.rightCameraPose.x();
-			ASSERT_(baseline!=0)
+			const double baseline  = params.camera_calib.rightCameraPose.x;
+			ASSERT_(baseline!=0);
 			const double Z = fxl*baseline/disparity;
 			out_lm_pos[0] = (obs.left_px.x - cxl)*Z/fxl;
 			out_lm_pos[1] = (obs.left_px.y - cyl)*Z/fyl;

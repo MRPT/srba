@@ -78,7 +78,7 @@ namespace landmarks {
 			double lx,ly,lz;
 			pose.composePoint(pt[0],pt[1],0, lx,ly,lz);
 			pt[0]=lx; pt[1]=ly;
-			ASSERTMSG_(std::abs(lz)<1e-2, "Error: Using a 3D transformation to obtain a 2D point but it results in |z|>eps")
+			ASSERTMSG_(std::abs(lz)<1e-2, "Error: Using a 3D transformation to obtain a 2D point but it results in |z|>eps");
 		}
 		/** Evaluates lm_local = lm_global (-) pose
 		  * \param[in]  lm_global A vector with the landmark parameterization values in "global" coordinates

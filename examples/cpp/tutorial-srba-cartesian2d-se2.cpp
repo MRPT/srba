@@ -132,8 +132,8 @@ int main(int argc, char**argv)
 	for (size_t i=0;i<sizeof(observations_0)/sizeof(observations_0[0]);i++)
 	{
 		obs_field.obs.feat_id = observations_0[i].landmark_id;
-		obs_field.obs.obs_data.pt.x = observations_0[i].x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.y = observations_0[i].y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.x = observations_0[i].x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.y = observations_0[i].y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 
@@ -161,8 +161,8 @@ int main(int argc, char**argv)
 	for (size_t i=0;i<sizeof(observations_10)/sizeof(observations_10[0]);i++)
 	{
 		obs_field.obs.feat_id = observations_10[i].landmark_id;
-		obs_field.obs.obs_data.pt.x = observations_10[i].x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.pt.y = observations_10[i].y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.x = observations_10[i].x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.pt.y = observations_10[i].y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 
@@ -199,7 +199,7 @@ int main(int argc, char**argv)
 	// Show 3D view of the resulting map:
 	// --------------------------------------------------------------------------------
 	my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-	mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+	mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 	rba.build_opengl_representation(
 		0,  // Root KF,
@@ -211,7 +211,7 @@ int main(int argc, char**argv)
 #if MRPT_HAS_WXWIDGETS
 	mrpt::gui::CDisplayWindow3D win("RBA results",640,480);
 	{
-		mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+		mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 		scene->insert(rba_3d);
 		win.unlockAccess3DScene();
 	}

@@ -14,7 +14,7 @@
 using namespace srba;
 using namespace mrpt::random;
 using namespace std;
-using mrpt::utils::DEG2RAD;
+using mrpt::DEG2RAD;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -122,14 +122,14 @@ int main(int argc, char**argv)
 	// ===========================================
 
 	// Set camera calib:
-	mrpt::utils::TCamera & c = rba.parameters.sensor.camera_calib;
+	mrpt::img::TCamera & c = rba.parameters.sensor.camera_calib;
 	c.ncols = 800;
 	c.nrows = 640;
 	c.cx(400);
 	c.cy(320);
 	c.fx(200);
 	c.fy(200);
-	c.dist.setZero();
+	c.dist.fill(0);
 
 	// Sensor pose on the robot parameters:
 	rba.parameters.sensor_pose.relative_pose = mrpt::poses::CPose3D(0,0,0,DEG2RAD(-90),DEG2RAD(0),DEG2RAD(-90) ); // Set camera pointing forwards (camera's +Z is robot +X)
@@ -157,8 +157,8 @@ int main(int argc, char**argv)
 	for (size_t i=0;i<sizeof(dataset0)/sizeof(dataset0[0]);i++)
 	{
 		obs_field.obs.feat_id = dataset0[i].landmark_id;
-		obs_field.obs.obs_data.px.x = dataset0[i].px_x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.px.y = dataset0[i].px_y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.px.x = dataset0[i].px_x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.px.y = dataset0[i].px_y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 
@@ -186,8 +186,8 @@ int main(int argc, char**argv)
 	for (size_t i=0;i<sizeof(dataset1)/sizeof(dataset1[0]);i++)
 	{
 		obs_field.obs.feat_id = dataset1[i].landmark_id;
-		obs_field.obs.obs_data.px.x = dataset1[i].px_x + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
-		obs_field.obs.obs_data.px.y = dataset1[i].px_y + randomGenerator.drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.px.x = dataset1[i].px_x + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
+		obs_field.obs.obs_data.px.y = dataset1[i].px_y + getRandomGenerator().drawGaussian1D(0,SENSOR_NOISE_STD);
 		list_obs.push_back( obs_field );
 	}
 
@@ -220,7 +220,7 @@ int main(int argc, char**argv)
 	// Show 3D view of the resulting map:
 	// --------------------------------------------------------------------------------
 	my_srba_t::TOpenGLRepresentationOptions  opengl_options;
-	mrpt::opengl::CSetOfObjectsPtr rba_3d = mrpt::opengl::CSetOfObjects::Create();
+	mrpt::opengl::CSetOfObjects::Ptr rba_3d = mrpt::opengl::CSetOfObjects::Create();
 
 	rba.build_opengl_representation(
 		0,  // Root KF,
@@ -232,7 +232,7 @@ int main(int argc, char**argv)
 #if MRPT_HAS_WXWIDGETS
 	mrpt::gui::CDisplayWindow3D win("RBA results",640,480);
 	{
-		mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+		mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 		scene->insert(rba_3d);
 		win.unlockAccess3DScene();
 	}

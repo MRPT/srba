@@ -25,7 +25,7 @@ size_t TRBA_Problem_state<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::alloc_k
 	new_edge.from = ids.first;
 	new_edge.to   = ids.second;
 
-	ASSERT_(new_edge.from!=new_edge.to)
+	ASSERT_(new_edge.from!=new_edge.to);
 
 	new_edge.inv_pose = init_inv_pose_val;
 

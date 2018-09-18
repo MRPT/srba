@@ -23,7 +23,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 {
 	m_profiler.enter("add_observation");
 
-	ASSERT_( !( fixed_relative_position!=NULL && unknown_relative_position_init_val!=NULL) ) // Both can't be !=NULL at once.
+	ASSERT_( !( fixed_relative_position!=NULL && unknown_relative_position_init_val!=NULL) ); // Both can't be !=NULL at once.
 
 	const bool is_1st_time_seen = ( new_obs.feat_id>=rba_state.all_lms.size() || rba_state.all_lms[new_obs.feat_id].rfp==NULL );
 
@@ -149,7 +149,7 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 		const bool all_edges_inverse = (from!=observing_kf_id);
 
 		typename rba_problem_state_t::TSpanningTree::all_edges_maps_t::const_iterator it_map = rba_state.spanning_tree.sym.all_edges.find(from);  // Was: observing
-		ASSERTMSG_(it_map != rba_state.spanning_tree.sym.all_edges.end(), mrpt::format("No ST.all_edges found for observing_id=%u, base_id=%u", static_cast<unsigned int>(observing_kf_id), static_cast<unsigned int>(base_id) ) )
+		ASSERTMSG_(it_map != rba_state.spanning_tree.sym.all_edges.end(), mrpt::format("No ST.all_edges found for observing_id=%u, base_id=%u", static_cast<unsigned int>(observing_kf_id), static_cast<unsigned int>(base_id) ) );
 
 		typename std::map<TKeyFrameID, typename rba_problem_state_t::k2k_edge_vector_t >::const_iterator it_obs_ed = it_map->second.find(to);
 		//ASSERTMSG_(it_obs_ed != it_map->second.end(), mrpt::format("No spanning-tree found from KF #%u to KF #%u, base of observation of landmark #%u", static_cast<unsigned int>(observing_kf_id),static_cast<unsigned int>(base_id),static_cast<unsigned int>(new_obs.feat_id) ))
@@ -157,14 +157,14 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 		if (it_obs_ed != it_map->second.end())
 		{
 			const typename rba_problem_state_t::k2k_edge_vector_t & obs_edges = it_obs_ed->second;
-			ASSERT_(!obs_edges.empty())
+			ASSERT_(!obs_edges.empty());
 
 			TKeyFrameID curKF = observing_kf_id; // The backward running index towards "base_id"
 			for (size_t j=0;j<obs_edges.size();j++)
 			{
 				const size_t i = all_edges_inverse ?  (obs_edges.size()-j-1) : j;
 
-				ASSERT_(curKF!=to)
+				ASSERT_(curKF!=to);
 
 				const size_t edge_id = obs_edges[i]->id;
 
@@ -222,9 +222,9 @@ size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::add_observation(
 		// "Remap indices" in dh_df for each column are the feature IDs of those feature with unknown positions.
 		const size_t remapIdx = new_k2f_edge.obs.obs.feat_id;
 
-		const mrpt::utils::map_as_vector<size_t,size_t> &dh_df_remap = rba_state.lin_system.dh_df.getColInverseRemappedIndices();
-		const mrpt::utils::map_as_vector<size_t,size_t>::const_iterator it_idx = dh_df_remap.find(remapIdx);  // O(1) in mrpt::utils::map_as_vector()
-		ASSERT_(it_idx!=dh_df_remap.end())
+		const mrpt::containers::map_as_vector<size_t,size_t> &dh_df_remap = rba_state.lin_system.dh_df.getColInverseRemappedIndices();
+		const mrpt::containers::map_as_vector<size_t,size_t>::const_iterator it_idx = dh_df_remap.find(remapIdx);  // O(1) in mrpt::containers::map_as_vector()
+		ASSERT_(it_idx!=dh_df_remap.end());
 
 		const size_t col_idx = it_idx->second;
 

@@ -47,19 +47,19 @@ namespace observations {
 	{
 		template <class POSE>
 		static bool find_relative_pose(
-			const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & new_kf_obs,
-			const mrpt::aligned_containers<RangeBearing_2D::obs_data_t>::vector_t & old_kf_obs,
+			const mrpt::aligned_std_vector<RangeBearing_2D::obs_data_t> & new_kf_obs,
+			const mrpt::aligned_std_vector<RangeBearing_2D::obs_data_t> & old_kf_obs,
 			const RangeBearing_2D::TObservationParams &params,
 			POSE &pose_new_kf_wrt_old_kf)
 		{
-			ASSERT_(new_kf_obs.size()==old_kf_obs.size())
+			ASSERT_(new_kf_obs.size()==old_kf_obs.size());
 			const size_t N=new_kf_obs.size();
-			mrpt::utils::TMatchingPairList matches;
+			mrpt::tfest::TMatchingPairList matches;
 			matches.reserve(N);
 			for (size_t i=0;i<N;i++)
-				matches.push_back( mrpt::utils::TMatchingPair(i,i, 
+				matches.emplace_back(i,i, 
 					old_kf_obs[i].range * cos(old_kf_obs[i].yaw),old_kf_obs[i].range * sin(old_kf_obs[i].yaw),0,  
-					new_kf_obs[i].range * cos(new_kf_obs[i].yaw),new_kf_obs[i].range * sin(new_kf_obs[i].yaw),0 ) );
+					new_kf_obs[i].range * cos(new_kf_obs[i].yaw),new_kf_obs[i].range * sin(new_kf_obs[i].yaw),0 );
 			// Least-square optimal transformation:
 			if (POSE::rotation_dimensions==2)
 			{ // SE(2)
@@ -74,7 +74,9 @@ namespace observations {
 				double found_scale;
 				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
 					return false;
-				pose_new_kf_wrt_old_kf = POSE(found_pose);
+				ASSERT_(false);
+				MRPT_TODO("Fix this");
+				//pose_new_kf_wrt_old_kf = POSE(found_pose);
 			}
 			return true;
 		}

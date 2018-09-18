@@ -22,7 +22,7 @@ template <class SPARSEBLOCKHESSIAN>
 size_t RbaEngine<KF2KF_POSE_TYPE,LM_TYPE,OBS_TYPE,RBA_OPTIONS>::sparse_hessian_update_numeric( SPARSEBLOCKHESSIAN & H ) const
 {
 	size_t nInvalid = 0;
-	const size_t nUnknowns = H.getColCount();
+	const size_t nUnknowns = H.cols();
 	for (size_t i=0;i<nUnknowns;i++)
 	{
 		typename SPARSEBLOCKHESSIAN::col_t & col = H.getCol(i);
