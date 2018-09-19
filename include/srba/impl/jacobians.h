@@ -11,6 +11,7 @@
 
 #include <mrpt/math/num_jacobian.h>
 #include <mrpt/poses/SE_traits.h>
+#include <mrpt/math/eigen_frwds.h>
 #include <srba/landmark_jacob_families.h>
 
 namespace srba {
@@ -818,12 +819,7 @@ struct compute_jacobian_dAepsDx_deps<jacob_relpose_landmark /* Jacobian family: 
 
 			base_wrt_obs.composeFrom(A_prime, pose_base_wrt_d1_prime);  // A (+) D
 		}
-
-		ASSERT_(false);
-		MRPT_TODO("Fix this");
-		//const mrpt::math::CMatrixDouble44 HM_D = D.getHomogeneousMatrixVal(); // [ROT(D) | Trans(D) ]
-		const mrpt::math::CMatrixDouble44 HM_D;
-
+		const auto HM_D =  D.template getHomogeneousMatrixVal<mrpt::math::CMatrixDouble44>(); // [ROT(D) | Trans(D) ]
 
 		// (1): Common part: d_Ln(R)_dR:
 		//
