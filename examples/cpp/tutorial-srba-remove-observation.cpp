@@ -202,7 +202,7 @@ int main(int argc, char**argv)
 			);
 
 		{
-			mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+			mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 			scene->clear();
 			scene->insert(rba_3d);
 			win.unlockAccess3DScene();

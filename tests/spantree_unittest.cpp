@@ -106,7 +106,7 @@ void test_spantree_topology(
 			}
 			break;
 
-			default: ASSERT_(false)
+			default: ASSERT_(false);
 		};
 
 		// Create:
@@ -132,7 +132,7 @@ void test_spantree_topology(
 
 		// Check if number of reachable KFs matches:
 		my_srba_t::rba_problem_state_t::TSpanningTree::next_edge_maps_t::const_iterator it_st_it = kf_nexts.find(kf);
-		ASSERT_(it_st_it != kf_nexts.end())
+		ASSERT_(it_st_it != kf_nexts.end());
 
 		const std::map<TKeyFrameID,TSpanTreeEntry> & st_i = it_st_it->second;
 
@@ -152,7 +152,7 @@ void test_spantree_topology(
 
 		// Get the numeric ST of this KF:
 		kf2kf_pose_traits<my_srba_t::kf2kf_pose_t>::TRelativePosesForEachTarget::const_iterator it_num_st_i = rba.get_rba_state().spanning_tree.num.find(kf);
-		ASSERT_(it_num_st_i != rba.get_rba_state().spanning_tree.num.end())
+		ASSERT_(it_num_st_i != rba.get_rba_state().spanning_tree.num.end());
 
 		const my_srba_t::frameid2pose_map_t & num_st_i = it_num_st_i->second;
 
@@ -201,7 +201,7 @@ void test_spantree_topology(
 			const mrpt::poses::CPose3D &rel_pose_complete_st = it->second.pose;
 
 			my_srba_t::frameid2pose_map_t::const_iterator it_num_st_i_j = num_st_i.find(dst_kf);
-			ASSERT_(it_num_st_i_j != num_st_i.end())
+			ASSERT_(it_num_st_i_j != num_st_i.end());
 
 			const mrpt::poses::CPose3D &rel_pose_incr_st = it_num_st_i_j->second.pose;
 

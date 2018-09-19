@@ -92,9 +92,9 @@ TEST(MiniProblems,SubmapsEdgesInitValues)
 	{
 		Eigen::Matrix3d ObsL;
 		ObsL.setZero();
-		ObsL(0,0) = 1/square(STD_NOISE_XY); // x
-		ObsL(1,1) = 1/square(STD_NOISE_XY); // y
-		ObsL(2,2) = 1/square(STD_NOISE_YAW); // phi
+		ObsL(0,0) = 1/mrpt::square(STD_NOISE_XY); // x
+		ObsL(1,1) = 1/mrpt::square(STD_NOISE_XY); // y
+		ObsL(2,2) = 1/mrpt::square(STD_NOISE_YAW); // phi
 
 		// Set:
 		rba.parameters.obs_noise.lambda = ObsL;

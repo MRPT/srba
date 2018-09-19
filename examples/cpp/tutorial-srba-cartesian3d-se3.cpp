@@ -221,7 +221,7 @@ int main(int argc, char**argv)
 #if MRPT_HAS_WXWIDGETS
 	mrpt::gui::CDisplayWindow3D win("RBA results",640,480);
 	{
-		mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+		mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 		scene->insert(rba_3d);
 		win.unlockAccess3DScene();
 	}

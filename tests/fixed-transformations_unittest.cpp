@@ -14,6 +14,7 @@
 
 using namespace srba;
 using namespace mrpt::random;
+using namespace mrpt;
 using namespace std;
 
 // --------------------------------------------------------------------------------
@@ -123,7 +124,7 @@ void run_test(const mrpt::poses::CPose3D &incr)
 	if (INVERSE_INCR)
 		estIncr.inverse();
 
-	EXPECT_NEAR( (incr.getHomogeneousMatrixVal()-estIncr.getHomogeneousMatrixVal()).array().abs().sum(),0, 1e-3)
+	EXPECT_NEAR( (incr.getHomogeneousMatrixVal<mrpt::math::CMatrixDouble44>()-estIncr.getHomogeneousMatrixVal<mrpt::math::CMatrixDouble44>()).array().abs().sum(),0, 1e-3)
 		<< "=> Ground truth: " << incr << " Inverse: " << (INVERSE_INCR ? "YES":"NO") << endl
 		<< "=> inv_pose of KF-to-KF edge #0 (relative pose of KF#0 wrt KF#1):\n" << estIncr << endl
 		<< "=> Optimization error: " << new_kf_info.optimize_results.total_sqr_error_init << " -> " << new_kf_info.optimize_results.total_sqr_error_final << endl;

@@ -12,7 +12,7 @@
 
 using namespace srba;
 using namespace std;
-using mrpt:::DEG2RAD;
+using mrpt::DEG2RAD;
 
 struct RBA_OPTIONS : public RBA_OPTIONS_DEFAULT
 {
@@ -139,7 +139,7 @@ int main(int argc, char**argv)
 	lc.cy(384);
 	lc.fx(200);
 	lc.fy(150);
-	lc.dist.setZero();
+	lc.dist.fill(0);
 	rba.parameters.sensor.camera_calib.rightCamera = lc;
 	rba.parameters.sensor.camera_calib.rightCameraPose.fromString("[0.2 0 0  1 0 0 0]");  // [X Y Z qr qx qy qz]
 
@@ -257,7 +257,7 @@ int main(int argc, char**argv)
 #if MRPT_HAS_WXWIDGETS
 	mrpt::gui::CDisplayWindow3D win("RBA results",640,480);
 	{
-		mrpt::opengl::COpenGLScenePtr &scene = win.get3DSceneAndLock();
+		mrpt::opengl::COpenGLScene::Ptr &scene = win.get3DSceneAndLock();
 		scene->insert(rba_3d);
 		win.unlockAccess3DScene();
 	}
