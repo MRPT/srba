@@ -71,9 +71,7 @@ namespace observations {
 				double found_scale;
 				if (!mrpt::tfest::se3_l2(matches,found_pose,found_scale))
 					return false;
-				ASSERT_(false);
-				MRPT_TODO("Fix this");
-				//pose_new_kf_wrt_old_kf = POSE(found_pose);
+				pose_new_kf_wrt_old_kf = POSE(mrpt::poses::CPose3D(found_pose));
 			}
 			return true;
 		}
