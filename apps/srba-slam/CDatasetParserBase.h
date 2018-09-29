@@ -195,10 +195,7 @@ struct CDatasetParserBase
 				mrpt::io::CFileGZInputStream f( sFil_PATHbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of path...\n"; cout.flush();}
-				ASSERT_(false);
-				// This is broken in MRPT 2.0
-				MRPT_TODO("Fix this");
-				//mrpt::serialization::archiveFrom(f) >> m_GT_path;
+				mrpt::serialization::archiveFrom(f) >> m_GT_path;
 
 				map_cache_found=true;
 			}
@@ -238,10 +235,7 @@ struct CDatasetParserBase
 			{
 				mrpt::io::CFileGZOutputStream f( sFil_PATHbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of path...\n"; cout.flush();}
-				ASSERT_(false);
-				//This is broken in mrpt 2.0
-				MRPT_TODO("Fix this");
-				//mrpt::serialization::archiveFrom(f) << m_GT_path;
+				mrpt::serialization::archiveFrom(f) << m_GT_path;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
