@@ -50,6 +50,10 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
 endif()
 
+if (MSVC)
+	add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
+endif()
+
 # =====================================
 #  2. Install, config files, etc.
 # =====================================

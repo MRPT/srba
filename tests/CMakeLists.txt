@@ -19,13 +19,13 @@ SET(EXECUTABLE_OUTPUT_PATH "${${PROJECT_NAME}_BINARY_DIR}")
 
 # Tests based on Google gtest:
 # -----------------------------
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/gtest-1.7.0-fused/fused-src/")
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/gtest-1.8.0/include/")
 
 file(GLOB TEST_CPP_FILES "*.cpp")
 
 SET(lstfiles
 	${TEST_CPP_FILES}
-	"${PROJECT_SOURCE_DIR}/gtest-1.7.0-fused/fused-src/gtest/gtest-all.cc"
+	"${PROJECT_SOURCE_DIR}/gtest-1.8.0/gtest-all.cc"
 )
 
 # Test project:
