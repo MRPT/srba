@@ -14,6 +14,7 @@
 #include <mrpt/io/CFileGZInputStream.h>
 #include <mrpt/io/CFileGZOutputStream.h>
 #include <mrpt/config/CConfigFile.h>
+#include <mrpt/serialization/CArchive.h>
 #include <mrpt/serialization/stl_serialization.h>
 #include <mrpt/system/filesystem.h>
 
@@ -68,7 +69,8 @@ struct CDatasetParserBase
 				mrpt::io::CFileGZInputStream f( sFil_OBSbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of dataset...\n"; cout.flush(); }
-				mrpt::serialization::archiveFrom(f) >> m_OBS;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch >> m_OBS;
 
 				obs_cache_found=true;
 			}
@@ -100,7 +102,8 @@ struct CDatasetParserBase
 			{
 				mrpt::io::CFileGZOutputStream f( sFil_OBSbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of dataset...\n"; cout.flush();}
-				mrpt::serialization::archiveFrom(f) << m_OBS;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch << m_OBS;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -133,7 +136,8 @@ struct CDatasetParserBase
 				mrpt::io::CFileGZInputStream f( sFil_MAPbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of map...\n"; cout.flush();}
-				mrpt::serialization::archiveFrom(f) >> m_GT_MAP;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch >> m_GT_MAP;
 
 				map_cache_found=true;
 			}
@@ -163,7 +167,8 @@ struct CDatasetParserBase
 			{
 				mrpt::io::CFileGZOutputStream f( sFil_MAPbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of map...\n"; cout.flush();}
-				mrpt::serialization::archiveFrom(f) << m_GT_MAP;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch << m_GT_MAP;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -195,7 +200,8 @@ struct CDatasetParserBase
 				mrpt::io::CFileGZInputStream f( sFil_PATHbin ); // will throw if file not found
 
 				if (m_verbose_level>=1) { cout << "Loading binary cache version of path...\n"; cout.flush();}
-				mrpt::serialization::archiveFrom(f) >> m_GT_path;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch >> m_GT_path;
 
 				map_cache_found=true;
 			}
@@ -235,7 +241,8 @@ struct CDatasetParserBase
 			{
 				mrpt::io::CFileGZOutputStream f( sFil_PATHbin );
 				if (m_verbose_level>=1) { cout << "Saving binary cache version of path...\n"; cout.flush();}
-				mrpt::serialization::archiveFrom(f) << m_GT_path;
+				auto arch = mrpt::serialization::archiveFrom(f);
+				arch << m_GT_path;
 				if (m_verbose_level>=1) { cout << "done.\n"; cout.flush();}
 			}
 			catch(std::exception &)
@@ -265,6 +272,4 @@ protected:
 	mrpt::math::CMatrixD   m_GT_MAP;
 	mrpt::aligned_std_vector<mrpt::poses::CPose3DQuat> m_GT_path;
 
-
 };
-
